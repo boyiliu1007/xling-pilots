@@ -1,0 +1,86 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "dtype": "bfloat16",
+  "backend": "HF transformers forward pass (right padding, last real token)",
+  "chat_template": "Qwen3 apply_chat_template(enable_thinking=False, add_generation_prompt=True)",
+  "instruction": "Answer with only the letter of the correct option (A, B, C, or D).",
+  "teacher_line": "The following English text is a translation of the same question and options:",
+  "dataset": "CohereLabs/Global-MMLU",
+  "assistant_prefill": "The correct answer is: **",
+  "letter_token_ids": {
+    "A": [
+      [
+        32,
+        "A"
+      ],
+      [
+        362,
+        " A"
+      ]
+    ],
+    "B": [
+      [
+        33,
+        "B"
+      ],
+      [
+        425,
+        " B"
+      ]
+    ],
+    "C": [
+      [
+        34,
+        "C"
+      ],
+      [
+        356,
+        " C"
+      ]
+    ],
+    "D": [
+      [
+        35,
+        "D"
+      ],
+      [
+        422,
+        " D"
+      ]
+    ]
+  },
+  "versions": {
+    "python": "3.11.17",
+    "torch": "2.14.0+cu130",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "numpy": "2.3.5"
+  },
+  "args": {
+    "langs": [
+      "sw",
+      "yo",
+      "hi"
+    ],
+    "n_items": 500,
+    "seed": 42,
+    "output_dir": "pilot_c_out",
+    "token_budget": 24000,
+    "prefill": "The correct answer is: **",
+    "inspect_only": false,
+    "report_only": false
+  },
+  "argv": [
+    "pilot_c.py"
+  ],
+  "hostname": "babel-w9-20",
+  "runtime": {
+    "start": "2026-11-03T14:03:41",
+    "end": "2026-11-03T14:07:57",
+    "wall_clock_s (model load + scoring)": 254.7,
+    "scoring_s": 234.7,
+    "prompts_scored": 14000,
+    "torch_peak_allocated_MiB": 7409,
+    "peak_gpu_mem_used_MiB (nvidia-smi poll, whole GPU)": 8612
+  }
+}

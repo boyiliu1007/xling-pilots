@@ -1,0 +1,79 @@
+PILOT R2 — gold COPSD on AfriMGSM Swahili, NON-THINKING mode (Qwen3-1.7B, 1x A6000)
+generated 2026-11-03T23:11:11
+
+## Setup and deviations
+  - 1 GPU instead of 4: micro-batch 4 x grad-accum 8 = 32 prompts/step (official 4 GPUs x 4 x 2 = 32). Same per-micro-batch loss normalisation.
+  - Backward is done one sample at a time inside each micro-batch, with the micro-batch padding layout and the micro-batch token count as denominator: identical loss/gradient to the official micro-batch of 4, lower peak memory.
+  - Completions are not right-padded to 2048 before the forward pass (official pads every completion to max_completion_length); pads are masked and causal, so the loss is unchanged.
+  - Steps: 60 = min(official 100, 60). LR schedule kept on the official 100-step linear horizon, so steps 1-60 see the same LR as the official run.
+  - Checkpoints every 10 steps (official save_steps 5); DEV evaluation at steps 10..60 (official evaluates 5..50).
+  - Own implementation of the OPSD training loop (official: TRL 0.26 GOLD/SFTTrainer + accelerate + DeepSpeed + vLLM 0.11 colocate). Collator, prompts, think prefix and generalized_jsd_loss are imported/copied from the official repo.
+  - Generation: all 32 prompts of a step in one vLLM call (official: one call per micro-batch, same weights since no optimizer step in between).
+  - Student weights reach vLLM as a LoRA adapter (vLLM LoRA, saved after every optimizer step) instead of merge_adapter + load_weights; numerically equivalent up to bf16 rounding.
+  - Data order: per-epoch torch.randperm(seed 42+epoch), micro-batches of 4, optimizer step every 8 micro-batches or at epoch end (HF-like); not the identical sample order of the official run.
+  - Attention: PyTorch SDPA (official: flash_attention_2). Same right-padded prompt layout with masked pads.
+  - Software: torch 2.14 / transformers 5.20 / vLLM 0.33 / peft 0.21 (official pins torch 2.8 / transformers 4.57.1 / vLLM 0.11 / peft 0.17.1).
+  - Training data field mapping: problem_translated -> problem_swa (released HF data vs official script's expected column).
+  - Divergence: official flags give beta=0 => F.kl_div(student_logp, teacher_logp) = KL(teacher || student), i.e. FORWARD KL over the full vocabulary (temperature 1.1 applied to both logits, per-(token,vocab) clip at 0.05). The task description said reverse KL; we follow the code.
+  - Evaluation sampling uses vLLM seed 42 (official: unseeded) and max_model_len 4096 (official 40960; generations are capped at 1024 new tokens anyway).
+  - R2: thinking OFF for training rollouts (official collator student_enable_thinking=False branch: empty think block) and evaluation.
+  - R2: the Swahili-reasoning request moves from the think prefix into the user prompt, using COPSD's own Swahili 'teacher_final_instruction' text ("...fikiri hatua kwa hatua kwa Kiswahili...") for student training prompts and evaluation.
+  - R2: teacher also gets the non-thinking assistant prefix (official collator would give the teacher '<think>' + think prefix even for a non-thinking student); chosen so the teacher scores the completion in the mode it was generated in.
+  - R2: evaluation uses the Qwen3 chat template with enable_thinking=False (empty think block), n=12, T=0.7, top_p 0.8, top_k 20, max_new_tokens 2048 (COPSD's own non-thinking eval prompt ends at '<|im_start|>assistant\n' without the empty think block).
+  - R2: same split, data, seed, LoRA/optimizer settings and 60 steps as Pilot R; only base and the DEV-selected checkpoint are run on TEST.
+  split: random.Random(42).shuffle(range(250)); DEV = first 50, TEST = rest; sorted  (DEV 50, TEST 200)
+  eval protocol (R2): Qwen3 chat template enable_thinking=False (empty think block), user prompt = question + COPSD Swahili instruction 'Tafadhali fikiri hatua kwa hatua kwa Kiswahili, na uweke jibu lako la mwisho ndani ya \boxed{}.'; n=12, T=0.7, top_p 0.8, top_k 20, max_new_tokens 2048; COPSD extract_boxed_answer + grade_answer (math-verify); maj@12 = COPSD Counter vote
+
+## Loss-sign check (before training)
+  PilotR_thinking_step60: {"setting": "PilotR_thinking_step60", "variant": "r", "adapter": "/data/user_data/boyil2/pilot_r_ckpt/step-60/adapter", "n_samples": 8, "n_tokens": 11154, "unclipped_per_token": {"min": -1.1417467504770684e-07, "mean": 0.21617566049098969, "max": 8.660662651062012, "frac_negative(<-1e-4)": 0.0}, "clipped_per_token": {"min": -0.31693851947784424, "mean": -0.02202490344643593, "max": 5.033283233642578, "frac_negative(<-1e-4)": 0.44432491064071655}, "loss_unclipped (official batchmean)": 0.21617566049098969, "loss_clipped (official batchmean)": -0.02202490344643593}
+  R2_nonthinking_base_step0: {"setting": "R2_nonthinking_base_step0", "variant": "r2", "adapter": "none (LoRA B=0 -> student = base)", "n_samples": 8, "n_tokens": 7383, "unclipped_per_token": {"min": -1.650435876854317e-07, "mean": 0.13355675339698792, "max": 14.297431945800781, "frac_negative(<-1e-4)": 0.0}, "clipped_per_token": {"min": -0.3062988519668579, "mean": 0.01060791127383709, "max": 2.290710926055908, "frac_negative(<-1e-4)": 0.08235134929418564}, "loss_unclipped (official batchmean)": 0.13355675339698792, "loss_clipped (official batchmean)": 0.01060791127383709}
+  language heuristic: generated text with LaTeX/$..$/boxed removed; count Swahili vs English function words from fixed lists; 'sw' if Swahili count > English count (ties/none -> not sw)
+
+## Training
+  steps logged: 60; seconds/step mean 51.6 (min 38.5, max 58.7); total step time 0.86 h; peak torch alloc 14339 MiB; peak GPU used (incl. vLLM 0.4 share) 41900 MiB
+  step  loss      grad_norm  mean_len  trunc  boxed
+     1  0.01517  0.2932       904   0.06   0.94
+     2  0.01148  0.2510      1024   0.19   0.81
+     3  0.01186  0.2409      1004   0.12   0.84
+     5  0.01539  0.2820       820   0.06   0.91
+    10  0.00417  0.1002      1069   0.16   0.84
+    15  0.00189  0.0910      1092   0.16   0.84
+    20  -0.00048  0.0838      1035   0.12   0.91
+    25  -0.00211  0.0620      1230   0.19   0.84
+    30  -0.00245  0.0598      1380   0.28   0.81
+    35  -0.00591  0.0658      1394   0.19   0.84
+    40  -0.00799  0.0598      1369   0.25   0.78
+    45  -0.00715  0.0588      1198   0.09   0.91
+    50  -0.01055  0.0603      1418   0.22   0.88
+    55  -0.01047  0.0598      1477   0.09   0.94
+    60  -0.01218  0.0636      1347   0.12   0.91
+
+## DEV curve (50 items; used only for checkpoint selection)
+  model    pass@12        maj@12   mean_acc  format  trunc  sw-lang
+  base     18/50 = 0.360 [0.241, 0.499] 0.140   0.077    0.713   0.290  0.620
+  step10   11/50 = 0.220 [0.128, 0.352] 0.100   0.062    0.730   0.277  0.408
+  step20   12/50 = 0.240 [0.143, 0.374] 0.060   0.055    0.605   0.400  0.475
+  step30   13/50 = 0.260 [0.159, 0.396] 0.080   0.062    0.608   0.395  0.460
+  step40   17/50 = 0.340 [0.224, 0.478] 0.100   0.057    0.663   0.348  0.407
+  step50   9/50 = 0.180 [0.098, 0.308] 0.100   0.045    0.695   0.313  0.338
+  step60   18/50 = 0.360 [0.241, 0.499] 0.040   0.062    0.655   0.357  0.332
+  SELECTED (highest DEV pass@12, ties -> earlier step): step60
+
+## TEST (200 items): base vs selected checkpoint
+  base     pass@12 48/200 = 0.240 [0.186, 0.304]  maj@12 21/200 = 0.105 [0.070, 0.155]  mean_acc 0.066  format 0.750  trunc 0.249  sw-lang 0.532
+  step60   pass@12 46/200 = 0.230 [0.177, 0.293]  maj@12 20/200 = 0.100 [0.066, 0.149]  mean_acc 0.055  format 0.732  trunc 0.281  sw-lang 0.268
+  Δ pass@12   = -1.00 pts  [-6.50, +4.50]  (paired bootstrap, 10,000 resamples)
+  Δ mean_acc  = -1.12 pts  [-2.96, +0.67]
+  Δ format    = -1.87 pts  [-5.79, +2.04]   (next to Δ accuracy: do gains track format?)
+  pass@12 discordant items: gained 14, lost 16
+  base     accuracy among formatted samples: 158/1801 = 0.088 [0.076, 0.102]
+  step60   accuracy among formatted samples: 131/1756 = 0.075 [0.063, 0.088]
+  Δ accuracy among formatted samples = -1.31 pts
+  rule parts: Δpass@12 >= 3 pts: False; CI excludes 0: False; formatted-accuracy drop <= 3 pts: True
+
+## ORACLE (best checkpoint on TEST; NOT used for the decision)
+  step60   TEST pass@12 0.230  mean_acc 0.055  format 0.732
+  ORACLE = step60 (TEST pass@12 0.230)
+
+## Pre-registered decision (R2): GO iff TEST Δpass@12 >= +3 pts AND its 95% bootstrap CI excludes 0 AND accuracy among formatted samples does not drop by more than 3 pts
+  => NO-GO

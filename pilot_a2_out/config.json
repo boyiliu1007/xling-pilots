@@ -1,0 +1,119 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "dtype": "bfloat16",
+  "gpu_memory_utilization": 0.9,
+  "prompt_template": "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+  "seed": 42,
+  "n": 8,
+  "versions": {
+    "python": "3.11.17",
+    "torch": "2.14.0+cu130",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "math_verify": "0.9.0 (pip)"
+  },
+  "args": {
+    "n": 8,
+    "limit": null,
+    "seed": 42,
+    "output_dir": "pilot_a2_out",
+    "inspect_only": false,
+    "report_only": false,
+    "runs": [
+      "R3_copsd_en_thinking",
+      "L_copsd_swa",
+      "L_copsd_yor"
+    ]
+  },
+  "argv": [
+    "pilot_a2.py",
+    "--runs",
+    "R3_copsd_en_thinking",
+    "L_copsd_swa",
+    "L_copsd_yor"
+  ],
+  "hostname": "babel-w9-20",
+  "env": {
+    "VLLM_USE_FLASHINFER_SAMPLER": "0"
+  },
+  "runs": {
+    "R1_copsd_en": {
+      "generation_s": 909.3,
+      "generated_tokens": 4406414,
+      "items": 500,
+      "host": "babel-w9-20",
+      "slurm_job_id": "11037482",
+      "note": "backfilled from a2_full.log"
+    },
+    "R2_gsm8k_en": {
+      "generation_s": 153.1,
+      "generated_tokens": 1167406,
+      "items": 500,
+      "host": "babel-w9-20",
+      "slurm_job_id": "11037482",
+      "note": "backfilled from a2_full.log"
+    },
+    "R3_copsd_en_thinking": {
+      "items": 100,
+      "generation_s": 1270.0,
+      "generated_tokens": 3014336,
+      "sampling": {
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "max_tokens": 4096,
+      "thinking": true,
+      "mode": "math",
+      "finished": "2026-11-03T15:42:40",
+      "host": "babel-w9-20",
+      "slurm_job_id": "11038261"
+    },
+    "L_copsd_swa": {
+      "items": 500,
+      "generation_s": 804.5,
+      "generated_tokens": 3911970,
+      "sampling": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20
+      },
+      "max_tokens": 2048,
+      "thinking": false,
+      "mode": "math",
+      "finished": "2026-11-03T16:00:52",
+      "host": "babel-w9-20",
+      "slurm_job_id": "11038261"
+    },
+    "L_copsd_yor": {
+      "items": 500,
+      "generation_s": 800.6,
+      "generated_tokens": 3888068,
+      "sampling": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20
+      },
+      "max_tokens": 2048,
+      "thinking": false,
+      "mode": "math",
+      "finished": "2026-11-03T16:19:32",
+      "host": "babel-w9-20",
+      "slurm_job_id": "11038261"
+    }
+  },
+  "runtime": {
+    "start": "2026-11-03T15:20:47",
+    "end": "2026-11-03T16:19:33",
+    "wall_clock_s (model load + all runs)": 3526.1,
+    "gpu_generation_s per run": {
+      "R1_copsd_en": 909.3,
+      "R2_gsm8k_en": 153.1,
+      "R3_copsd_en_thinking": 1270.0,
+      "L_copsd_swa": 804.5,
+      "L_copsd_yor": 800.6
+    },
+    "peak_gpu_mem_used_MiB (nvidia-smi poll, incl. vLLM KV reservation)": 44444
+  }
+}

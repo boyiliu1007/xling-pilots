@@ -1,0 +1,66 @@
+{
+  "R1_copsd_en": {
+    "generation_s": 909.3,
+    "generated_tokens": 4406414,
+    "items": 500,
+    "host": "babel-w9-20",
+    "slurm_job_id": "11037482",
+    "note": "backfilled from a2_full.log"
+  },
+  "R2_gsm8k_en": {
+    "generation_s": 153.1,
+    "generated_tokens": 1167406,
+    "items": 500,
+    "host": "babel-w9-20",
+    "slurm_job_id": "11037482",
+    "note": "backfilled from a2_full.log"
+  },
+  "R3_copsd_en_thinking": {
+    "items": 100,
+    "generation_s": 1270.0,
+    "generated_tokens": 3014336,
+    "sampling": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "top_k": 20
+    },
+    "max_tokens": 4096,
+    "thinking": true,
+    "mode": "math",
+    "finished": "2026-11-03T15:42:40",
+    "host": "babel-w9-20",
+    "slurm_job_id": "11038261"
+  },
+  "L_copsd_swa": {
+    "items": 500,
+    "generation_s": 804.5,
+    "generated_tokens": 3911970,
+    "sampling": {
+      "temperature": 0.7,
+      "top_p": 0.8,
+      "top_k": 20
+    },
+    "max_tokens": 2048,
+    "thinking": false,
+    "mode": "math",
+    "finished": "2026-11-03T16:00:52",
+    "host": "babel-w9-20",
+    "slurm_job_id": "11038261"
+  },
+  "L_copsd_yor": {
+    "items": 500,
+    "generation_s": 800.6,
+    "generated_tokens": 3888068,
+    "sampling": {
+      "temperature": 0.7,
+      "top_p": 0.8,
+      "top_k": 20
+    },
+    "max_tokens": 2048,
+    "thinking": false,
+    "mode": "math",
+    "finished": "2026-11-03T16:19:32",
+    "host": "babel-w9-20",
+    "slurm_job_id": "11038261"
+  }
+}

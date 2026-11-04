@@ -1,0 +1,166 @@
+2026-11-03 23:35:18,673 INFO === pilot_r3 config argv ['pilot_r.py', 'config', '--variant', 'r3'] host babel-w9-16 job 11041124
+2026-11-03 23:35:23,161 INFO === pilot_r3 eval argv ['pilot_r.py', 'eval', '--variant', 'r3', '--names', 'base', '--split', 'dev'] host babel-w9-16 job 11041124
+2026-11-03 23:35:54,189 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 23:35:54,190 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 23:35:54,196 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-03 23:35:54,219 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 23:35:54,288 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 23:35:54,350 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-03 23:35:54,377 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 23:35:54,430 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-03 23:35:54,456 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:35:54,479 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 23:35:54,516 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:35:55,022 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 23:35:55,022 INFO nvidia-smi at start:
+Tue Nov  3 23:35:54 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 30%   33C    P8             31W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 23:35:55,049 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 23:35:55,090 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 23:35:55,119 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:35:55,904 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 23:38:29,212 INFO eval config: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}; max_model_len 6144
+2026-11-03 23:38:29,216 INFO eval prompt example:
+<|im_start|>user
+James anaamua kukimbia mbio 3 fupi mara 3 kwa wiki. Anakimbia mita 60 kwa kila mbio fupi. Huwa anakimbia jumla ya mita ngapi kwa wiki?
+
+Tafadhali fikiri hatua kwa hatua, na uweke jibu lako la mwisho ndani ya \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+Kwa ombi, nitaanza kufikiria kwa Kiswahili.
+2026-11-03 23:52:34,610 INFO EVAL base dev: {"n": 50, "pass@12": 0.16, "maj@12": 0.12, "mean_acc": 0.03333333333333333, "format_rate": 0.25333333333333335, "trunc_rate": 0.75, "sw_rate": 0.985} (845s)
+2026-11-03 23:53:35,273 INFO === pilot_r3 config argv ['pilot_r.py', 'config', '--variant', 'r3'] host babel-w9-16 job 11041124
+2026-11-03 23:53:35,487 INFO === pilot_r3 eval argv ['pilot_r.py', 'eval', '--variant', 'r3', '--names', 'base', '--split', 'dev'] host babel-w9-16 job 11041124
+2026-11-03 23:53:47,026 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 23:53:47,027 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 23:53:47,031 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-03 23:53:47,055 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 23:53:47,127 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 23:53:47,174 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-03 23:53:47,198 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 23:53:47,251 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-03 23:53:47,273 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:53:47,298 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 23:53:47,338 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:53:47,355 INFO [skip] /home/boyil2/xling_pilot/pilot_r3_out/eval/base_dev.jsonl exists
+2026-11-03 23:53:49,179 INFO === pilot_r3 eval argv ['pilot_r.py', 'eval', '--variant', 'r3', '--names', 'step20', 'step40', 'step60', '--split', 'dev'] host babel-w9-16 job 11041124
+2026-11-03 23:54:00,599 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 23:54:00,599 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 23:54:00,603 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-03 23:54:00,627 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 23:54:00,699 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 23:54:00,737 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-03 23:54:00,756 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 23:54:00,803 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-03 23:54:00,828 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:54:00,856 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 23:54:00,890 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:54:01,264 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 23:54:01,264 INFO nvidia-smi at start:
+Tue Nov  3 23:54:00 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 35%   54C    P8             34W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 23:54:01,295 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 23:54:01,327 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 23:54:01,353 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 23:54:02,071 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 23:55:02,024 INFO eval config: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}; max_model_len 6144
+2026-11-03 23:55:02,029 INFO eval prompt example:
+<|im_start|>user
+James anaamua kukimbia mbio 3 fupi mara 3 kwa wiki. Anakimbia mita 60 kwa kila mbio fupi. Huwa anakimbia jumla ya mita ngapi kwa wiki?
+
+Tafadhali fikiri hatua kwa hatua, na uweke jibu lako la mwisho ndani ya \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+Kwa ombi, nitaanza kufikiria kwa Kiswahili.
+2026-11-04 00:00:02,283 INFO EVAL step20 dev: {"n": 50, "pass@12": 0.3, "maj@12": 0.14, "mean_acc": 0.07333333333333332, "format_rate": 0.8083333333333333, "trunc_rate": 0.17333333333333334, "sw_rate": 0.965} (299s)
+2026-11-04 00:03:52,572 INFO EVAL step40 dev: {"n": 50, "pass@12": 0.22, "maj@12": 0.12, "mean_acc": 0.09, "format_rate": 0.94, "trunc_rate": 0.045, "sw_rate": 0.9033333333333333} (230s)
+2026-11-04 00:07:18,006 INFO EVAL step60 dev: {"n": 50, "pass@12": 0.3, "maj@12": 0.14, "mean_acc": 0.07999999999999999, "format_rate": 0.9333333333333333, "trunc_rate": 0.03, "sw_rate": 0.9616666666666667} (205s)
+2026-11-04 00:07:22,819 INFO === pilot_r3 eval argv ['pilot_r.py', 'eval', '--variant', 'r3', '--names', 'base', 'step20', '--split', 'test'] host babel-w9-16 job 11041124
+2026-11-04 00:07:33,889 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-04 00:07:33,890 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-04 00:07:33,894 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-04 00:07:33,917 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-04 00:07:33,986 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-04 00:07:34,027 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-04 00:07:34,052 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-04 00:07:34,100 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-04 00:07:34,126 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-04 00:07:34,146 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-04 00:07:34,187 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-04 00:07:34,483 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-04 00:07:34,484 INFO nvidia-smi at start:
+Wed Nov  4 00:07:34 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 58%   70C    P5             42W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-04 00:07:34,504 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-04 00:07:34,537 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-04 00:07:34,565 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-04 00:07:35,248 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-04 00:08:33,685 INFO eval config: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}; max_model_len 6144
+2026-11-04 00:08:33,699 INFO eval prompt example:
+<|im_start|>user
+Bata wa Janet hutaga mayai 16 kila siku. Huwa anakula matatu wakati wa staftahi kila asubuhi na huokea marafiki zake mafini kila siku kwa mayai manne. Huwa anauza yaliyosalia katika soko la wakulima kila siku kwa $2 kwa kila yai la bata. Huwa anatengeneza pesa ngapi katika dola kila siku katika soko la wakulima?
+
+Tafadhali fikiri hatua kwa hatua, na uweke jibu lako la mwisho ndani ya \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+Kwa ombi, nitaanza kufikiria kwa Kiswahili.
+2026-11-04 01:06:34,888 INFO EVAL base test: {"n": 200, "pass@12": 0.15, "maj@12": 0.09, "mean_acc": 0.02791666666666667, "format_rate": 0.23333333333333334, "trunc_rate": 0.7716666666666666, "sw_rate": 0.9833333333333333} (3478s)
+2026-11-04 01:27:18,397 INFO EVAL step20 test: {"n": 200, "pass@12": 0.245, "maj@12": 0.105, "mean_acc": 0.06416666666666665, "format_rate": 0.8075, "trunc_rate": 0.17375, "sw_rate": 0.9441666666666667} (1239s)
+2026-11-04 01:27:23,309 INFO === pilot_r3 report argv ['pilot_r.py', 'report', '--variant', 'r3'] host babel-w9-16 job 11041124

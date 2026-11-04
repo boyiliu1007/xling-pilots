@@ -1,0 +1,81 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "dtype": "bfloat16",
+  "gpu_memory_utilization": 0.9,
+  "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20
+  },
+  "n": 8,
+  "max_tokens": 2048,
+  "enable_thinking": false,
+  "seed": 42,
+  "prompt_template": "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+  "versions": {
+    "python": "3.11.17",
+    "torch": "2.14.0+cu130",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0"
+  },
+  "args": {
+    "langs": [
+      "swa",
+      "yor"
+    ],
+    "n": 8,
+    "limit": null,
+    "thinking": false,
+    "seed": 42,
+    "threshold": 0.625,
+    "output_dir": "pilot_out",
+    "max_tokens": 2048,
+    "inspect_only": false,
+    "report_only": false
+  },
+  "argv": [
+    "pilot.py",
+    "--langs",
+    "swa",
+    "yor",
+    "--n",
+    "8"
+  ],
+  "hostname": "babel-w9-20",
+  "gpu": "NVIDIA RTX A6000",
+  "slurm_job_id": "11037482",
+  "env": {
+    "VLLM_USE_FLASHINFER_SAMPLER": "0 (set in generate)"
+  },
+  "runtime": {
+    "start": "2026-11-03T13:47:17",
+    "end": "2026-11-03T13:56:38",
+    "wall_clock_s (model load + generation)": 560.8,
+    "generation_s (sum over languages)": 490.8,
+    "questions_total": 750,
+    "questions_per_min (generation only)": 91.69,
+    "generated_tokens_total": 2887533,
+    "peak_gpu_mem_used_MiB (nvidia-smi poll, includes vLLM KV-cache reservation)": 44470,
+    "per_language": {
+      "en": {
+        "questions": 250,
+        "seconds": 76.22936010360718,
+        "generated_tokens": 596378,
+        "truncated_samples": 0
+      },
+      "swa": {
+        "questions": 250,
+        "seconds": 190.92459845542908,
+        "generated_tokens": 1096655,
+        "truncated_samples": 63
+      },
+      "yor": {
+        "questions": 250,
+        "seconds": 223.60820078849792,
+        "generated_tokens": 1194500,
+        "truncated_samples": 101
+      }
+    }
+  }
+}

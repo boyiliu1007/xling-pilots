@@ -1,0 +1,205 @@
+PILOT A2 — English self-consensus quality on the training distribution (Qwen3-1.7B)
+generated 2026-11-03T16:19:33
+Every rate: k/N = estimate [95% Wilson]. Answer checking: math-verify (COPSD grade_answer logic) for COPSD runs; Pilot A numeric extraction for GSM8K.
+
+## Data
+  COPSD repo: https://github.com/cisnlp/COPSD (commit 4f4410730e9b) contains no data files; its README links the released training data as the Hugging Face dataset yihongLiu/COPSD-AfriMGSM-TrainDataset (one parquet per language).
+  COPSD swa: data/swa-00000-of-00001.parquet, format parquet, 500 rows
+  language values: {'swa': 500}; source values: {'olympiads': 500}
+  COPSD yor: data/yor-00000-of-00001.parquet, format parquet, 500 rows
+  language values: {'yor': 500}; source values: {'olympiads': 500}
+  alignment: no ID column; English problem/solution/Answer identical between swa and yor files row-wise: 500/500 -> question_id = row index
+  fields: English question = 'problem'; English reference solution = 'solution'; gold final answer = 'Answer'; target-language question = 'problem_translated' (language given by 'language'); 'source' = OpenThoughts subset
+  gold 'Answer' unparseable by math-verify: 1/500 [194]
+  'Answer' vs last \boxed{} of 'solution': equivalent 479, solution has no \boxed 0, disagree 21; first 5 disagreements: [(28, '8', '-2'), (35, '26', '51'), (54, '\\sum_{k=0}^{r}\\binom{n}{k}\\binom{m}{r-k} = \\binom{n+m}{r}', '\\sum_{k=0}^{n} \\binom{n}{k}^2 = \\binom{2n}{n}'), (62, '8', '1'), (67, '\\frac{a}{b+c}+\\frac{b}{c+a}+\\frac{c}{a+b} \\geq \\frac{3}{2}', 'a^3 + b^3 + c^3 + \\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} \\geq 2(a+b+c)')]
+  'Answer' length (chars): median 4, max 132; integer-valued answers: 214
+  GSM8K: openai/gsm8k config main split train (7473 rows), columns ['question', 'answer']; sampled 500 with random.Random(42).sample, sorted indices; first 10 indices [4, 17, 26, 53, 58, 64, 76, 94, 120, 159]
+  gold = text after '####' in 'answer', commas removed, numeric
+
+## Config
+  model: "Qwen/Qwen3-1.7B"
+  prompt_template: "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}."
+  seed: 42
+  n: 8
+  versions: {"python": "3.11.17", "torch": "2.14.0+cu130", "vllm": "0.33.0", "transformers": "5.20.2", "datasets": "5.1.0", "math_verify": "0.9.0 (pip)"}
+  args: {"n": 8, "limit": null, "seed": 42, "output_dir": "pilot_a2_out", "inspect_only": false, "report_only": false, "runs": ["R3_copsd_en_thinking", "L_copsd_swa", "L_copsd_yor"]}
+  env: {"VLLM_USE_FLASHINFER_SAMPLER": "0"}
+  runs: {"R1_copsd_en": {"generation_s": 909.3, "generated_tokens": 4406414, "items": 500, "host": "babel-w9-20", "slurm_job_id": "11037482", "note": "backfilled from a2_full.log"}, "R2_gsm8k_en": {"generation_s": 153.1, "generated_tokens": 1167406, "items": 500, "host": "babel-w9-20", "slurm_job_id": "11037482", "note": "backfilled from a2_full.log"}, "R3_copsd_en_thinking": {"items": 100, "generation_s": 1270.0, "generated_tokens": 3014336, "sampling": {"temperature": 0.6, "top_p": 0.95, "top_k": 20}, "max_tokens": 4096, "thinking": true, "mode": "math", "finished": "2026-11-03T15:42:40", "host": "babel-w9-20", "slurm_job_id": "11038261"}, "L_copsd_swa": {"items": 500, "generation_s": 804.5, "generated_tokens": 3911970, "sampling": {"temperature": 0.7, "top_p": 0.8, "top_k": 20}, "max_tokens": 2048, "thinking": false, "mode": "math", "finished": "2026-11-03T16:00:52", "host": "babel-w9-20", "slurm_job_id": "11038261"}, "L_copsd_yor": {"items": 500, "generation_s": 800.6, "generated_tokens": 3888068, "sampling": {"temperature": 0.7, "top_p": 0.8, "top_k": 20}, "max_tokens": 2048, "thinking": false, "mode": "math", "finished": "2026-11-03T16:19:32", "host": "babel-w9-20", "slurm_job_id": "11038261"}}
+
+## Per-run metrics
+ R1_copsd_en  (N=500, n=8)
+   maj@8 (ties wrong):     293/500 = 0.586 [0.542, 0.628]
+   pass@1 (samples):         1969/4000 = 0.492 [0.477, 0.508]  (Wilson treats samples as independent)
+   pass@8:                  375/500 = 0.750 [0.710, 0.786]
+   tie rate:                 67/500 = 0.134 [0.107, 0.167]
+   no-answer (samples):      560/4000 = 0.140 [0.130, 0.151]
+   no-answer (all 8 unparseable): 10/500 = 0.020 [0.011, 0.036]
+   truncated (hit max_tokens, samples): 608/4000 = 0.152 [0.141, 0.163]
+   mean vote share:          0.636
+   confidence filtering (coverage = eligible / all items; precision = correct among eligible):
+     t=0.625: coverage 282/500 = 0.564 [0.520, 0.607]   precision 222/282 = 0.787 [0.736, 0.831]
+     t=0.750: coverage 238/500 = 0.476 [0.433, 0.520]   precision 195/238 = 0.819 [0.766, 0.863]
+     t=0.875: coverage 187/500 = 0.374 [0.333, 0.417]   precision 159/187 = 0.850 [0.792, 0.894]
+     t=1.000: coverage 135/500 = 0.270 [0.233, 0.311]   precision 120/135 = 0.889 [0.825, 0.931]
+   vote-share calibration (majority accuracy by bucket; ties/no-answer count wrong):
+      <=3/8: 34/148 = 0.230 [0.169, 0.304]
+        4/8: 37/70 = 0.529 [0.413, 0.641]
+        5/8: 27/44 = 0.614 [0.466, 0.743]
+        6/8: 36/51 = 0.706 [0.570, 0.813]
+        7/8: 39/52 = 0.750 [0.618, 0.848]
+        8/8: 120/135 = 0.889 [0.825, 0.931]
+ R2_gsm8k_en  (N=500, n=8)
+   maj@8 (ties wrong):     447/500 = 0.894 [0.864, 0.918]
+   pass@1 (samples):         3480/4000 = 0.870 [0.859, 0.880]  (Wilson treats samples as independent)
+   pass@8:                  476/500 = 0.952 [0.930, 0.968]
+   tie rate:                 8/500 = 0.016 [0.008, 0.031]
+   no-answer (samples):      0/4000 = 0.000 [0.000, 0.001]
+   no-answer (all 8 unparseable): 0/500 = 0.000 [0.000, 0.008]
+   truncated (hit max_tokens, samples): 6/4000 = 0.002 [0.001, 0.003]
+   mean vote share:          0.927
+   confidence filtering (coverage = eligible / all items; precision = correct among eligible):
+     t=0.625: coverage 469/500 = 0.938 [0.913, 0.956]   precision 436/469 = 0.930 [0.903, 0.949]
+     t=0.750: coverage 448/500 = 0.896 [0.866, 0.920]   precision 422/448 = 0.942 [0.916, 0.960]
+     t=0.875: coverage 420/500 = 0.840 [0.805, 0.870]   precision 400/420 = 0.952 [0.928, 0.969]
+     t=1.000: coverage 387/500 = 0.774 [0.735, 0.808]   precision 372/387 = 0.961 [0.937, 0.976]
+   vote-share calibration (majority accuracy by bucket; ties/no-answer count wrong):
+      <=3/8: 4/11 = 0.364 [0.152, 0.646]
+        4/8: 7/20 = 0.350 [0.181, 0.567]
+        5/8: 14/21 = 0.667 [0.454, 0.828]
+        6/8: 22/28 = 0.786 [0.605, 0.898]
+        7/8: 28/33 = 0.848 [0.691, 0.933]
+        8/8: 372/387 = 0.961 [0.937, 0.976]
+ R3_copsd_en_thinking  (N=100, n=8)
+   maj@8 (ties wrong):     44/100 = 0.440 [0.347, 0.538]
+   pass@1 (samples):         217/800 = 0.271 [0.242, 0.303]  (Wilson treats samples as independent)
+   pass@8:                  47/100 = 0.470 [0.375, 0.567]
+   tie rate:                 2/100 = 0.020 [0.006, 0.070]
+   no-answer (samples):      564/800 = 0.705 [0.672, 0.736]
+   no-answer (all 8 unparseable): 50/100 = 0.500 [0.404, 0.596]
+   truncated (hit max_tokens, samples): 570/800 = 0.713 [0.680, 0.743]
+   mean vote share:          0.287
+   confidence filtering (coverage = eligible / all items; precision = correct among eligible):
+     t=0.625: coverage 23/100 = 0.230 [0.158, 0.322]   precision 22/23 = 0.957 [0.790, 0.992]
+     t=0.750: coverage 20/100 = 0.200 [0.133, 0.289]   precision 19/20 = 0.950 [0.764, 0.991]
+     t=0.875: coverage 16/100 = 0.160 [0.101, 0.244]   precision 15/16 = 0.938 [0.717, 0.989]
+     t=1.000: coverage 11/100 = 0.110 [0.063, 0.186]   precision 11/11 = 1.000 [0.741, 1.000]
+   vote-share calibration (majority accuracy by bucket; ties/no-answer count wrong):
+      <=3/8: 16/70 = 0.229 [0.146, 0.340]
+        4/8: 6/7 = 0.857 [0.487, 0.974]
+        5/8: 3/3 = 1.000 [0.439, 1.000]
+        6/8: 4/4 = 1.000 [0.510, 1.000]
+        7/8: 4/5 = 0.800 [0.376, 0.964]
+        8/8: 11/11 = 1.000 [0.741, 1.000]
+ L_copsd_swa  (N=500, n=8)
+   maj@8 (ties wrong):     114/500 = 0.228 [0.193, 0.267]
+   pass@1 (samples):         762/4000 = 0.191 [0.179, 0.203]  (Wilson treats samples as independent)
+   pass@8:                  180/500 = 0.360 [0.319, 0.403]
+   tie rate:                 100/500 = 0.200 [0.167, 0.237]
+   no-answer (samples):      462/4000 = 0.116 [0.106, 0.126]
+   no-answer (all 8 unparseable): 5/500 = 0.010 [0.004, 0.023]
+   truncated (hit max_tokens, samples): 496/4000 = 0.124 [0.114, 0.135]
+   mean vote share:          0.484
+   confidence filtering (coverage = eligible / all items; precision = correct among eligible):
+     t=0.625: coverage 170/500 = 0.340 [0.300, 0.383]   precision 81/170 = 0.476 [0.403, 0.551]
+     t=0.750: coverage 117/500 = 0.234 [0.199, 0.273]   precision 65/117 = 0.556 [0.465, 0.642]
+     t=0.875: coverage 81/500 = 0.162 [0.132, 0.197]   precision 51/81 = 0.630 [0.521, 0.727]
+     t=1.000: coverage 56/500 = 0.112 [0.087, 0.143]   precision 36/56 = 0.643 [0.512, 0.755]
+   vote-share calibration (majority accuracy by bucket; ties/no-answer count wrong):
+      <=3/8: 18/260 = 0.069 [0.044, 0.107]
+        4/8: 15/70 = 0.214 [0.134, 0.324]
+        5/8: 16/53 = 0.302 [0.195, 0.435]
+        6/8: 14/36 = 0.389 [0.248, 0.551]
+        7/8: 15/25 = 0.600 [0.407, 0.766]
+        8/8: 36/56 = 0.643 [0.512, 0.755]
+ L_copsd_yor  (N=500, n=8)
+   maj@8 (ties wrong):     103/500 = 0.206 [0.173, 0.244]
+   pass@1 (samples):         720/4000 = 0.180 [0.168, 0.192]  (Wilson treats samples as independent)
+   pass@8:                  169/500 = 0.338 [0.298, 0.381]
+   tie rate:                 142/500 = 0.284 [0.246, 0.325]
+   no-answer (samples):      452/4000 = 0.113 [0.104, 0.123]
+   no-answer (all 8 unparseable): 2/500 = 0.004 [0.001, 0.014]
+   truncated (hit max_tokens, samples): 476/4000 = 0.119 [0.109, 0.129]
+   mean vote share:          0.447
+   confidence filtering (coverage = eligible / all items; precision = correct among eligible):
+     t=0.625: coverage 143/500 = 0.286 [0.248, 0.327]   precision 77/143 = 0.538 [0.457, 0.618]
+     t=0.750: coverage 110/500 = 0.220 [0.186, 0.258]   precision 67/110 = 0.609 [0.516, 0.695]
+     t=0.875: coverage 81/500 = 0.162 [0.132, 0.197]   precision 50/81 = 0.617 [0.508, 0.716]
+     t=1.000: coverage 56/500 = 0.112 [0.087, 0.143]   precision 35/56 = 0.625 [0.494, 0.740]
+   vote-share calibration (majority accuracy by bucket; ties/no-answer count wrong):
+      <=3/8: 14/296 = 0.047 [0.028, 0.078]
+        4/8: 12/61 = 0.197 [0.116, 0.313]
+        5/8: 10/33 = 0.303 [0.174, 0.473]
+        6/8: 17/29 = 0.586 [0.407, 0.745]
+        7/8: 15/25 = 0.600 [0.407, 0.766]
+        8/8: 35/56 = 0.625 [0.494, 0.740]
+
+## R1 by OpenThoughts source (maj@8; precision/coverage at t=0.625)
+          olympiads n=500: maj 293/500 = 0.586 [0.542, 0.628]  cov 282/500 = 0.564 [0.520, 0.607]  prec 222/282 = 0.787 [0.736, 0.831]
+
+## Side by side with Pilot A English (AfriMGSM test; recomputed from pilot_out/en.jsonl, identical to pilot_out/report.txt)
+   run                      maj@8                          cov@0.625                      prec@0.625                     truncated(samples)
+   PilotA_afrimgsm_en       213/250 = 0.852 [0.803, 0.891] 232/250 = 0.928 [0.889, 0.954] 211/232 = 0.909 [0.866, 0.940] 0/2000 = 0.000 [0.000, 0.002]
+   R2_gsm8k_en              447/500 = 0.894 [0.864, 0.918] 469/500 = 0.938 [0.913, 0.956] 436/469 = 0.930 [0.903, 0.949] 6/4000 = 0.002 [0.001, 0.003]
+   R1_copsd_en              293/500 = 0.586 [0.542, 0.628] 282/500 = 0.564 [0.520, 0.607] 222/282 = 0.787 [0.736, 0.831] 608/4000 = 0.152 [0.141, 0.163]
+   R3_copsd_en_thinking     44/100 = 0.440 [0.347, 0.538]  23/100 = 0.230 [0.158, 0.322]  22/23 = 0.957 [0.790, 0.992]   570/800 = 0.713 [0.680, 0.743]
+
+## R3 (thinking) vs R1 (non-thinking) on the same 100 items
+   R1 non-thinking  maj@8 61/100 = 0.610 [0.512, 0.700]  pass@8 77/100 = 0.770 [0.678, 0.842]  cov@0.625 55/100 = 0.550 [0.452, 0.644]  prec@0.625 45/55 = 0.818 [0.697, 0.898]
+   R3 thinking      maj@8 44/100 = 0.440 [0.347, 0.538]  pass@8 47/100 = 0.470 [0.375, 0.567]  cov@0.625 23/100 = 0.230 [0.158, 0.322]  prec@0.625 22/23 = 0.957 [0.790, 0.992]
+   discordant pairs: thinking right & non-thinking wrong 6; non-thinking right & thinking wrong 23
+
+## Target language swa (COPSD translations) vs English R1
+   L majority accuracy:                      114/500 = 0.228 [0.193, 0.267]
+   L_wrong:                                  386/500
+   English rescue rate P(EN maj correct | L_wrong): 193/386 = 0.500 [0.450, 0.550]
+   overall P(EN maj correct):                293/500 = 0.586 [0.542, 0.628]
+   P(L pass@8 | L_wrong):                    66/386 = 0.171 [0.137, 0.212]
+   t=0.625: L own consensus cov 170/500 = 0.340 [0.300, 0.383] prec 81/170 = 0.476 [0.403, 0.551] | EN on L_wrong cov 188/386 = 0.487 [0.438, 0.537] prec 132/188 = 0.702 [0.633, 0.763]
+   t=0.750: L own consensus cov 117/500 = 0.234 [0.199, 0.273] prec 65/117 = 0.556 [0.465, 0.642] | EN on L_wrong cov 151/386 = 0.391 [0.344, 0.441] prec 111/151 = 0.735 [0.660, 0.799]
+   t=0.875: L own consensus cov 81/500 = 0.162 [0.132, 0.197] prec 51/81 = 0.630 [0.521, 0.727] | EN on L_wrong cov 112/386 = 0.290 [0.247, 0.337] prec 86/112 = 0.768 [0.682, 0.836]
+   t=1.000: L own consensus cov 56/500 = 0.112 [0.087, 0.143] prec 36/56 = 0.643 [0.512, 0.755] | EN on L_wrong cov 79/386 = 0.205 [0.167, 0.248] prec 66/79 = 0.835 [0.739, 0.901]
+   cross-tab rows = L majority, cols = EN majority
+         L | EN     correct       wrong  tie/no-ans   total
+        correct         100           7           7     114
+          wrong         139          91          51     281
+     tie/no-ans          54          32          19     105
+
+## Target language yor (COPSD translations) vs English R1
+   L majority accuracy:                      103/500 = 0.206 [0.173, 0.244]
+   L_wrong:                                  397/500
+   English rescue rate P(EN maj correct | L_wrong): 206/397 = 0.519 [0.470, 0.568]
+   overall P(EN maj correct):                293/500 = 0.586 [0.542, 0.628]
+   P(L pass@8 | L_wrong):                    66/397 = 0.166 [0.133, 0.206]
+   t=0.625: L own consensus cov 143/500 = 0.286 [0.248, 0.327] prec 77/143 = 0.538 [0.457, 0.618] | EN on L_wrong cov 201/397 = 0.506 [0.457, 0.555] prec 147/201 = 0.731 [0.666, 0.788]
+   t=0.750: L own consensus cov 110/500 = 0.220 [0.186, 0.258] prec 67/110 = 0.609 [0.516, 0.695] | EN on L_wrong cov 166/397 = 0.418 [0.371, 0.467] prec 127/166 = 0.765 [0.695, 0.823]
+   t=0.875: L own consensus cov 81/500 = 0.162 [0.132, 0.197] prec 50/81 = 0.617 [0.508, 0.716] | EN on L_wrong cov 124/397 = 0.312 [0.269, 0.360] prec 100/124 = 0.806 [0.728, 0.866]
+   t=1.000: L own consensus cov 56/500 = 0.112 [0.087, 0.143] prec 35/56 = 0.625 [0.494, 0.740] | EN on L_wrong cov 88/397 = 0.222 [0.184, 0.265] prec 75/88 = 0.852 [0.763, 0.912]
+   cross-tab rows = L majority, cols = EN majority
+         L | EN     correct       wrong  tie/no-ans   total
+        correct          87           8           8     103
+          wrong         132          79          42     253
+     tie/no-ans          74          43          27     144
+
+## Pre-registered decision (t = 0.625): USABLE iff Wilson LB of precision >= 0.75 AND coverage >= 0.40
+   Each mode that was run is evaluated; a distribution is USABLE if any of its modes passes, and the mode is named.
+   COPSD set / R1_copsd_en: fail  precision 222/282 = 0.787 [0.736, 0.831] (LB 0.736), coverage 282/500 = 0.564
+      sensitivity (gold_consistent subset, not used for the verdict): precision 222/270 = 0.822 [0.772, 0.863], coverage 270/478 = 0.565 -> pass
+   COPSD set / R3_copsd_en_thinking: fail  precision 22/23 = 0.957 [0.790, 0.992] (LB 0.790), coverage 23/100 = 0.230
+      sensitivity (gold_consistent subset, not used for the verdict): precision 22/23 = 0.957 [0.790, 0.992], coverage 23/94 = 0.245 -> fail
+   => COPSD set: NOT USABLE
+   GSM8K train / R2_gsm8k_en: pass  precision 436/469 = 0.930 [0.903, 0.949] (LB 0.903), coverage 469/500 = 0.938
+   => GSM8K train: USABLE (relies on R2_gsm8k_en)
+
+## Runtime and GPU (observed)
+  start: 2026-11-03T15:20:47
+  end: 2026-11-03T16:19:33
+  wall_clock_s (model load + all runs): 3526.1
+  gpu_generation_s per run: {'R1_copsd_en': 909.3, 'R2_gsm8k_en': 153.1, 'R3_copsd_en_thinking': 1270.0, 'L_copsd_swa': 804.5, 'L_copsd_yor': 800.6}
+  peak_gpu_mem_used_MiB (nvidia-smi poll, incl. vLLM KV reservation): 44444
+
+## Limitations
+  - One model, one prompt, one seed; n=8. COPSD set = 500 items, R3 only 100 items (wide intervals).
+  - math-verify can miss equivalences (e.g. unusual LaTeX, text answers, intervals vs sets) or accept loose ones; the gold 'Answer' check above bounds this only for the gold side.
+  - Non-thinking answers are read from the last \boxed{}; thinking answers only from text after </think>.
+  - Target-language questions are COPSD's machine translations (not human); English is the original.
+  - Precision of the majority answer is measured against gold; it says nothing about the quality of the reasoning trace a self-distillation teacher would provide.

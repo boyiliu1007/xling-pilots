@@ -1,0 +1,15 @@
+# everything is ignored unless listed below
+/*
+!/.gitignore
+!/README.md
+!/requirements.txt
+!/*.py
+!/*.sbatch
+!/pilot_out/
+!/pilot_c_out/
+!/pilot_a2_out/
+!/pilot_r_out/
+!/pilot_r2_out/
+!/pilot_r3_out/
+.resubmits
+__pycache__/

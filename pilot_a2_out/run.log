@@ -1,0 +1,297 @@
+2026-11-03 14:39:52,786 INFO === pilot_a2 start; argv ['pilot_a2.py', '--inspect_only']; args {'n': 8, 'limit': None, 'seed': 42, 'output_dir': 'pilot_a2_out', 'inspect_only': True, 'report_only': False}
+2026-11-03 14:39:53,850 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:39:53,876 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:39:53,877 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 14:39:53,882 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 14:39:53,905 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:53,977 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:54,123 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/revision/697dcaf0e8296c864a629f662537ec84ac393941 "HTTP/1.1 200 OK"
+2026-11-03 14:39:54,146 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:54,199 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/697dcaf0e8296c864a629f662537ec84ac393941/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:39:54,224 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:54,280 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:39:54,285 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 14:39:54,310 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:54,334 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:54,365 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:39:54,388 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:40:04,881 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:40:04,886 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/openai/gsm8k/740312add88f781978c0658806c59bc2815b9866/README.md?%2Fdatasets%2Fopenai%2Fgsm8k%2Fresolve%2Fmain%2FREADME.md=&etag=%22ad25b2c451d0fcd2793678b2baa917c962acf281%22 "HTTP/1.1 200 OK"
+2026-11-03 14:40:04,895 INFO HTTP Request: GET https://huggingface.co/api/resolve-cache/datasets/openai/gsm8k/740312add88f781978c0658806c59bc2815b9866/README.md?%2Fdatasets%2Fopenai%2Fgsm8k%2Fresolve%2Fmain%2FREADME.md=&etag=%22ad25b2c451d0fcd2793678b2baa917c962acf281%22 "HTTP/1.1 200 OK"
+2026-11-03 14:40:04,919 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:40:04,985 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/openai/gsm8k/openai/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:40:05,016 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/740312add88f781978c0658806c59bc2815b9866 "HTTP/1.1 200 OK"
+2026-11-03 14:40:05,040 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:40:05,095 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=openai/gsm8k "HTTP/1.1 200 OK"
+2026-11-03 14:40:05,183 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866/main?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:40:05,206 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:40:05,230 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:40:05,332 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/main/train-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 14:40:05,363 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/xet-read-token/740312add88f781978c0658806c59bc2815b9866 "HTTP/1.1 200 OK"
+2026-11-03 14:40:05,913 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/main/test-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 14:41:17,775 INFO === pilot_a2 start; argv ['pilot_a2.py', '--inspect_only']; args {'n': 8, 'limit': None, 'seed': 42, 'output_dir': 'pilot_a2_out', 'inspect_only': True, 'report_only': False}
+2026-11-03 14:41:18,822 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:41:18,846 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:41:18,847 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 14:41:18,853 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 14:41:18,875 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:18,947 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:19,101 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/revision/697dcaf0e8296c864a629f662537ec84ac393941 "HTTP/1.1 200 OK"
+2026-11-03 14:41:19,125 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:19,162 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/697dcaf0e8296c864a629f662537ec84ac393941/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:41:19,188 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:19,241 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:41:19,247 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 14:41:19,288 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:19,313 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:19,347 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:19,376 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:30,353 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:41:30,359 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/openai/gsm8k/740312add88f781978c0658806c59bc2815b9866/README.md?%2Fdatasets%2Fopenai%2Fgsm8k%2Fresolve%2Fmain%2FREADME.md=&etag=%22ad25b2c451d0fcd2793678b2baa917c962acf281%22 "HTTP/1.1 200 OK"
+2026-11-03 14:41:30,387 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:30,458 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/openai/gsm8k/openai/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:30,492 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/740312add88f781978c0658806c59bc2815b9866 "HTTP/1.1 200 OK"
+2026-11-03 14:41:30,517 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:41:30,591 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=openai/gsm8k "HTTP/1.1 200 OK"
+2026-11-03 14:41:30,617 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866/main?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:41:30,640 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:41:30,664 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:48,119 INFO === pilot_a2 start; argv ['pilot_a2.py']; args {'n': 8, 'limit': None, 'seed': 42, 'output_dir': 'pilot_a2_out', 'inspect_only': False, 'report_only': False}
+2026-11-03 14:46:49,005 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:46:49,028 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:46:49,029 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 14:46:49,035 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 14:46:49,060 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,149 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,283 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/revision/697dcaf0e8296c864a629f662537ec84ac393941 "HTTP/1.1 200 OK"
+2026-11-03 14:46:49,315 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,355 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/697dcaf0e8296c864a629f662537ec84ac393941/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:46:49,381 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,435 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:46:49,440 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 14:46:49,465 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,494 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,531 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:49,552 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:58,922 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:46:58,928 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/openai/gsm8k/740312add88f781978c0658806c59bc2815b9866/README.md?%2Fdatasets%2Fopenai%2Fgsm8k%2Fresolve%2Fmain%2FREADME.md=&etag=%22ad25b2c451d0fcd2793678b2baa917c962acf281%22 "HTTP/1.1 200 OK"
+2026-11-03 14:46:58,948 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:59,010 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/openai/gsm8k/openai/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:59,051 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/740312add88f781978c0658806c59bc2815b9866 "HTTP/1.1 200 OK"
+2026-11-03 14:46:59,076 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:46:59,124 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=openai/gsm8k "HTTP/1.1 200 OK"
+2026-11-03 14:46:59,152 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866/main?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:46:59,175 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:46:59,204 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:47:00,523 INFO unit tests:
+.............                                                            [100%]
+13 passed in 0.71s
+
+2026-11-03 14:47:00,763 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 14:47:00,763 INFO nvidia-smi at start:
+Tue Nov  3 14:47:00 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:03:00.0 Off |                  Off |
+| 45%   62C    P3             46W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 14:47:41,788 INFO vLLM loaded Qwen/Qwen3-1.7B on NVIDIA RTX A6000
+2026-11-03 14:47:41,833 INFO R1_copsd_en: 500 items, sampling {'temperature': 0.7, 'top_p': 0.8, 'top_k': 20}, max_tokens 2048, thinking False; prompt[0]:
+<|im_start|>user
+Given real numbers \( a, b, c \) and a positive number \( \lambda \) such that the polynomial \( f(x) = x^3 + a x^2 + b x + c \) has three real roots \( x_1, x_2, x_3 \), and the conditions \( x_2 - x_1 = \lambda \) and \( x_3 > \frac{1}{2}(x_1 + x_2) \) are satisfied, find the maximum value of \( \frac{2 a^3 + 27 c - 9 a b}{\lambda^3} \).
+Please reason step by step, and put your final answer within \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 15:04:12,968 WARNING Timeout during comparison
+2026-11-03 15:04:17,969 WARNING Timeout during comparison
+2026-11-03 15:04:22,969 WARNING Timeout during comparison
+2026-11-03 15:04:29,893 WARNING Timeout during comparison
+2026-11-03 15:04:34,895 WARNING Timeout during comparison
+2026-11-03 15:04:43,719 INFO R1_copsd_en: 909.3s, 4406414 tokens, maj@8 293/500 -> R1_copsd_en.jsonl
+2026-11-03 15:04:43,759 INFO R2_gsm8k_en: 500 items, sampling {'temperature': 0.7, 'top_p': 0.8, 'top_k': 20}, max_tokens 2048, thinking False; prompt[0]:
+<|im_start|>user
+James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?
+Please reason step by step, and put your final answer within \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 15:07:16,953 INFO R2_gsm8k_en: 153.1s, 1167406 tokens, maj@8 447/500 -> R2_gsm8k_en.jsonl
+2026-11-03 15:07:16,962 INFO R3_copsd_en_thinking: 100 items, sampling {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, max_tokens 4096, thinking True; prompt[0]:
+<|im_start|>user
+Given real numbers \( a, b, c \) and a positive number \( \lambda \) such that the polynomial \( f(x) = x^3 + a x^2 + b x + c \) has three real roots \( x_1, x_2, x_3 \), and the conditions \( x_2 - x_1 = \lambda \) and \( x_3 > \frac{1}{2}(x_1 + x_2) \) are satisfied, find the maximum value of \( \frac{2 a^3 + 27 c - 9 a b}{\lambda^3} \).
+Please reason step by step, and put your final answer within \boxed{}.<|im_end|>
+<|im_start|>assistant
+
+2026-11-03 15:20:29,704 INFO === pilot_a2 start; argv ['pilot_a2.py', '--runs', 'R3_copsd_en_thinking', 'L_copsd_swa', 'L_copsd_yor']; args {'n': 8, 'limit': None, 'seed': 42, 'output_dir': 'pilot_a2_out', 'inspect_only': False, 'report_only': False, 'runs': ['R3_copsd_en_thinking', 'L_copsd_swa', 'L_copsd_yor']}
+2026-11-03 15:20:30,626 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 15:20:30,648 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 15:20:30,649 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 15:20:30,654 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 15:20:30,679 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:30,745 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:30,883 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/revision/697dcaf0e8296c864a629f662537ec84ac393941 "HTTP/1.1 200 OK"
+2026-11-03 15:20:30,908 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:30,954 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/697dcaf0e8296c864a629f662537ec84ac393941/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 15:20:30,977 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:31,029 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 15:20:31,034 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 15:20:31,052 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:31,077 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:31,115 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:31,135 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:40,324 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 15:20:40,331 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/openai/gsm8k/740312add88f781978c0658806c59bc2815b9866/README.md?%2Fdatasets%2Fopenai%2Fgsm8k%2Fresolve%2Fmain%2FREADME.md=&etag=%22ad25b2c451d0fcd2793678b2baa917c962acf281%22 "HTTP/1.1 200 OK"
+2026-11-03 15:20:40,350 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:40,429 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/openai/gsm8k/openai/gsm8k.py "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:40,464 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/740312add88f781978c0658806c59bc2815b9866 "HTTP/1.1 200 OK"
+2026-11-03 15:20:40,492 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:40,548 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=openai/gsm8k "HTTP/1.1 200 OK"
+2026-11-03 15:20:40,579 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866/main?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 15:20:40,607 INFO HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 15:20:40,630 INFO HTTP Request: HEAD https://huggingface.co/datasets/openai/gsm8k/resolve/740312add88f781978c0658806c59bc2815b9866/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 15:20:41,914 INFO unit tests:
+.............                                                            [100%]
+13 passed in 0.68s
+
+2026-11-03 15:20:42,255 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 15:20:42,255 INFO nvidia-smi at start:
+Tue Nov  3 15:20:41 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:03:00.0 Off |                  Off |
+| 57%   69C    P8             45W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 15:21:24,828 INFO vLLM loaded Qwen/Qwen3-1.7B on NVIDIA RTX A6000
+2026-11-03 15:21:24,837 INFO R3_copsd_en_thinking: 100 items, sampling {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, max_tokens 4096, thinking True; prompt[0]:
+<|im_start|>user
+Given real numbers \( a, b, c \) and a positive number \( \lambda \) such that the polynomial \( f(x) = x^3 + a x^2 + b x + c \) has three real roots \( x_1, x_2, x_3 \), and the conditions \( x_2 - x_1 = \lambda \) and \( x_3 > \frac{1}{2}(x_1 + x_2) \) are satisfied, find the maximum value of \( \frac{2 a^3 + 27 c - 9 a b}{\lambda^3} \).
+Please reason step by step, and put your final answer within \boxed{}.<|im_end|>
+<|im_start|>assistant
+
+2026-11-03 15:42:40,885 INFO R3_copsd_en_thinking: 1270.0s, 3014336 tokens, maj@8 44/100 -> R3_copsd_en_thinking.jsonl
+2026-11-03 15:42:40,927 INFO L_copsd_swa: 500 items, sampling {'temperature': 0.7, 'top_p': 0.8, 'top_k': 20}, max_tokens 2048, thinking False; prompt[0]:
+<|im_start|>user
+Ukipewa namba halisi \( a, b, c \) na namba chanya \( \lambda \) hivi kwamba polinomia \( f(x) = x^3 + a x^2 + b x + c \) ina mizizi halisi mitatu \( x_1, x_2, x_3 \), na masharti \( x_2 - x_1 = \lambda \) na \( x_3 > \frac{1}{2}(x_1 + x_2) \) yanatimizwa, tafuta thamani ya juu kabisa ya \( \frac{2 a^3 + 27 c - 9 a b}{\lambda^3} \).
+Please reason step by step, and put your final answer within \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 15:56:21,407 WARNING Timeout during comparison
+2026-11-03 15:56:26,407 WARNING Timeout during comparison
+2026-11-03 15:58:02,769 WARNING Timeout during comparison
+2026-11-03 15:58:07,769 WARNING Timeout during comparison
+2026-11-03 15:58:12,770 WARNING Timeout during comparison
+2026-11-03 15:58:17,770 WARNING Timeout during comparison
+2026-11-03 15:58:22,771 WARNING Timeout during comparison
+2026-11-03 15:58:27,771 WARNING Timeout during comparison
+2026-11-03 15:58:32,771 WARNING Timeout during comparison
+2026-11-03 15:58:37,772 WARNING Timeout during comparison
+2026-11-03 15:58:42,773 WARNING Timeout during comparison
+2026-11-03 15:58:47,773 WARNING Timeout during comparison
+2026-11-03 15:58:52,773 WARNING Timeout during comparison
+2026-11-03 15:58:57,953 WARNING Timeout during comparison
+2026-11-03 15:59:02,953 WARNING Timeout during comparison
+2026-11-03 15:59:07,954 WARNING Timeout during comparison
+2026-11-03 15:59:12,954 WARNING Timeout during comparison
+2026-11-03 15:59:17,956 WARNING Timeout during comparison
+2026-11-03 15:59:22,956 WARNING Timeout during comparison
+2026-11-03 15:59:27,958 WARNING Timeout during comparison
+2026-11-03 15:59:46,928 WARNING Timeout during comparison
+2026-11-03 16:00:03,912 WARNING Timeout during comparison
+2026-11-03 16:00:08,913 WARNING Timeout during comparison
+2026-11-03 16:00:13,914 WARNING Timeout during comparison
+2026-11-03 16:00:18,914 WARNING Timeout during comparison
+2026-11-03 16:00:23,916 WARNING Timeout during comparison
+2026-11-03 16:00:28,916 WARNING Timeout during comparison
+2026-11-03 16:00:33,916 WARNING Timeout during comparison
+2026-11-03 16:00:38,917 WARNING Timeout during comparison
+2026-11-03 16:00:43,917 WARNING Timeout during comparison
+2026-11-03 16:00:48,918 WARNING Timeout during comparison
+2026-11-03 16:00:52,063 INFO L_copsd_swa: 804.5s, 3911970 tokens, maj@8 114/500 -> L_copsd_swa.jsonl
+2026-11-03 16:00:52,107 INFO L_copsd_yor: 500 items, sampling {'temperature': 0.7, 'top_p': 0.8, 'top_k': 20}, max_tokens 2048, thinking False; prompt[0]:
+<|im_start|>user
+Fún àwọn nọ́ńbà gidi \( a, b, c \) àti nọ́ńbà rere \( \lambda \) tí ó jẹ́ pé pólínómíà \( f(x) = x^3 + a x^2 + b x + c \) ní ìpìlẹ̀ gidi mẹ́ta \( x_1, x_2, x_3 \), tí àwọn ipò \( x_2 - x_1 = \lambda \) àti \( x_3 > \frac{1}{2}(x_1 + x_2) \) sì jẹ́ mímúṣẹ, wá iye tí ó pọ̀ jùlọ fún \( \frac{2 a^3 + 27 c - 9 a b}{\lambda^3} \).
+Please reason step by step, and put your final answer within \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 16:15:34,906 WARNING Timeout during comparison
+2026-11-03 16:15:39,928 WARNING Timeout during comparison
+2026-11-03 16:15:44,928 WARNING Timeout during comparison
+2026-11-03 16:15:49,937 WARNING Timeout during comparison
+2026-11-03 16:15:54,938 WARNING Timeout during comparison
+2026-11-03 16:15:59,939 WARNING Timeout during comparison
+2026-11-03 16:16:04,940 WARNING Timeout during comparison
+2026-11-03 16:16:09,963 WARNING Timeout during comparison
+2026-11-03 16:16:14,965 WARNING Timeout during comparison
+2026-11-03 16:16:19,994 WARNING Timeout during comparison
+2026-11-03 16:16:24,995 WARNING Timeout during comparison
+2026-11-03 16:16:30,388 WARNING Timeout during comparison
+2026-11-03 16:16:35,389 WARNING Timeout during comparison
+2026-11-03 16:16:40,392 WARNING Timeout during comparison
+2026-11-03 16:16:45,393 WARNING Timeout during comparison
+2026-11-03 16:16:50,395 WARNING Timeout during comparison
+2026-11-03 16:16:55,396 WARNING Timeout during comparison
+2026-11-03 16:17:00,397 WARNING Timeout during comparison
+2026-11-03 16:17:05,398 WARNING Timeout during comparison
+2026-11-03 16:17:10,400 WARNING Timeout during comparison
+2026-11-03 16:17:15,401 WARNING Timeout during comparison
+2026-11-03 16:17:56,790 WARNING Timeout during comparison
+2026-11-03 16:18:01,790 WARNING Timeout during comparison
+2026-11-03 16:18:06,790 WARNING Timeout during comparison
+2026-11-03 16:18:11,791 WARNING Timeout during comparison
+2026-11-03 16:18:16,791 WARNING Timeout during comparison
+2026-11-03 16:18:21,792 WARNING Timeout during comparison
+2026-11-03 16:18:26,792 WARNING Timeout during comparison
+2026-11-03 16:18:31,792 WARNING Timeout during comparison
+2026-11-03 16:18:36,794 WARNING Timeout during comparison
+2026-11-03 16:18:41,794 WARNING Timeout during comparison
+2026-11-03 16:18:46,795 WARNING Timeout during comparison
+2026-11-03 16:18:51,796 WARNING Timeout during comparison
+2026-11-03 16:18:56,796 WARNING Timeout during comparison
+2026-11-03 16:19:01,797 WARNING Timeout during comparison
+2026-11-03 16:19:32,103 INFO L_copsd_yor: 800.6s, 3888068 tokens, maj@8 103/500 -> L_copsd_yor.jsonl
+2026-11-03 16:19:34,018 INFO verdict {'COPSD set': [], 'GSM8K train': ['R2_gsm8k_en']}

@@ -1,0 +1,73 @@
+PILOT R — gold COPSD reproduction on AfriMGSM Swahili (Qwen3-1.7B, 1x A6000)
+generated 2026-11-03T21:10:50
+
+## Setup and deviations
+  - 1 GPU instead of 4: micro-batch 4 x grad-accum 8 = 32 prompts/step (official 4 GPUs x 4 x 2 = 32). Same per-micro-batch loss normalisation.
+  - Backward is done one sample at a time inside each micro-batch, with the micro-batch padding layout and the micro-batch token count as denominator: identical loss/gradient to the official micro-batch of 4, lower peak memory.
+  - Completions are not right-padded to 2048 before the forward pass (official pads every completion to max_completion_length); pads are masked and causal, so the loss is unchanged.
+  - Steps: 60 = min(official 100, 60). LR schedule kept on the official 100-step linear horizon, so steps 1-60 see the same LR as the official run.
+  - Checkpoints every 10 steps (official save_steps 5); DEV evaluation at steps 10..60 (official evaluates 5..50).
+  - Own implementation of the OPSD training loop (official: TRL 0.26 GOLD/SFTTrainer + accelerate + DeepSpeed + vLLM 0.11 colocate). Collator, prompts, think prefix and generalized_jsd_loss are imported/copied from the official repo.
+  - Generation: all 32 prompts of a step in one vLLM call (official: one call per micro-batch, same weights since no optimizer step in between).
+  - Student weights reach vLLM as a LoRA adapter (vLLM LoRA, saved after every optimizer step) instead of merge_adapter + load_weights; numerically equivalent up to bf16 rounding.
+  - Data order: per-epoch torch.randperm(seed 42+epoch), micro-batches of 4, optimizer step every 8 micro-batches or at epoch end (HF-like); not the identical sample order of the official run.
+  - Attention: PyTorch SDPA (official: flash_attention_2). Same right-padded prompt layout with masked pads.
+  - Software: torch 2.14 / transformers 5.20 / vLLM 0.33 / peft 0.21 (official pins torch 2.8 / transformers 4.57.1 / vLLM 0.11 / peft 0.17.1).
+  - Training data field mapping: problem_translated -> problem_swa (released HF data vs official script's expected column).
+  - Divergence: official flags give beta=0 => F.kl_div(student_logp, teacher_logp) = KL(teacher || student), i.e. FORWARD KL over the full vocabulary (temperature 1.1 applied to both logits, per-(token,vocab) clip at 0.05). The task description said reverse KL; we follow the code.
+  - Evaluation sampling uses vLLM seed 42 (official: unseeded) and max_model_len 4096 (official 40960; generations are capped at 1024 new tokens anyway).
+  split: random.Random(42).shuffle(range(250)); DEV = first 50, TEST = rest; sorted  (DEV 50, TEST 200)
+  eval protocol: COPSD evaluate_math.py for SWA: thinking prompt + think prefix, n=12, T=1.0, top_p 0.95, top_k -1, max_new_tokens 1024; extract_boxed_answer + grade_answer (math-verify); maj@12 = COPSD Counter vote
+  language heuristic: generated text with LaTeX/$..$/boxed removed; count Swahili vs English function words from fixed lists; 'sw' if Swahili count > English count (ties/none -> not sw)
+
+## Training
+  steps logged: 60; seconds/step mean 63.7 (min 47.1, max 69.6); total step time 1.06 h; peak torch alloc 14339 MiB; peak GPU used (incl. vLLM 0.4 share) 39244 MiB
+  step  loss      grad_norm  mean_len  trunc  boxed
+     1  0.00377  0.0903      1925   0.88   0.12
+     2  0.00355  0.0799      1989   0.94   0.06
+     3  0.00480  0.0941      1878   0.84   0.16
+     5  0.00372  0.0775      1857   0.88   0.12
+    10  0.00146  0.0700      1853   0.78   0.22
+    15  -0.00146  0.0910      1737   0.72   0.22
+    20  -0.00638  0.1176      1676   0.66   0.41
+    25  -0.01072  0.1239      1515   0.44   0.56
+    30  -0.01489  0.1218      1622   0.50   0.53
+    35  -0.01734  0.1079      1495   0.44   0.50
+    40  -0.01798  0.1002      1560   0.53   0.50
+    45  -0.02342  0.1109      1397   0.34   0.69
+    50  -0.02416  0.1038      1276   0.28   0.72
+    55  -0.02318  0.0867      1494   0.38   0.59
+    60  -0.02762  0.1096      1458   0.31   0.69
+
+## DEV curve (50 items; used only for checkpoint selection)
+  model    pass@12        maj@12   mean_acc  format  trunc  sw-lang
+  base     9/50 = 0.180 [0.098, 0.308] 0.140   0.033    0.228   0.795  0.980
+  step10   13/50 = 0.260 [0.159, 0.396] 0.140   0.048    0.413   0.590  0.982
+  step20   14/50 = 0.280 [0.175, 0.417] 0.140   0.070    0.603   0.443  0.962
+  step30   13/50 = 0.260 [0.159, 0.396] 0.080   0.052    0.613   0.428  0.945
+  step40   13/50 = 0.260 [0.159, 0.396] 0.100   0.062    0.572   0.458  0.947
+  step50   14/50 = 0.280 [0.175, 0.417] 0.080   0.060    0.602   0.383  0.948
+  step60   16/50 = 0.320 [0.208, 0.458] 0.140   0.068    0.585   0.400  0.973
+  SELECTED (highest DEV pass@12, ties -> earlier step): step60
+
+## TEST (200 items): base vs selected checkpoint
+  base     pass@12 29/200 = 0.145 [0.103, 0.200]  maj@12 16/200 = 0.080 [0.050, 0.126]  mean_acc 0.025  format 0.201  trunc 0.815  sw-lang 0.984
+  step60   pass@12 33/200 = 0.165 [0.120, 0.223]  maj@12 16/200 = 0.080 [0.050, 0.126]  mean_acc 0.032  format 0.545  trunc 0.448  sw-lang 0.966
+  Δ pass@12   = +2.00 pts  [-3.50, +7.50]  (paired bootstrap, 10,000 resamples)
+  Δ mean_acc  = +0.67 pts  [-0.50, +1.88]
+  Δ format    = +34.38 pts  [+30.96, +37.75]   (next to Δ accuracy: do gains track format?)
+  pass@12 discordant items: gained 18, lost 14
+  base     accuracy among formatted samples: 60/482 = 0.124 [0.098, 0.157]
+  step60   accuracy among formatted samples: 76/1307 = 0.058 [0.047, 0.072]
+
+## ORACLE (best checkpoint on TEST; NOT used for the decision)
+  step10   TEST pass@12 0.160  mean_acc 0.035  format 0.358
+  step20   TEST pass@12 0.205  mean_acc 0.050  format 0.559
+  step30   TEST pass@12 0.195  mean_acc 0.043  format 0.519
+  step40   TEST pass@12 0.210  mean_acc 0.038  format 0.498
+  step50   TEST pass@12 0.190  mean_acc 0.037  format 0.545
+  step60   TEST pass@12 0.165  mean_acc 0.032  format 0.545
+  ORACLE = step40 (TEST pass@12 0.210)
+
+## Pre-registered decision: GO iff TEST Δpass@12 >= +3 pts AND its 95% bootstrap CI excludes 0
+  => NO-GO

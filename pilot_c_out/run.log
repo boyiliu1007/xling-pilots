@@ -1,0 +1,218 @@
+2026-11-03 13:54:16,215 INFO === pilot_c start; argv ['pilot_c.py', '--inspect_only']; args {'langs': ['sw', 'yo', 'hi'], 'n_items': 500, 'seed': 42, 'output_dir': 'pilot_c_out', 'token_budget': 24000, 'inspect_only': True, 'report_only': False}
+2026-11-03 13:54:17,112 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 13:54:17,113 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 13:54:17,118 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 13:54:17,145 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:17,217 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:17,512 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/revision/0e619dbeb34206cd48705a1a0ea7fb21cae09993 "HTTP/1.1 200 OK"
+2026-11-03 13:54:17,534 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:17,617 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 13:54:17,662 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/am?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 13:54:17,687 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 13:54:17,713 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:17,739 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 13:54:17,744 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 13:54:17,767 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:17,791 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:17,981 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:18,042 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 13:54:18,075 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:18,106 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/en?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 13:54:19,310 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 13:54:19,316 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 13:54:19,339 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:19,362 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:19,608 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:19,666 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 13:54:19,696 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:19,729 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/sw?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 13:54:19,760 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/sw/test-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 13:54:19,847 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/xet-read-token/0e619dbeb34206cd48705a1a0ea7fb21cae09993 "HTTP/1.1 200 OK"
+2026-11-03 13:54:20,517 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/sw/dev-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 13:54:22,063 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 13:54:22,069 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 13:54:22,093 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:22,118 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:22,312 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:22,375 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 13:54:22,407 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:22,441 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/yo?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 13:54:22,479 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/yo/test-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 13:54:22,854 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/yo/dev-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 13:54:24,613 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 13:54:24,619 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 13:54:24,640 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:24,663 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:24,918 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:24,973 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 13:54:25,009 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 13:54:25,045 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/hi?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 13:54:25,077 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/hi/test-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 13:54:25,468 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/hi/dev-00000-of-00001.parquet "HTTP/1.1 302 Found"
+2026-11-03 13:54:27,363 INFO Stage 1 passed
+2026-11-03 14:03:31,874 INFO === pilot_c start; argv ['pilot_c.py']; args {'langs': ['sw', 'yo', 'hi'], 'n_items': 500, 'seed': 42, 'output_dir': 'pilot_c_out', 'token_budget': 24000, 'prefill': 'The correct answer is: **', 'inspect_only': False, 'report_only': False}
+2026-11-03 14:03:32,886 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:03:32,887 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 14:03:32,892 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 14:03:32,919 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:32,971 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,289 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/revision/0e619dbeb34206cd48705a1a0ea7fb21cae09993 "HTTP/1.1 200 OK"
+2026-11-03 14:03:33,310 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,378 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 14:03:33,415 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/am?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:33,445 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:33,474 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,496 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:03:33,501 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 14:03:33,523 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,546 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,757 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,824 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 14:03:33,859 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:33,885 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/en?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:35,190 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:03:35,196 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 14:03:35,220 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:35,244 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:35,486 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:35,550 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 14:03:35,583 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:35,610 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/sw?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:36,795 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:03:36,800 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 14:03:36,823 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:36,846 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:37,038 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:37,094 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 14:03:37,124 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:37,159 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/yo?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:38,450 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 14:03:38,456 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/CohereLabs/Global-MMLU/0e619dbeb34206cd48705a1a0ea7fb21cae09993/README.md?%2Fdatasets%2FCohereLabs%2FGlobal-MMLU%2Fresolve%2Fmain%2FREADME.md=&etag=%2211051726b7120c25a3aaada11bf6cdba74ab10a0%22 "HTTP/1.1 200 OK"
+2026-11-03 14:03:38,481 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:38,501 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/CohereLabs/Global-MMLU/CohereLabs/Global-MMLU.py "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:38,756 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:38,813 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=CohereLabs/Global-MMLU "HTTP/1.1 200 OK"
+2026-11-03 14:03:38,852 INFO HTTP Request: HEAD https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/0e619dbeb34206cd48705a1a0ea7fb21cae09993/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:38,882 INFO HTTP Request: GET https://huggingface.co/api/datasets/CohereLabs/Global-MMLU/tree/0e619dbeb34206cd48705a1a0ea7fb21cae09993/hi?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:40,283 INFO Stage 1 passed
+2026-11-03 14:03:40,798 INFO Stage 2 unit tests:
+.......                                                                  [100%]
+7 passed in 0.12s
+
+2026-11-03 14:03:41,155 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 14:03:41,155 INFO nvidia-smi at start:
+Tue Nov  3 14:03:40 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:03:00.0 Off |                  Off |
+| 32%   55C    P8             38W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 14:03:46,371 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 14:03:46,402 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 14:03:46,432 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:03:47,164 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 14:03:47,186 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 14:03:48,967 INFO letter token ids: {"A": [[32, "A"], [362, " A"]], "B": [[33, "B"], [425, " B"]], "C": [[34, "C"], [356, " C"]], "D": [[35, "D"], [422, " D"]]}
+2026-11-03 14:03:48,990 INFO rendered prompt [en] item 0 shift 0:
+'<|im_start|>user\nWhich of the following teenagers have the highest pregnancy rates?\n\nA. U.S.\nB. Canadian\nC. Swedish\nD. French\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:03:49,991 INFO rendered prompt [sw] item 0 shift 0:
+'<|im_start|>user\nNi vijana wepi kati ya wafuatao walio na viwango vya juu zaidi vya ujauzito?\n\nA. Wamerekani\nB. Wakanada\nC. Waswidi\nD. Wafaransa\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:03:51,089 INFO rendered prompt [yo] item 0 shift 0:
+'<|im_start|>user\nÈwo nínú àwọn ọ̀dọ́ ọ̀dọ́ tó tẹ̀lé e ni ó ní ìwọ̀n oyún tó ga jù?\n\nA. Amẹ́ríkà\nB. Ará Canada\nC. Ará Sweden\nD. Ará Faransé\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:03:52,547 INFO rendered prompt [hi] item 0 shift 0:
+'<|im_start|>user\nनिम्नलिखित में से किस किशोर की गर्भधारण दर सबसे अधिक है?\n\nA. अमेरिका\nB. कैनेडियन\nC. स्वीडिश\nD. फ्रेंच\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:03:54,642 INFO rendered prompt [teacher_sw] item 0 shift 0:
+'<|im_start|>user\nNi vijana wepi kati ya wafuatao walio na viwango vya juu zaidi vya ujauzito?\n\nA. Wamerekani\nB. Wakanada\nC. Waswidi\nD. Wafaransa\n\nThe following English text is a translation of the same question and options:\n\nWhich of the following teenagers have the highest pregnancy rates?\n\nA. U.S.\nB. Canadian\nC. Swedish\nD. French\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:03:56,304 INFO rendered prompt [teacher_yo] item 0 shift 0:
+'<|im_start|>user\nÈwo nínú àwọn ọ̀dọ́ ọ̀dọ́ tó tẹ̀lé e ni ó ní ìwọ̀n oyún tó ga jù?\n\nA. Amẹ́ríkà\nB. Ará Canada\nC. Ará Sweden\nD. Ará Faransé\n\nThe following English text is a translation of the same question and options:\n\nWhich of the following teenagers have the highest pregnancy rates?\n\nA. U.S.\nB. Canadian\nC. Swedish\nD. French\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:03:58,328 INFO rendered prompt [teacher_hi] item 0 shift 0:
+'<|im_start|>user\nनिम्नलिखित में से किस किशोर की गर्भधारण दर सबसे अधिक है?\n\nA. अमेरिका\nB. कैनेडियन\nC. स्वीडिश\nD. फ्रेंच\n\nThe following English text is a translation of the same question and options:\n\nWhich of the following teenagers have the highest pregnancy rates?\n\nA. U.S.\nB. Canadian\nC. Swedish\nD. French\n\nAnswer with only the letter of the correct option (A, B, C, or D).<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\nThe correct answer is: **'
+2026-11-03 14:07:55,722 INFO scored 14000 prompts in 234.7s; torch peak allocated 7409 MiB
+2026-11-03 14:07:56,567 INFO Permutation check: first 3 items, all 4 shifts (EN view and first target view)
+
+[en] item 0 human_sexuality/test/33 gold original option A
+  shift 0: A=origA:'U.S.' | B=origB:'Canadian' | C=origC:'Swedish' | D=origD:'French'
+     raw letter probs by position [0.997, 0.0, 0.003, 0.0] mass 1.000 -> mapped [0.997, 0.0, 0.003, 0.0] picked position A = orig A; gold at position A
+  shift 1: A=origB:'Canadian' | B=origC:'Swedish' | C=origD:'French' | D=origA:'U.S.'
+     raw letter probs by position [0.941, 0.022, 0.0, 0.036] mass 1.000 -> mapped [0.036, 0.941, 0.022, 0.0] picked position A = orig B; gold at position D
+  shift 2: A=origC:'Swedish' | B=origD:'French' | C=origA:'U.S.' | D=origB:'Canadian'
+     raw letter probs by position [0.991, 0.0, 0.009, 0.0] mass 1.000 -> mapped [0.009, 0.0, 0.991, 0.0] picked position A = orig C; gold at position C
+  shift 3: A=origD:'French' | B=origA:'U.S.' | C=origB:'Canadian' | D=origC:'Swedish'
+     raw letter probs by position [0.935, 0.005, 0.0, 0.06] mass 1.000 -> mapped [0.005, 0.0, 0.06, 0.935] picked position A = orig D; gold at position B
+  debiased C correct=False order_sensitive=True vote=None
+
+[en] item 1 professional_psychology/test/64 gold original option B
+  shift 0: A=origA:'most powerful statistical' | B=origB:'form of the distribution ' | C=origC:'data in the investigated ' | D=origD:'data in the investigated '
+     raw letter probs by position [0.0, 1.0, 0.0, 0.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position B = orig B; gold at position B
+  shift 1: A=origB:'form of the distribution ' | B=origC:'data in the investigated ' | C=origD:'data in the investigated ' | D=origA:'most powerful statistical'
+     raw letter probs by position [1.0, 0.0, 0.0, 0.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position A = orig B; gold at position A
+  shift 2: A=origC:'data in the investigated ' | B=origD:'data in the investigated ' | C=origA:'most powerful statistical' | D=origB:'form of the distribution '
+     raw letter probs by position [0.0, 0.0, 0.0, 1.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position D = orig B; gold at position D
+  shift 3: A=origD:'data in the investigated ' | B=origA:'most powerful statistical' | C=origB:'form of the distribution ' | D=origC:'data in the investigated '
+     raw letter probs by position [0.0, 0.0, 1.0, 0.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position C = orig B; gold at position C
+  debiased B correct=True order_sensitive=False vote=1
+
+[en] item 2 jurisprudence/test/33 gold original option B
+  shift 0: A=origA:'Happiness is less importa' | B=origB:'It is impossible to calcu' | C=origC:'Pain and pleasure are ine' | D=origD:'Utilitarianism fails to t'
+     raw letter probs by position [0.0, 1.0, 0.0, 0.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position B = orig B; gold at position B
+  shift 1: A=origB:'It is impossible to calcu' | B=origC:'Pain and pleasure are ine' | C=origD:'Utilitarianism fails to t' | D=origA:'Happiness is less importa'
+     raw letter probs by position [1.0, 0.0, 0.0, 0.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position A = orig B; gold at position A
+  shift 2: A=origC:'Pain and pleasure are ine' | B=origD:'Utilitarianism fails to t' | C=origA:'Happiness is less importa' | D=origB:'It is impossible to calcu'
+     raw letter probs by position [0.0, 0.0, 0.0, 1.0] mass 1.000 -> mapped [0.0, 1.0, 0.0, 0.0] picked position D = orig B; gold at position D
+  shift 3: A=origD:'Utilitarianism fails to t' | B=origA:'Happiness is less importa' | C=origB:'It is impossible to calcu' | D=origC:'Pain and pleasure are ine'
+     raw letter probs by position [0.818, 0.0, 0.182, 0.0] mass 1.000 -> mapped [0.0, 0.182, 0.0, 0.818] picked position A = orig D; gold at position C
+  debiased B correct=True order_sensitive=True vote=1
+
+[sw] item 0 human_sexuality/test/33 gold original option A
+  shift 0: A=origA:'Wamerekani' | B=origB:'Wakanada' | C=origC:'Waswidi' | D=origD:'Wafaransa'
+     raw letter probs by position [0.962, 0.001, 0.0, 0.037] mass 1.000 -> mapped [0.962, 0.001, 0.0, 0.037] picked position A = orig A; gold at position A
+  shift 1: A=origB:'Wakanada' | B=origC:'Waswidi' | C=origD:'Wafaransa' | D=origA:'Wamerekani'
+     raw letter probs by position [0.95, 0.0, 0.047, 0.002] mass 1.000 -> mapped [0.002, 0.95, 0.0, 0.047] picked position A = orig B; gold at position D
+  shift 2: A=origC:'Waswidi' | B=origD:'Wafaransa' | C=origA:'Wamerekani' | D=origB:'Wakanada'
+     raw letter probs by position [0.96, 0.023, 0.0, 0.018] mass 1.000 -> mapped [0.0, 0.018, 0.96, 0.023] picked position A = orig C; gold at position C
+  shift 3: A=origD:'Wafaransa' | B=origA:'Wamerekani' | C=origB:'Wakanada' | D=origC:'Waswidi'
+     raw letter probs by position [0.998, 0.0, 0.0, 0.002] mass 1.000 -> mapped [0.0, 0.0, 0.002, 0.998] picked position A = orig D; gold at position B
+  debiased D correct=False order_sensitive=True vote=None
+
+[sw] item 1 professional_psychology/test/64 gold original option B
+  shift 0: A=origA:'Jaribio la takwimu lenye ' | B=origB:'hali ya ugawanyishaji wa ' | C=origC:'deta katika idadi inayofa' | D=origD:'deta katika idadi inayofa'
+     raw letter probs by position [0.561, 0.001, 0.001, 0.437] mass 1.000 -> mapped [0.561, 0.001, 0.001, 0.437] picked position A = orig A; gold at position B
+  shift 1: A=origB:'hali ya ugawanyishaji wa ' | B=origC:'deta katika idadi inayofa' | C=origD:'deta katika idadi inayofa' | D=origA:'Jaribio la takwimu lenye '
+     raw letter probs by position [0.331, 0.027, 0.095, 0.546] mass 1.000 -> mapped [0.546, 0.331, 0.027, 0.095] picked position D = orig A; gold at position A
+  shift 2: A=origC:'deta katika idadi inayofa' | B=origD:'deta katika idadi inayofa' | C=origA:'Jaribio la takwimu lenye ' | D=origB:'hali ya ugawanyishaji wa '
+     raw letter probs by position [0.07, 0.661, 0.026, 0.243] mass 1.000 -> mapped [0.026, 0.243, 0.07, 0.661] picked position B = orig D; gold at position D
+  shift 3: A=origD:'deta katika idadi inayofa' | B=origA:'Jaribio la takwimu lenye ' | C=origB:'hali ya ugawanyishaji wa ' | D=origC:'deta katika idadi inayofa'
+     raw letter probs by position [0.219, 0.014, 0.001, 0.766] mass 1.000 -> mapped [0.014, 0.001, 0.766, 0.219] picked position D = orig C; gold at position C
+  debiased D correct=False order_sensitive=True vote=0
+
+[sw] item 2 jurisprudence/test/33 gold original option B
+  shift 0: A=origA:'Furaha sio muhimu kuliko ' | B=origB:'Haiwezekani kuhesabu mato' | C=origC:'Maumivu na raha ni sifa z' | D=origD:'Uhusino wa mataifa inashi'
+     raw letter probs by position [0.678, 0.001, 0.32, 0.001] mass 1.000 -> mapped [0.678, 0.001, 0.32, 0.001] picked position A = orig A; gold at position B
+  shift 1: A=origB:'Haiwezekani kuhesabu mato' | B=origC:'Maumivu na raha ni sifa z' | C=origD:'Uhusino wa mataifa inashi' | D=origA:'Furaha sio muhimu kuliko '
+     raw letter probs by position [0.17, 0.063, 0.004, 0.763] mass 1.000 -> mapped [0.763, 0.17, 0.063, 0.004] picked position D = orig A; gold at position A
+  shift 2: A=origC:'Maumivu na raha ni sifa z' | B=origD:'Uhusino wa mataifa inashi' | C=origA:'Furaha sio muhimu kuliko ' | D=origB:'Haiwezekani kuhesabu mato'
+     raw letter probs by position [0.682, 0.004, 0.195, 0.119] mass 1.000 -> mapped [0.195, 0.119, 0.682, 0.004] picked position A = orig C; gold at position D
+  shift 3: A=origD:'Uhusino wa mataifa inashi' | B=origA:'Furaha sio muhimu kuliko ' | C=origB:'Haiwezekani kuhesabu mato' | D=origC:'Maumivu na raha ni sifa z'
+     raw letter probs by position [0.212, 0.047, 0.001, 0.739] mass 1.000 -> mapped [0.047, 0.001, 0.739, 0.212] picked position D = orig C; gold at position C
+  debiased C correct=False order_sensitive=True vote=None
+2026-11-03 14:07:56,602 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 14:07:56,627 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 14:07:56,656 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 14:07:57,234 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 14:07:57,240 INFO mean letter_mass per view: {"en": 0.9999994891825169, "sw": 0.9999980950016294, "yo": 0.9999873771157998, "hi": 0.9999989010946381, "teacher_sw": 0.9999999961235819, "teacher_yo": 0.99999979929936, "teacher_hi": 0.9999998080895368}
+2026-11-03 14:07:59,761 INFO verdict {'sw': False, 'yo': False, 'hi': np.False_}

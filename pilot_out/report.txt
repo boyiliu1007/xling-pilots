@@ -1,0 +1,153 @@
+PILOT A — Cross-lingual English self-consensus (Qwen3-1.7B, AfriMGSM)
+generated 2026-11-03T13:56:39
+
+## Dataset and alignment
+  masakhane/afrimgsm configs: ['amh', 'eng', 'ewe', 'fra', 'hau', 'ibo', 'kin', 'lin', 'lug', 'orm', 'sna', 'sot', 'swa', 'twi', 'vai', 'wol', 'xho', 'yor', 'zul']
+  LANGUAGE en: masakhane/afrimgsm / eng / test  (250 rows)
+  detected fields: {'question': 'question', 'gold': 'answer_number', 'id': None}
+  LANGUAGE swa: masakhane/afrimgsm / swa / test  (250 rows)
+  detected fields: {'question': 'question', 'gold': 'answer_number', 'id': None}
+  LANGUAGE yor: masakhane/afrimgsm / yor / test  (250 rows)
+  detected fields: {'question': 'question', 'gold': 'answer_number', 'id': None}
+  ALIGNMENT swa vs en
+  method: row order (no ID field in either dataset). AfriMGSM is a row-by-row human translation of MGSM/GSM8K-test, but row order is verified here, not assumed: (a) gold answers compared item by item, (b) numbers appearing in the question text compared to the English question
+  gold mismatches: 0/250 = 0.0000
+  question-number multiset overlap (Jaccard) vs English: mean 0.992, median 1.000, items with overlap < 0.5: 3
+  control: overlap with the NEXT English row (off-by-one) mean 0.061
+  RESULT: OK (threshold 5%)
+  ALIGNMENT yor vs en
+  method: row order (no ID field in either dataset). AfriMGSM is a row-by-row human translation of MGSM/GSM8K-test, but row order is verified here, not assumed: (a) gold answers compared item by item, (b) numbers appearing in the question text compared to the English question
+  gold mismatches: 0/250 = 0.0000
+  question-number multiset overlap (Jaccard) vs English: mean 0.847, median 1.000, items with overlap < 0.5: 28
+  control: overlap with the NEXT English row (off-by-one) mean 0.052
+  RESULT: OK (threshold 5%)
+  items evaluated: en=250, swa=250, yor=250
+
+## Model and generation config
+  model: "Qwen/Qwen3-1.7B"
+  dtype: "bfloat16"
+  gpu_memory_utilization: 0.9
+  sampling: {"temperature": 0.7, "top_p": 0.8, "top_k": 20}
+  n: 8
+  max_tokens: 2048
+  enable_thinking: false
+  seed: 42
+  prompt_template: "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}."
+  versions: {"python": "3.11.17", "torch": "2.14.0+cu130", "vllm": "0.33.0", "transformers": "5.20.2", "datasets": "5.1.0"}
+  args: {"langs": ["swa", "yor"], "n": 8, "limit": null, "thinking": false, "seed": 42, "threshold": 0.625, "output_dir": "pilot_out", "max_tokens": 2048, "inspect_only": false, "report_only": false}
+
+## Per-language metrics  (k/N = point [95% Wilson])
+ en  (N=250, n=8)
+  Pass@1 (mean sample acc): 1670/2000 = 0.835 [0.818, 0.851]  (Wilson on samples; samples are not independent across a question)
+  Maj@8 (ties wrong):       213/250 = 0.852 [0.803, 0.891]
+  Pass@8:                   232/250 = 0.928 [0.889, 0.954]
+  No-answer rate (samples):  8/2000 = 0.004 [0.002, 0.008]
+  No-answer rate (questions, all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+  Tie rate:                  9/250 = 0.036 [0.019, 0.067]
+  Mean vote share:           0.906
+  Samples hit max_tokens:    0/2000 = 0.000 [0.000, 0.002]
+ swa  (N=250, n=8)
+  Pass@1 (mean sample acc): 162/2000 = 0.081 [0.070, 0.094]  (Wilson on samples; samples are not independent across a question)
+  Maj@8 (ties wrong):       21/250 = 0.084 [0.056, 0.125]
+  Pass@8:                   52/250 = 0.208 [0.162, 0.263]
+  No-answer rate (samples):  165/2000 = 0.083 [0.071, 0.095]
+  No-answer rate (questions, all 8 unparseable): 2/250 = 0.008 [0.002, 0.029]
+  Tie rate:                  58/250 = 0.232 [0.184, 0.288]
+  Mean vote share:           0.417
+  Samples hit max_tokens:    63/2000 = 0.032 [0.025, 0.040]
+ yor  (N=250, n=8)
+  Pass@1 (mean sample acc): 68/2000 = 0.034 [0.027, 0.043]  (Wilson on samples; samples are not independent across a question)
+  Maj@8 (ties wrong):       10/250 = 0.040 [0.022, 0.072]
+  Pass@8:                   27/250 = 0.108 [0.075, 0.153]
+  No-answer rate (samples):  413/2000 = 0.206 [0.189, 0.225]
+  No-answer rate (questions, all 8 unparseable): 9/250 = 0.036 [0.019, 0.067]
+  Tie rate:                  59/250 = 0.236 [0.188, 0.292]
+  Mean vote share:           0.382
+  Samples hit max_tokens:    101/2000 = 0.051 [0.042, 0.061]
+
+## Key metric: English rescue rate
+ swa: L_wrong = 229/250 items (majority wrong, tie, or no answer)
+   English rescue rate P(EN maj correct | L_wrong): 194/229 = 0.847 [0.795, 0.888]
+   overall P(EN maj correct) (all items):          213/250 = 0.852 [0.803, 0.891]
+   rescued items as share of all items:            194/250 = 0.776 [0.720, 0.823]
+   P(L pass@8 | L_wrong):                          31/229 = 0.135 [0.097, 0.186]
+   P(EN maj correct | L majority correct):         19/21 = 0.905 [0.711, 0.973]
+ yor: L_wrong = 240/250 items (majority wrong, tie, or no answer)
+   English rescue rate P(EN maj correct | L_wrong): 203/240 = 0.846 [0.795, 0.886]
+   overall P(EN maj correct) (all items):          213/250 = 0.852 [0.803, 0.891]
+   rescued items as share of all items:            203/250 = 0.812 [0.759, 0.856]
+   P(L pass@8 | L_wrong):                          17/240 = 0.071 [0.045, 0.110]
+   P(EN maj correct | L majority correct):         10/10 = 1.000 [0.722, 1.000]
+
+## Confidence filtering (eligible = not tie, parseable majority, vote_share >= t; gold only scores precision)
+ swa
+       t | EN on L_wrong: elig  cov(/|L_wrong|)  precision [Wilson]  rescued | EN on all: elig  cov(/N)  precision | L on all: elig  cov(/N)  precision
+   0.625 | 211  211/229 = 0.921 [0.879, 0.950]  prec 192/211 = 0.910 [0.864, 0.942]  rescued 192 | 232  232/250 = 0.928 [0.889, 0.954]  prec 211/232 = 0.909 [0.866, 0.940] |  54  54/250 = 0.216 [0.169, 0.271]  prec 13/54 = 0.241 [0.146, 0.369]
+   0.750 | 196  196/229 = 0.856 [0.805, 0.896]  prec 184/196 = 0.939 [0.896, 0.965]  rescued 184 | 215  215/250 = 0.860 [0.812, 0.898]  prec 203/215 = 0.944 [0.905, 0.968] |  32  32/250 = 0.128 [0.092, 0.175]  prec 9/32 = 0.281 [0.156, 0.454]
+   0.875 | 183  183/229 = 0.799 [0.742, 0.846]  prec 175/183 = 0.956 [0.916, 0.978]  rescued 175 | 202  202/250 = 0.808 [0.755, 0.852]  prec 194/202 = 0.960 [0.924, 0.980] |  18  18/250 = 0.072 [0.046, 0.111]  prec 5/18 = 0.278 [0.125, 0.509]
+   1.000 | 162  162/229 = 0.707 [0.645, 0.763]  prec 156/162 = 0.963 [0.922, 0.983]  rescued 156 | 181  181/250 = 0.724 [0.666, 0.776]  prec 175/181 = 0.967 [0.930, 0.985] |  10  10/250 = 0.040 [0.022, 0.072]  prec 3/10 = 0.300 [0.108, 0.603]
+ yor
+       t | EN on L_wrong: elig  cov(/|L_wrong|)  precision [Wilson]  rescued | EN on all: elig  cov(/N)  precision | L on all: elig  cov(/N)  precision
+   0.625 | 223  223/240 = 0.929 [0.890, 0.955]  prec 202/223 = 0.906 [0.860, 0.938]  rescued 202 | 232  232/250 = 0.928 [0.889, 0.954]  prec 211/232 = 0.909 [0.866, 0.940] |  55  55/250 = 0.220 [0.173, 0.275]  prec 6/55 = 0.109 [0.051, 0.218]
+   0.750 | 206  206/240 = 0.858 [0.809, 0.897]  prec 194/206 = 0.942 [0.901, 0.966]  rescued 194 | 215  215/250 = 0.860 [0.812, 0.898]  prec 203/215 = 0.944 [0.905, 0.968] |  29  29/250 = 0.116 [0.082, 0.162]  prec 2/29 = 0.069 [0.019, 0.220]
+   0.875 | 193  193/240 = 0.804 [0.749, 0.849]  prec 185/193 = 0.959 [0.920, 0.979]  rescued 185 | 202  202/250 = 0.808 [0.755, 0.852]  prec 194/202 = 0.960 [0.924, 0.980] |  12  12/250 = 0.048 [0.028, 0.082]  prec 1/12 = 0.083 [0.015, 0.354]
+   1.000 | 173  173/240 = 0.721 [0.661, 0.774]  prec 167/173 = 0.965 [0.926, 0.984]  rescued 167 | 181  181/250 = 0.724 [0.666, 0.776]  prec 175/181 = 0.967 [0.930, 0.985] |   5  5/250 = 0.020 [0.009, 0.046]  prec 1/5 = 0.200 [0.036, 0.624]
+
+## Cross-tab: rows = L majority, cols = EN majority
+ swa
+        L | EN     correct       wrong  tie/no-ans   total
+       correct          19           2           0      21
+         wrong         145          18           6     169
+    tie/no-ans          49           8           3      60
+ yor
+        L | EN     correct       wrong  tie/no-ans   total
+       correct          10           0           0      10
+         wrong         151          14           7     172
+    tie/no-ans          52          14           2      68
+
+## Vote-share calibration (accuracy of majority within vote-share bucket; ties/no-answer count wrong)
+ en
+   <=3/8: 0/10 = 0.000 [0.000, 0.278]
+     4/8: 2/8 = 0.250 [0.071, 0.591]
+     5/8: 8/17 = 0.471 [0.262, 0.690]
+     6/8: 9/13 = 0.692 [0.424, 0.873]
+     7/8: 19/21 = 0.905 [0.711, 0.973]
+     8/8: 175/181 = 0.967 [0.930, 0.985]
+ swa
+   <=3/8: 2/159 = 0.013 [0.003, 0.045]
+     4/8: 6/37 = 0.162 [0.077, 0.311]
+     5/8: 4/22 = 0.182 [0.073, 0.385]
+     6/8: 4/14 = 0.286 [0.117, 0.546]
+     7/8: 2/8 = 0.250 [0.071, 0.591]
+     8/8: 3/10 = 0.300 [0.108, 0.603]
+ yor
+   <=3/8: 1/167 = 0.006 [0.001, 0.033]
+     4/8: 3/28 = 0.107 [0.037, 0.272]
+     5/8: 4/26 = 0.154 [0.062, 0.335]
+     6/8: 1/17 = 0.059 [0.010, 0.270]
+     7/8: 0/7 = 0.000 [0.000, 0.354]
+     8/8: 1/5 = 0.200 [0.036, 0.624]
+
+## Pre-registered decision (t = 0.625): PASS iff Wilson LB of EN precision on L_wrong >= 0.60 AND EN coverage among L_wrong >= 0.30
+  swa: PASS  precision 192/211 = 0.910 [0.864, 0.942]  (LB 0.864), coverage 211/229 = 0.921
+  yor: PASS  precision 202/223 = 0.906 [0.860, 0.938]  (LB 0.860), coverage 223/240 = 0.929
+
+## Runtime and GPU (observed)
+  start: 2026-11-03T13:47:17
+  end: 2026-11-03T13:56:38
+  wall_clock_s (model load + generation): 560.8
+  generation_s (sum over languages): 490.8
+  questions_total: 750
+  questions_per_min (generation only): 91.69
+  generated_tokens_total: 2887533
+  peak_gpu_mem_used_MiB (nvidia-smi poll, includes vLLM KV-cache reservation): 44470
+  per_language: {'en': {'questions': 250, 'seconds': 76.22936010360718, 'generated_tokens': 596378, 'truncated_samples': 0}, 'swa': {'questions': 250, 'seconds': 190.92459845542908, 'generated_tokens': 1096655, 'truncated_samples': 63}, 'yor': {'questions': 250, 'seconds': 223.60820078849792, 'generated_tokens': 1194500, 'truncated_samples': 101}}
+
+## Limitations
+  - Single model, single seed, single prompt; n=8 samples; one sampling configuration.
+  - Conditional rates on L_wrong use a subset of the 250 items; intervals are wide; items are one benchmark (GSM8K-derived).
+  - Pass@1 Wilson interval treats the n samples per question as independent, which understates uncertainty.
+  - English questions are the dataset's human-parallel English, an upper bound vs model translation (Pilot B).
+  - English MGSM items derive from GSM8K test, which may be contaminated in Qwen3 pretraining.
+  - Rescue measures availability of a correct teacher label, not whether distillation would help a student.
+  - Answer extraction is heuristic (last \boxed{}, else last number).

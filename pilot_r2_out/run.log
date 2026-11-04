@@ -1,0 +1,307 @@
+2026-11-03 21:24:16,850 INFO === pilot_r2 config argv ['pilot_r.py', 'config', '--variant', 'r2'] host babel-w9-16 job 11039153
+2026-11-03 21:25:13,110 INFO === pilot_r2 config argv ['pilot_r.py', 'config', '--variant', 'r2'] host babel-w9-16 job 11039153
+2026-11-03 21:29:00,426 INFO === pilot_r2 losscheck argv ['pilot_r.py', 'losscheck', '--variant', 'r2', '--label', 'R2_nonthinking_base_step0'] host babel-w9-16 job 11039153
+2026-11-03 21:29:12,030 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 21:29:12,030 INFO nvidia-smi at start:
+Tue Nov  3 21:29:11 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:82:00.0 Off |                  Off |
+| 30%   47C    P8             32W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 21:29:12,080 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 21:29:12,125 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 21:29:12,153 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:29:12,551 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 21:29:13,334 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 21:29:13,339 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 21:29:13,365 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 21:29:13,365 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 21:29:13,443 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 21:29:13,483 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/revision/697dcaf0e8296c864a629f662537ec84ac393941 "HTTP/1.1 200 OK"
+2026-11-03 21:29:13,501 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 21:29:13,544 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/697dcaf0e8296c864a629f662537ec84ac393941/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:29:13,571 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 21:30:55,651 INFO LOSSCHECK {"setting": "R2_nonthinking_base_step0", "variant": "r2", "adapter": "none (LoRA B=0 -> student = base)", "n_samples": 8, "n_tokens": 7383, "unclipped_per_token": {"min": -1.650435876854317e-07, "mean": 0.13355675339698792, "max": 14.297431945800781, "frac_negative(<-1e-4)": 0.0}, "clipped_per_token": {"min": -0.3062988519668579, "mean": 0.01060791127383709, "max": 2.290710926055908, "frac_negative(<-1e-4)": 0.08235134929418564}, "loss_unclipped (official batchmean)": 0.13355675339698792, "loss_clipped (official batchmean)": 0.01060791127383709}
+2026-11-03 21:37:08,704 INFO === pilot_r2 config argv ['pilot_r.py', 'config', '--variant', 'r2'] host babel-w9-16 job 11040508
+2026-11-03 21:37:08,923 INFO === pilot_r2 eval argv ['pilot_r.py', 'eval', '--variant', 'r2', '--names', 'base', '--split', 'dev'] host babel-w9-16 job 11040508
+2026-11-03 21:37:21,941 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 21:37:21,942 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 21:37:21,948 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-03 21:37:21,970 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 21:37:22,068 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 21:37:22,106 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-03 21:37:22,129 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 21:37:22,225 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-03 21:37:22,262 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:37:22,284 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 21:37:22,320 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:37:22,613 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 21:37:22,613 INFO nvidia-smi at start:
+Tue Nov  3 21:37:22 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 30%   33C    P5             29W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 21:37:22,642 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 21:37:22,674 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 21:37:22,702 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:37:23,414 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 21:38:27,876 INFO eval prompt example:
+<|im_start|>user
+James anaamua kukimbia mbio 3 fupi mara 3 kwa wiki. Anakimbia mita 60 kwa kila mbio fupi. Huwa anakimbia jumla ya mita ngapi kwa wiki?
+
+Tafadhali fikiri hatua kwa hatua kwa Kiswahili, na uweke jibu lako la mwisho ndani ya \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 21:40:25,221 INFO EVAL base dev: {"n": 50, "pass@12": 0.36, "maj@12": 0.14, "mean_acc": 0.07666666666666667, "format_rate": 0.7133333333333334, "trunc_rate": 0.29, "sw_rate": 0.62} (116s)
+2026-11-03 21:40:30,090 INFO === pilot_r2 train argv ['pilot_r.py', 'train', '--variant', 'r2', '--max_steps', '60'] host babel-w9-16 job 11040508
+2026-11-03 21:40:41,684 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 21:40:41,685 INFO nvidia-smi at start:
+Tue Nov  3 21:40:41 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 57%   70C    P5             43W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 21:40:41,765 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 21:40:41,808 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 21:40:41,834 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:40:42,240 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 21:40:43,006 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 21:40:43,006 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 21:40:43,011 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/697dcaf0e8296c864a629f662537ec84ac393941/README.md?%2Fdatasets%2FyihongLiu%2FCOPSD-AfriMGSM-TrainDataset%2Fresolve%2Fmain%2FREADME.md=&etag=%227f7c52e27d6247db388d4254f7647131092bbbd7%22 "HTTP/1.1 200 OK"
+2026-11-03 21:40:43,041 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 21:40:43,117 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/yihongLiu/COPSD-AfriMGSM-TrainDataset.py "HTTP/1.1 404 Not Found"
+2026-11-03 21:40:43,151 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/revision/697dcaf0e8296c864a629f662537ec84ac393941 "HTTP/1.1 200 OK"
+2026-11-03 21:40:43,175 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 21:40:43,219 INFO HTTP Request: GET https://huggingface.co/api/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/tree/697dcaf0e8296c864a629f662537ec84ac393941/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 21:40:43,248 INFO HTTP Request: HEAD https://huggingface.co/datasets/yihongLiu/COPSD-AfriMGSM-TrainDataset/resolve/697dcaf0e8296c864a629f662537ec84ac393941/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 21:41:17,518 INFO fresh start; trainable params 69,730,304; dtype torch.float32
+2026-11-03 21:42:01,861 INFO step 1: loss 0.01518 grad_norm 0.2932 lr 4.950e-06 prompts 32 mean_len 904 trunc 0.06 boxed 0.94 gen 18.2s train 26.1s total 44.3s torch_peak 13797MiB gpu_used 41616MiB
+2026-11-03 21:42:52,947 INFO step 2: loss 0.01148 grad_norm 0.2510 lr 4.900e-06 prompts 32 mean_len 1024 trunc 0.19 boxed 0.81 gen 25.0s train 26.0s total 51.1s torch_peak 14290MiB gpu_used 41622MiB
+2026-11-03 21:43:42,370 INFO step 3: loss 0.01186 grad_norm 0.2409 lr 4.850e-06 prompts 32 mean_len 1004 trunc 0.12 boxed 0.84 gen 23.7s train 25.7s total 49.4s torch_peak 14301MiB gpu_used 41622MiB
+2026-11-03 21:44:33,239 INFO step 4: loss 0.01308 grad_norm 0.2622 lr 4.800e-06 prompts 32 mean_len 1039 trunc 0.06 boxed 0.97 gen 24.2s train 26.6s total 50.8s torch_peak 14298MiB gpu_used 41756MiB
+2026-11-03 21:45:19,716 INFO step 5: loss 0.01539 grad_norm 0.2820 lr 4.750e-06 prompts 32 mean_len 820 trunc 0.06 boxed 0.91 gen 22.7s train 23.8s total 46.5s torch_peak 14328MiB gpu_used 41756MiB
+2026-11-03 21:46:08,139 INFO step 6: loss 0.00975 grad_norm 0.2066 lr 4.700e-06 prompts 32 mean_len 1022 trunc 0.09 boxed 0.84 gen 23.5s train 24.9s total 48.4s torch_peak 14298MiB gpu_used 41756MiB
+2026-11-03 21:46:55,545 INFO step 7: loss 0.01176 grad_norm 0.2273 lr 4.650e-06 prompts 32 mean_len 878 trunc 0.09 boxed 0.91 gen 22.8s train 24.5s total 47.4s torch_peak 14310MiB gpu_used 41756MiB
+2026-11-03 21:47:42,591 INFO step 8: loss 0.00950 grad_norm 0.1767 lr 4.600e-06 prompts 32 mean_len 933 trunc 0.09 boxed 0.91 gen 23.3s train 23.8s total 47.0s torch_peak 14293MiB gpu_used 41756MiB
+2026-11-03 21:48:33,069 INFO step 9: loss 0.00524 grad_norm 0.1338 lr 4.550e-06 prompts 32 mean_len 1104 trunc 0.19 boxed 0.81 gen 24.6s train 25.7s total 50.3s torch_peak 14305MiB gpu_used 41756MiB
+2026-11-03 21:49:22,783 INFO step 10: loss 0.00417 grad_norm 0.1002 lr 4.500e-06 prompts 32 mean_len 1069 trunc 0.16 boxed 0.84 gen 24.3s train 25.4s total 49.7s torch_peak 14307MiB gpu_used 41756MiB
+2026-11-03 21:49:24,402 INFO checkpoint saved: /data/user_data/boyil2/pilot_r2_ckpt/step-10
+2026-11-03 21:50:12,956 INFO step 11: loss 0.00582 grad_norm 0.1159 lr 4.450e-06 prompts 32 mean_len 993 trunc 0.09 boxed 0.94 gen 23.4s train 25.1s total 48.5s torch_peak 14284MiB gpu_used 41756MiB
+2026-11-03 21:51:01,710 INFO step 12: loss 0.00397 grad_norm 0.0836 lr 4.400e-06 prompts 32 mean_len 985 trunc 0.12 boxed 0.94 gen 23.4s train 25.4s total 48.7s torch_peak 14292MiB gpu_used 41756MiB
+2026-11-03 21:51:49,731 INFO step 13: loss 0.00686 grad_norm 0.1170 lr 4.350e-06 prompts 32 mean_len 952 trunc 0.03 boxed 0.97 gen 23.4s train 24.6s total 48.0s torch_peak 14287MiB gpu_used 41756MiB
+2026-11-03 21:52:40,866 INFO step 14: loss 0.00128 grad_norm 0.0867 lr 4.300e-06 prompts 32 mean_len 1176 trunc 0.09 boxed 0.88 gen 24.6s train 26.5s total 51.1s torch_peak 14298MiB gpu_used 41756MiB
+2026-11-03 21:53:31,655 INFO step 15: loss 0.00190 grad_norm 0.0910 lr 4.250e-06 prompts 32 mean_len 1092 trunc 0.16 boxed 0.84 gen 24.4s train 26.4s total 50.8s torch_peak 14295MiB gpu_used 41756MiB
+2026-11-03 21:54:10,184 INFO step 16: loss 0.00228 grad_norm 0.0960 lr 4.200e-06 prompts 20 mean_len 1102 trunc 0.10 boxed 0.95 gen 22.3s train 16.2s total 38.5s torch_peak 14310MiB gpu_used 41756MiB
+2026-11-03 21:55:01,882 INFO step 17: loss 0.00226 grad_norm 0.0792 lr 4.150e-06 prompts 32 mean_len 1242 trunc 0.16 boxed 0.84 gen 25.1s train 26.6s total 51.7s torch_peak 14288MiB gpu_used 41756MiB
+2026-11-03 21:55:54,051 INFO step 18: loss -0.00023 grad_norm 0.0640 lr 4.100e-06 prompts 32 mean_len 1236 trunc 0.16 boxed 0.84 gen 25.3s train 26.9s total 52.1s torch_peak 14288MiB gpu_used 41758MiB
+2026-11-03 21:56:45,448 INFO step 19: loss -0.00012 grad_norm 0.0721 lr 4.050e-06 prompts 32 mean_len 1169 trunc 0.12 boxed 0.88 gen 24.8s train 26.6s total 51.4s torch_peak 14339MiB gpu_used 41758MiB
+2026-11-03 21:57:34,528 INFO step 20: loss -0.00048 grad_norm 0.0838 lr 4.000e-06 prompts 32 mean_len 1035 trunc 0.12 boxed 0.91 gen 23.5s train 25.5s total 49.1s torch_peak 14291MiB gpu_used 41758MiB
+2026-11-03 21:57:35,853 INFO checkpoint saved: /data/user_data/boyil2/pilot_r2_ckpt/step-20
+2026-11-03 21:58:24,327 INFO step 21: loss -0.00027 grad_norm 0.0656 lr 3.950e-06 prompts 32 mean_len 1010 trunc 0.06 boxed 0.94 gen 23.6s train 24.9s total 48.5s torch_peak 14300MiB gpu_used 41758MiB
+2026-11-03 21:59:16,907 INFO step 22: loss -0.00081 grad_norm 0.0605 lr 3.900e-06 prompts 32 mean_len 1269 trunc 0.12 boxed 0.84 gen 25.4s train 27.1s total 52.6s torch_peak 14294MiB gpu_used 41758MiB
+2026-11-03 22:00:07,806 INFO step 23: loss -0.00243 grad_norm 0.0675 lr 3.850e-06 prompts 32 mean_len 1162 trunc 0.09 boxed 0.91 gen 24.6s train 26.2s total 50.9s torch_peak 14289MiB gpu_used 41758MiB
+2026-11-03 22:00:58,047 INFO step 24: loss -0.00197 grad_norm 0.0733 lr 3.800e-06 prompts 32 mean_len 1130 trunc 0.09 boxed 0.94 gen 24.5s train 25.8s total 50.2s torch_peak 14300MiB gpu_used 41758MiB
+2026-11-03 22:01:51,500 INFO step 25: loss -0.00211 grad_norm 0.0620 lr 3.750e-06 prompts 32 mean_len 1230 trunc 0.19 boxed 0.84 gen 25.4s train 28.0s total 53.4s torch_peak 14304MiB gpu_used 41760MiB
+2026-11-03 22:02:42,470 INFO step 26: loss -0.00282 grad_norm 0.0673 lr 3.700e-06 prompts 32 mean_len 1217 trunc 0.06 boxed 0.94 gen 24.8s train 26.2s total 50.9s torch_peak 14307MiB gpu_used 41760MiB
+2026-11-03 22:03:32,403 INFO step 27: loss -0.00356 grad_norm 0.0582 lr 3.650e-06 prompts 32 mean_len 1089 trunc 0.12 boxed 0.88 gen 24.2s train 25.6s total 49.9s torch_peak 14297MiB gpu_used 41760MiB
+2026-11-03 22:04:22,862 INFO step 28: loss -0.00327 grad_norm 0.0678 lr 3.600e-06 prompts 32 mean_len 1237 trunc 0.19 boxed 0.81 gen 24.9s train 25.6s total 50.4s torch_peak 14293MiB gpu_used 41760MiB
+2026-11-03 22:05:13,247 INFO step 29: loss -0.00217 grad_norm 0.0711 lr 3.550e-06 prompts 32 mean_len 1180 trunc 0.06 boxed 0.97 gen 24.8s train 25.6s total 50.4s torch_peak 14279MiB gpu_used 41760MiB
+2026-11-03 22:06:08,591 INFO step 30: loss -0.00245 grad_norm 0.0598 lr 3.500e-06 prompts 32 mean_len 1380 trunc 0.28 boxed 0.81 gen 26.8s train 28.6s total 55.3s torch_peak 14297MiB gpu_used 41760MiB
+2026-11-03 22:06:09,832 INFO checkpoint saved: /data/user_data/boyil2/pilot_r2_ckpt/step-30
+2026-11-03 22:07:01,242 INFO step 31: loss -0.00311 grad_norm 0.0599 lr 3.450e-06 prompts 32 mean_len 1288 trunc 0.12 boxed 0.88 gen 25.3s train 26.1s total 51.4s torch_peak 14305MiB gpu_used 41760MiB
+2026-11-03 22:07:41,269 INFO step 32: loss -0.00392 grad_norm 0.0611 lr 3.400e-06 prompts 20 mean_len 1370 trunc 0.15 boxed 0.90 gen 23.2s train 16.8s total 40.0s torch_peak 14281MiB gpu_used 41760MiB
+2026-11-03 22:08:32,819 INFO step 33: loss -0.00482 grad_norm 0.0610 lr 3.350e-06 prompts 32 mean_len 1212 trunc 0.19 boxed 0.84 gen 25.0s train 26.4s total 51.4s torch_peak 14303MiB gpu_used 41760MiB
+2026-11-03 22:09:25,922 INFO step 34: loss -0.00559 grad_norm 0.0670 lr 3.300e-06 prompts 32 mean_len 1329 trunc 0.19 boxed 0.88 gen 25.7s train 27.3s total 53.1s torch_peak 14290MiB gpu_used 41760MiB
+2026-11-03 22:10:21,393 INFO step 35: loss -0.00591 grad_norm 0.0658 lr 3.250e-06 prompts 32 mean_len 1394 trunc 0.19 boxed 0.84 gen 26.8s train 28.6s total 55.4s torch_peak 14314MiB gpu_used 41900MiB
+2026-11-03 22:11:15,746 INFO step 36: loss -0.00708 grad_norm 0.0632 lr 3.200e-06 prompts 32 mean_len 1370 trunc 0.19 boxed 0.84 gen 26.3s train 28.0s total 54.3s torch_peak 14294MiB gpu_used 41900MiB
+2026-11-03 22:12:10,836 INFO step 37: loss -0.00610 grad_norm 0.0562 lr 3.150e-06 prompts 32 mean_len 1438 trunc 0.25 boxed 0.88 gen 26.7s train 28.4s total 55.1s torch_peak 14316MiB gpu_used 41900MiB
+2026-11-03 22:13:04,451 INFO step 38: loss -0.00760 grad_norm 0.0628 lr 3.100e-06 prompts 32 mean_len 1294 trunc 0.09 boxed 0.94 gen 25.9s train 27.7s total 53.6s torch_peak 14293MiB gpu_used 41900MiB
+2026-11-03 22:13:58,602 INFO step 39: loss -0.00587 grad_norm 0.0558 lr 3.050e-06 prompts 32 mean_len 1385 trunc 0.22 boxed 0.84 gen 26.3s train 27.9s total 54.1s torch_peak 14300MiB gpu_used 41900MiB
+2026-11-03 22:14:52,434 INFO step 40: loss -0.00799 grad_norm 0.0598 lr 3.000e-06 prompts 32 mean_len 1369 trunc 0.25 boxed 0.78 gen 26.3s train 27.6s total 53.8s torch_peak 14302MiB gpu_used 41900MiB
+2026-11-03 22:14:53,811 INFO checkpoint saved: /data/user_data/boyil2/pilot_r2_ckpt/step-40
+2026-11-03 22:15:47,755 INFO step 41: loss -0.00638 grad_norm 0.0507 lr 2.950e-06 prompts 32 mean_len 1374 trunc 0.22 boxed 0.88 gen 26.3s train 27.5s total 53.8s torch_peak 14288MiB gpu_used 41900MiB
+2026-11-03 22:16:43,266 INFO step 42: loss -0.00681 grad_norm 0.0541 lr 2.900e-06 prompts 32 mean_len 1453 trunc 0.22 boxed 0.81 gen 26.9s train 28.6s total 55.5s torch_peak 14311MiB gpu_used 41900MiB
+2026-11-03 22:17:41,723 INFO step 43: loss -0.00613 grad_norm 0.0494 lr 2.850e-06 prompts 32 mean_len 1609 trunc 0.31 boxed 0.78 gen 28.3s train 30.2s total 58.4s torch_peak 14297MiB gpu_used 41900MiB
+2026-11-03 22:18:34,454 INFO step 44: loss -0.00747 grad_norm 0.0574 lr 2.800e-06 prompts 32 mean_len 1308 trunc 0.12 boxed 0.88 gen 25.7s train 27.0s total 52.7s torch_peak 14304MiB gpu_used 41900MiB
+2026-11-03 22:19:26,133 INFO step 45: loss -0.00714 grad_norm 0.0588 lr 2.750e-06 prompts 32 mean_len 1198 trunc 0.09 boxed 0.91 gen 24.7s train 26.9s total 51.7s torch_peak 14304MiB gpu_used 41900MiB
+2026-11-03 22:20:24,814 INFO step 46: loss -0.00821 grad_norm 0.0578 lr 2.700e-06 prompts 32 mean_len 1487 trunc 0.38 boxed 0.72 gen 28.0s train 30.6s total 58.7s torch_peak 14324MiB gpu_used 41900MiB
+2026-11-03 22:21:17,041 INFO step 47: loss -0.00743 grad_norm 0.0516 lr 2.650e-06 prompts 32 mean_len 1315 trunc 0.16 boxed 0.91 gen 25.4s train 26.8s total 52.2s torch_peak 14287MiB gpu_used 41900MiB
+2026-11-03 22:21:59,194 INFO step 48: loss -0.00784 grad_norm 0.0558 lr 2.600e-06 prompts 20 mean_len 1552 trunc 0.20 boxed 0.85 gen 23.9s train 18.2s total 42.1s torch_peak 14282MiB gpu_used 41900MiB
+2026-11-03 22:22:54,690 INFO step 49: loss -0.00895 grad_norm 0.0553 lr 2.550e-06 prompts 32 mean_len 1420 trunc 0.19 boxed 0.88 gen 26.9s train 28.5s total 55.5s torch_peak 14324MiB gpu_used 41900MiB
+2026-11-03 22:23:49,596 INFO step 50: loss -0.01054 grad_norm 0.0603 lr 2.500e-06 prompts 32 mean_len 1418 trunc 0.22 boxed 0.88 gen 26.7s train 28.2s total 54.9s torch_peak 14293MiB gpu_used 41900MiB
+2026-11-03 22:23:50,916 INFO checkpoint saved: /data/user_data/boyil2/pilot_r2_ckpt/step-50
+2026-11-03 22:24:44,676 INFO step 51: loss -0.00762 grad_norm 0.0501 lr 2.450e-06 prompts 32 mean_len 1333 trunc 0.22 boxed 0.88 gen 25.9s train 27.9s total 53.7s torch_peak 14287MiB gpu_used 41900MiB
+2026-11-03 22:25:41,294 INFO step 52: loss -0.01008 grad_norm 0.0521 lr 2.400e-06 prompts 32 mean_len 1520 trunc 0.28 boxed 0.84 gen 27.3s train 29.0s total 56.4s torch_peak 14306MiB gpu_used 41900MiB
+2026-11-03 22:26:36,434 INFO step 53: loss -0.00725 grad_norm 0.0483 lr 2.350e-06 prompts 32 mean_len 1391 trunc 0.28 boxed 0.75 gen 26.6s train 28.4s total 55.0s torch_peak 14303MiB gpu_used 41900MiB
+2026-11-03 22:27:30,418 INFO step 54: loss -0.00723 grad_norm 0.0489 lr 2.300e-06 prompts 32 mean_len 1354 trunc 0.16 boxed 0.88 gen 26.1s train 27.9s total 54.0s torch_peak 14296MiB gpu_used 41900MiB
+2026-11-03 22:28:26,061 INFO step 55: loss -0.01047 grad_norm 0.0598 lr 2.250e-06 prompts 32 mean_len 1477 trunc 0.09 boxed 0.94 gen 27.0s train 28.6s total 55.6s torch_peak 14300MiB gpu_used 41900MiB
+2026-11-03 22:29:20,276 INFO step 56: loss -0.00970 grad_norm 0.0584 lr 2.200e-06 prompts 32 mean_len 1379 trunc 0.09 boxed 0.94 gen 26.2s train 28.0s total 54.2s torch_peak 14311MiB gpu_used 41900MiB
+2026-11-03 22:30:13,806 INFO step 57: loss -0.00786 grad_norm 0.0491 lr 2.150e-06 prompts 32 mean_len 1323 trunc 0.16 boxed 0.88 gen 26.0s train 27.5s total 53.5s torch_peak 14325MiB gpu_used 41900MiB
+2026-11-03 22:31:09,791 INFO step 58: loss -0.00968 grad_norm 0.0579 lr 2.100e-06 prompts 32 mean_len 1433 trunc 0.22 boxed 0.81 gen 27.0s train 28.9s total 56.0s torch_peak 14298MiB gpu_used 41900MiB
+2026-11-03 22:32:08,286 INFO step 59: loss -0.01070 grad_norm 0.0597 lr 2.050e-06 prompts 32 mean_len 1591 trunc 0.16 boxed 0.88 gen 28.1s train 30.4s total 58.5s torch_peak 14286MiB gpu_used 41900MiB
+2026-11-03 22:33:01,314 INFO step 60: loss -0.01218 grad_norm 0.0636 lr 2.000e-06 prompts 32 mean_len 1347 trunc 0.12 boxed 0.91 gen 25.9s train 27.1s total 53.0s torch_peak 14301MiB gpu_used 41900MiB
+2026-11-03 22:33:02,590 INFO checkpoint saved: /data/user_data/boyil2/pilot_r2_ckpt/step-60
+2026-11-03 22:33:02,590 INFO train loop exit at step 60
+2026-11-03 22:33:08,720 INFO === pilot_r2 eval argv ['pilot_r.py', 'eval', '--variant', 'r2', '--names', 'step10', 'step20', 'step30', 'step40', 'step50', 'step60', '--split', 'dev'] host babel-w9-16 job 11040508
+2026-11-03 22:33:20,158 INFO HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,181 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 22:33:20,182 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 22:33:20,187 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,216 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 22:33:20,266 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 22:33:20,302 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,321 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 22:33:20,381 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,405 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,430 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 22:33:20,493 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,863 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 22:33:20,863 INFO nvidia-smi at start:
+Tue Nov  3 22:33:20 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 57%   69C    P8             45W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 22:33:20,893 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 22:33:20,929 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 22:33:20,955 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 22:33:21,639 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 22:34:21,368 INFO eval prompt example:
+<|im_start|>user
+James anaamua kukimbia mbio 3 fupi mara 3 kwa wiki. Anakimbia mita 60 kwa kila mbio fupi. Huwa anakimbia jumla ya mita ngapi kwa wiki?
+
+Tafadhali fikiri hatua kwa hatua kwa Kiswahili, na uweke jibu lako la mwisho ndani ya \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 22:36:37,511 INFO EVAL step10 dev: {"n": 50, "pass@12": 0.22, "maj@12": 0.1, "mean_acc": 0.06166666666666666, "format_rate": 0.73, "trunc_rate": 0.27666666666666667, "sw_rate": 0.4083333333333333} (135s)
+2026-11-03 22:39:34,575 INFO EVAL step20 dev: {"n": 50, "pass@12": 0.24, "maj@12": 0.06, "mean_acc": 0.05499999999999999, "format_rate": 0.605, "trunc_rate": 0.4, "sw_rate": 0.475} (176s)
+2026-11-03 22:42:33,500 INFO EVAL step30 dev: {"n": 50, "pass@12": 0.26, "maj@12": 0.08, "mean_acc": 0.06166666666666667, "format_rate": 0.6083333333333333, "trunc_rate": 0.395, "sw_rate": 0.46} (178s)
+2026-11-03 22:45:26,327 INFO EVAL step40 dev: {"n": 50, "pass@12": 0.34, "maj@12": 0.1, "mean_acc": 0.056666666666666664, "format_rate": 0.6633333333333333, "trunc_rate": 0.34833333333333333, "sw_rate": 0.4066666666666667} (172s)
+2026-11-03 22:48:16,711 INFO EVAL step50 dev: {"n": 50, "pass@12": 0.18, "maj@12": 0.1, "mean_acc": 0.045, "format_rate": 0.695, "trunc_rate": 0.31333333333333335, "sw_rate": 0.3383333333333333} (170s)
+2026-11-03 22:51:11,427 INFO EVAL step60 dev: {"n": 50, "pass@12": 0.36, "maj@12": 0.04, "mean_acc": 0.061666666666666675, "format_rate": 0.655, "trunc_rate": 0.3566666666666667, "sw_rate": 0.33166666666666667} (174s)
+2026-11-03 22:51:17,446 INFO === pilot_r2 eval argv ['pilot_r.py', 'eval', '--variant', 'r2', '--names', 'base', 'step60', '--split', 'test'] host babel-w9-16 job 11040508
+2026-11-03 22:51:28,584 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 22:51:28,585 WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-03 22:51:28,590 INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/masakhane/afrimgsm/8e4268d2b94941f18f63f694cf48e4ae26fbec65/README.md?%2Fdatasets%2Fmasakhane%2Fafrimgsm%2Fresolve%2Fmain%2FREADME.md=&etag=%22e230c199efa1f33907e234cc5783a26f0c53208b%22 "HTTP/1.1 200 OK"
+2026-11-03 22:51:28,616 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 22:51:28,677 INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/masakhane/afrimgsm/masakhane/afrimgsm.py "HTTP/1.1 404 Not Found"
+2026-11-03 22:51:28,708 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/revision/8e4268d2b94941f18f63f694cf48e4ae26fbec65 "HTTP/1.1 200 OK"
+2026-11-03 22:51:28,733 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-11-03 22:51:28,779 INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=masakhane/afrimgsm "HTTP/1.1 200 OK"
+2026-11-03 22:51:28,804 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Famh?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 22:51:28,828 INFO HTTP Request: HEAD https://huggingface.co/datasets/masakhane/afrimgsm/resolve/8e4268d2b94941f18f63f694cf48e4ae26fbec65/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-11-03 22:51:28,867 INFO HTTP Request: GET https://huggingface.co/api/datasets/masakhane/afrimgsm/tree/8e4268d2b94941f18f63f694cf48e4ae26fbec65/data%2Fswa?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-11-03 22:51:29,246 INFO GPU check: other processes 0 MiB, total used 1 MiB, procs [] -> free
+2026-11-03 22:51:29,246 INFO nvidia-smi at start:
+Tue Nov  3 22:51:28 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A6000               On  |   00000000:81:00.0 Off |                  Off |
+| 58%   69C    P8             41W /  300W |       1MiB /  49140MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+2026-11-03 22:51:29,271 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 22:51:29,307 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-11-03 22:51:29,332 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-11-03 22:51:30,159 INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-11-03 22:52:29,902 INFO eval prompt example:
+<|im_start|>user
+Bata wa Janet hutaga mayai 16 kila siku. Huwa anakula matatu wakati wa staftahi kila asubuhi na huokea marafiki zake mafini kila siku kwa mayai manne. Huwa anauza yaliyosalia katika soko la wakulima kila siku kwa $2 kwa kila yai la bata. Huwa anatengeneza pesa ngapi katika dola kila siku katika soko la wakulima?
+
+Tafadhali fikiri hatua kwa hatua kwa Kiswahili, na uweke jibu lako la mwisho ndani ya \boxed{}.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+2026-11-03 23:00:11,711 INFO EVAL base test: {"n": 200, "pass@12": 0.24, "maj@12": 0.105, "mean_acc": 0.06583333333333335, "format_rate": 0.7504166666666666, "trunc_rate": 0.24916666666666668, "sw_rate": 0.5320833333333334} (456s)
+2026-11-03 23:11:05,307 INFO EVAL step60 test: {"n": 200, "pass@12": 0.23, "maj@12": 0.1, "mean_acc": 0.05458333333333334, "format_rate": 0.7316666666666667, "trunc_rate": 0.2808333333333333, "sw_rate": 0.2675} (651s)
+2026-11-03 23:11:11,125 INFO === pilot_r2 report argv ['pilot_r.py', 'report', '--variant', 'r2'] host babel-w9-16 job 11040508

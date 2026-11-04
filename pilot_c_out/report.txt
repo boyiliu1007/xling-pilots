@@ -1,0 +1,178 @@
+PILOT C — Multilingual MCQ option-order bias and cross-lingual headroom (Qwen3-1.7B, Global-MMLU)
+generated 2026-11-03T14:07:57;  N = 500 items (same IDs in every view)
+Intervals: Wilson 95% for proportions; paired bootstrap (10,000 resamples over items, percentile) for differences.
+
+## Dataset and alignment
+  repo: CohereLabs/Global-MMLU
+  LANGUAGE en: CohereLabs/Global-MMLU/en/test  (14042 rows)
+  fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+  LANGUAGE sw: CohereLabs/Global-MMLU/sw/test  (14042 rows)
+  fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+  LANGUAGE yo: CohereLabs/Global-MMLU/yo/test  (14042 rows)
+  fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+  LANGUAGE hi: CohereLabs/Global-MMLU/hi/test  (14042 rows)
+  fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+  sw: 14042 ids shared with en (en has 14042, sw has 14042); gold mismatches 0/14042 = 0.0000; first 5: []
+     cultural label differs from en for 0 ids
+  yo: 14042 ids shared with en (en has 14042, yo has 14042); gold mismatches 2/14042 = 0.0001; first 5: ['business_ethics/test/93', 'human_aging/test/118']
+     cultural label differs from en for 0 ids
+  hi: 14042 ids shared with en (en has 14042, hi has 14042); gold mismatches 0/14042 = 0.0000; first 5: []
+     cultural label differs from en for 0 ids
+  ids present in all of ['en', 'sw', 'yo', 'hi']: 14042
+  sampled 500 ids, stratified by subject (proportional, largest remainder, seed 42); 57 subjects represented; allocation: {'abstract_algebra': 4, 'anatomy': 5, 'astronomy': 5, 'business_ethics': 4, 'clinical_knowledge': 9, 'college_biology': 5, 'college_chemistry': 4, 'college_computer_science': 4, 'college_mathematics': 4, 'college_medicine': 6, 'college_physics': 4, 'computer_security': 4, 'concep ...
+  sample gold distribution (en): {'A': 109, 'B': 122, 'C': 144, 'D': 125}
+  sample cultural label distribution (en): {'CS': 19, '-': 396, 'CA': 85}
+
+## Config
+  model: "Qwen/Qwen3-1.7B"
+  dtype: "bfloat16"
+  backend: "HF transformers forward pass (right padding, last real token)"
+  chat_template: "Qwen3 apply_chat_template(enable_thinking=False, add_generation_prompt=True)"
+  instruction: "Answer with only the letter of the correct option (A, B, C, or D)."
+  teacher_line: "The following English text is a translation of the same question and options:"
+  assistant_prefill: "The correct answer is: **"
+  letter_token_ids: {"A": [[32, "A"], [362, " A"]], "B": [[33, "B"], [425, " B"]], "C": [[34, "C"], [356, " C"]], "D": [[35, "D"], [422, " D"]]}
+  versions: {"python": "3.11.17", "torch": "2.14.0+cu130", "transformers": "5.20.2", "datasets": "5.1.0", "numpy": "2.3.5"}
+  args: {"langs": ["sw", "yo", "hi"], "n_items": 500, "seed": 42, "output_dir": "pilot_c_out", "token_budget": 24000, "prefill": "The correct answer is: **", "inspect_only": false, "report_only": false}
+
+## Per-view metrics
+  (mean-shift accuracy and picked-letter shares use N*4 decisions; Wilson there treats shifts as independent)
+ en
+   letter_mass mean 1.000 (min 1.000, share < 0.5: 0.000)
+   single-order acc:  257/500 = 0.514 [0.470, 0.558]
+   mean-shift acc:    1052/2000 = 0.526 [0.504, 0.548]
+   debiased acc:      273/500 = 0.546 [0.502, 0.589]
+   vote acc:          239/500 = 0.478 [0.435, 0.522]   (vote ties: 80)
+   order-sensitive:   278/500 = 0.556 [0.512, 0.599]
+   picked letter:     A 520/2000 = 0.260 [0.241, 0.280]  B 483/2000 = 0.241 [0.223, 0.261]  C 460/2000 = 0.230 [0.212, 0.249]  D 537/2000 = 0.269 [0.250, 0.288]   (ideal 0.25 each; chance acc 0.25)
+ sw
+   letter_mass mean 1.000 (min 0.998, share < 0.5: 0.000)
+   single-order acc:  160/500 = 0.320 [0.281, 0.362]
+   mean-shift acc:    594/2000 = 0.297 [0.277, 0.317]
+   debiased acc:      148/500 = 0.296 [0.258, 0.337]
+   vote acc:          116/500 = 0.232 [0.197, 0.271]   (vote ties: 114)
+   order-sensitive:   423/500 = 0.846 [0.812, 0.875]
+   picked letter:     A 634/2000 = 0.317 [0.297, 0.338]  B 324/2000 = 0.162 [0.147, 0.179]  C 309/2000 = 0.154 [0.139, 0.171]  D 733/2000 = 0.366 [0.346, 0.388]   (ideal 0.25 each; chance acc 0.25)
+ yo
+   letter_mass mean 1.000 (min 0.986, share < 0.5: 0.000)
+   single-order acc:  151/500 = 0.302 [0.263, 0.344]
+   mean-shift acc:    607/2000 = 0.303 [0.284, 0.324]
+   debiased acc:      162/500 = 0.324 [0.284, 0.366]
+   vote acc:          128/500 = 0.256 [0.220, 0.296]   (vote ties: 107)
+   order-sensitive:   405/500 = 0.810 [0.773, 0.842]
+   picked letter:     A 662/2000 = 0.331 [0.311, 0.352]  B 391/2000 = 0.196 [0.179, 0.213]  C 276/2000 = 0.138 [0.124, 0.154]  D 671/2000 = 0.336 [0.315, 0.356]   (ideal 0.25 each; chance acc 0.25)
+ hi
+   letter_mass mean 1.000 (min 1.000, share < 0.5: 0.000)
+   single-order acc:  191/500 = 0.382 [0.340, 0.425]
+   mean-shift acc:    769/2000 = 0.385 [0.363, 0.406]
+   debiased acc:      200/500 = 0.400 [0.358, 0.444]
+   vote acc:          173/500 = 0.346 [0.306, 0.389]   (vote ties: 88)
+   order-sensitive:   342/500 = 0.684 [0.642, 0.723]
+   picked letter:     A 578/2000 = 0.289 [0.270, 0.309]  B 472/2000 = 0.236 [0.218, 0.255]  C 385/2000 = 0.193 [0.176, 0.210]  D 565/2000 = 0.282 [0.263, 0.303]   (ideal 0.25 each; chance acc 0.25)
+ teacher_sw
+   letter_mass mean 1.000 (min 1.000, share < 0.5: 0.000)
+   single-order acc:  233/500 = 0.466 [0.423, 0.510]
+   mean-shift acc:    952/2000 = 0.476 [0.454, 0.498]
+   debiased acc:      258/500 = 0.516 [0.472, 0.560]
+   vote acc:          230/500 = 0.460 [0.417, 0.504]   (vote ties: 74)
+   order-sensitive:   321/500 = 0.642 [0.599, 0.683]
+   picked letter:     A 476/2000 = 0.238 [0.220, 0.257]  B 483/2000 = 0.241 [0.223, 0.261]  C 412/2000 = 0.206 [0.189, 0.224]  D 629/2000 = 0.315 [0.295, 0.335]   (ideal 0.25 each; chance acc 0.25)
+ teacher_yo
+   letter_mass mean 1.000 (min 1.000, share < 0.5: 0.000)
+   single-order acc:  241/500 = 0.482 [0.439, 0.526]
+   mean-shift acc:    990/2000 = 0.495 [0.473, 0.517]
+   debiased acc:      270/500 = 0.540 [0.496, 0.583]
+   vote acc:          245/500 = 0.490 [0.446, 0.534]   (vote ties: 78)
+   order-sensitive:   315/500 = 0.630 [0.587, 0.671]
+   picked letter:     A 489/2000 = 0.244 [0.226, 0.264]  B 499/2000 = 0.249 [0.231, 0.269]  C 425/2000 = 0.212 [0.195, 0.231]  D 587/2000 = 0.293 [0.274, 0.314]   (ideal 0.25 each; chance acc 0.25)
+ teacher_hi
+   letter_mass mean 1.000 (min 1.000, share < 0.5: 0.000)
+   single-order acc:  240/500 = 0.480 [0.437, 0.524]
+   mean-shift acc:    989/2000 = 0.494 [0.473, 0.516]
+   debiased acc:      258/500 = 0.516 [0.472, 0.560]
+   vote acc:          231/500 = 0.462 [0.419, 0.506]   (vote ties: 85)
+   order-sensitive:   318/500 = 0.636 [0.593, 0.677]
+   picked letter:     A 463/2000 = 0.232 [0.214, 0.250]  B 516/2000 = 0.258 [0.239, 0.278]  C 485/2000 = 0.242 [0.224, 0.262]  D 536/2000 = 0.268 [0.249, 0.288]   (ideal 0.25 each; chance acc 0.25)
+
+## H1: order-sensitivity rate, L view minus EN view (paired bootstrap)
+  sw: 0.846 - 0.556 = +0.290 [+0.238, +0.340]
+  yo: 0.810 - 0.556 = +0.254 [+0.202, +0.304]
+  hi: 0.684 - 0.556 = +0.128 [+0.078, +0.180]
+
+## H2: accuracy gap decomposition (paired bootstrap)
+  sw: gap_single   = +0.194 [+0.136, +0.250]
+      gap_debiased = +0.250 [+0.194, +0.306]
+      debias_gain_sw = acc_deb(sw) - acc_single(sw) = -0.024 [-0.068, +0.018]
+      (debias_gain_en = +0.032 [+0.000, +0.066])
+      share of single-order gap closed by debiasing = -0.289 [-0.711, -0.019]
+  yo: gap_single   = +0.212 [+0.154, +0.268]
+      gap_debiased = +0.222 [+0.164, +0.280]
+      debias_gain_yo = acc_deb(yo) - acc_single(yo) = +0.022 [-0.014, +0.060]
+      (debias_gain_en = +0.032 [+0.000, +0.066])
+      share of single-order gap closed by debiasing = -0.047 [-0.308, +0.155]
+  hi: gap_single   = +0.132 [+0.082, +0.182]
+      gap_debiased = +0.146 [+0.094, +0.198]
+      debias_gain_hi = acc_deb(hi) - acc_single(hi) = +0.018 [-0.014, +0.050]
+      (debias_gain_en = +0.032 [+0.000, +0.066])
+      share of single-order gap closed by debiasing = -0.106 [-0.569, +0.197]
+
+## H3: TEACHER view vs EN and vs L (paired bootstrap)
+  sw order-sensitivity: TEACHER 0.642, EN 0.556, sw 0.846;  TEACHER-EN +0.086 [+0.040, +0.134];  TEACHER-sw -0.204 [-0.250, -0.160]
+  sw debiased acc: TEACHER 0.516, EN 0.546, sw 0.296;  TEACHER-EN -0.030 [-0.072, +0.012];  TEACHER-sw +0.220 [+0.168, +0.270]
+  yo order-sensitivity: TEACHER 0.630, EN 0.556, yo 0.810;  TEACHER-EN +0.074 [+0.030, +0.118];  TEACHER-yo -0.180 [-0.228, -0.130]
+  yo debiased acc: TEACHER 0.540, EN 0.546, yo 0.324;  TEACHER-EN -0.006 [-0.048, +0.036];  TEACHER-yo +0.216 [+0.162, +0.270]
+  hi order-sensitivity: TEACHER 0.636, EN 0.556, hi 0.684;  TEACHER-EN +0.080 [+0.032, +0.128];  TEACHER-hi -0.048 [-0.094, -0.002]
+  hi debiased acc: TEACHER 0.516, EN 0.546, hi 0.400;  TEACHER-EN -0.030 [-0.074, +0.014];  TEACHER-hi +0.116 [+0.074, +0.158]
+
+## Headroom (debiased answers)
+  sw: L debiased wrong = 352/500
+     P(EN deb correct | L deb wrong):      180/352 = 0.511 [0.459, 0.563]
+     EN deb correct & L deb wrong / all:   180/500 = 0.360 [0.319, 0.403]
+     P(TEACHER deb correct | L deb wrong): 151/352 = 0.429 [0.378, 0.481]
+     overall EN debiased acc for reference: 273/500 = 0.546 [0.502, 0.589]
+  yo: L debiased wrong = 338/500
+     P(EN deb correct | L deb wrong):      180/338 = 0.533 [0.479, 0.585]
+     EN deb correct & L deb wrong / all:   180/500 = 0.360 [0.319, 0.403]
+     P(TEACHER deb correct | L deb wrong): 160/338 = 0.473 [0.421, 0.527]
+     overall EN debiased acc for reference: 273/500 = 0.546 [0.502, 0.589]
+  hi: L debiased wrong = 300/500
+     P(EN deb correct | L deb wrong):      129/300 = 0.430 [0.375, 0.487]
+     EN deb correct & L deb wrong / all:   129/500 = 0.258 [0.222, 0.298]
+     P(TEACHER deb correct | L deb wrong): 88/300 = 0.293 [0.245, 0.347]
+     overall EN debiased acc for reference: 273/500 = 0.546 [0.502, 0.589]
+
+## Breakdown by cultural_sensitivity_label (debiased acc; headroom = EN correct & L wrong)
+    '-' n=396: EN 218/396 = 0.551 [0.501, 0.599] | sw 120/396 = 0.303 [0.260, 0.350] headroom 141/396 = 0.356 [0.310, 0.404] | yo 135/396 = 0.341 [0.296, 0.389] headroom 144/396 = 0.364 [0.318, 0.412] | hi 162/396 = 0.409 [0.362, 0.458] headroom 103/396 = 0.260 [0.219, 0.305]
+   'CA' n= 85: EN 43/85 = 0.506 [0.402, 0.610] | sw 26/85 = 0.306 [0.218, 0.410] headroom 29/85 = 0.341 [0.249, 0.447] | yo 23/85 = 0.271 [0.188, 0.373] headroom 27/85 = 0.318 [0.228, 0.423] | hi 32/85 = 0.376 [0.281, 0.483] headroom 18/85 = 0.212 [0.138, 0.310]
+   'CS' n= 19: EN 12/19 = 0.632 [0.410, 0.809] | sw 2/19 = 0.105 [0.029, 0.314] headroom 10/19 = 0.526 [0.317, 0.727] | yo 4/19 = 0.211 [0.085, 0.433] headroom 9/19 = 0.474 [0.273, 0.683] | hi 6/19 = 0.316 [0.154, 0.540] headroom 8/19 = 0.421 [0.231, 0.637]
+
+## Subjects by headroom share (subjects with >= 15 items)
+  5 subjects qualify: high_school_psychology(19), miscellaneous(28), moral_scenarios(32), professional_law(55), professional_psychology(22)
+  sw top-5:    high_school_psychology 12/19 = 0.632 [0.410, 0.809]; professional_psychology 9/22 = 0.409 [0.233, 0.613]; miscellaneous 11/28 = 0.393 [0.236, 0.576]; professional_law 19/55 = 0.345 [0.234, 0.477]; moral_scenarios 4/32 = 0.125 [0.050, 0.281]
+  sw bottom-5: moral_scenarios 4/32 = 0.125 [0.050, 0.281]; professional_law 19/55 = 0.345 [0.234, 0.477]; miscellaneous 11/28 = 0.393 [0.236, 0.576]; professional_psychology 9/22 = 0.409 [0.233, 0.613]; high_school_psychology 12/19 = 0.632 [0.410, 0.809]
+  yo top-5:    high_school_psychology 11/19 = 0.579 [0.363, 0.769]; professional_psychology 10/22 = 0.455 [0.269, 0.653]; miscellaneous 11/28 = 0.393 [0.236, 0.576]; professional_law 18/55 = 0.327 [0.218, 0.459]; moral_scenarios 6/32 = 0.188 [0.089, 0.353]
+  yo bottom-5: moral_scenarios 6/32 = 0.188 [0.089, 0.353]; professional_law 18/55 = 0.327 [0.218, 0.459]; miscellaneous 11/28 = 0.393 [0.236, 0.576]; professional_psychology 10/22 = 0.455 [0.269, 0.653]; high_school_psychology 11/19 = 0.579 [0.363, 0.769]
+  hi top-5:    high_school_psychology 11/19 = 0.579 [0.363, 0.769]; professional_psychology 9/22 = 0.409 [0.233, 0.613]; miscellaneous 11/28 = 0.393 [0.236, 0.576]; professional_law 11/55 = 0.200 [0.116, 0.324]; moral_scenarios 2/32 = 0.062 [0.017, 0.201]
+  hi bottom-5: moral_scenarios 2/32 = 0.062 [0.017, 0.201]; professional_law 11/55 = 0.200 [0.116, 0.324]; miscellaneous 11/28 = 0.393 [0.236, 0.576]; professional_psychology 9/22 = 0.409 [0.233, 0.613]; high_school_psychology 11/19 = 0.579 [0.363, 0.769]
+
+## Pre-registered decision: PASS iff (a) Wilson LB acc_debiased(L) >= 0.30, (b) share(EN deb correct & L deb wrong) >= 0.10, (c) debias_gain_L > 0 with bootstrap CI excluding 0
+  sw: FAIL  (a) 148/500 = 0.296 [0.258, 0.337] LB 0.258 -> False;  (b) 0.360 -> True;  (c) -0.024 [-0.068, +0.018] -> False
+  yo: FAIL  (a) 162/500 = 0.324 [0.284, 0.366] LB 0.284 -> False;  (b) 0.360 -> True;  (c) +0.022 [-0.014, +0.060] -> False
+  hi: FAIL  (a) 200/500 = 0.400 [0.358, 0.444] LB 0.358 -> True;  (b) 0.258 -> True;  (c) +0.018 [-0.014, +0.050] -> False
+
+## Runtime and GPU (observed)
+  start: 2026-11-03T14:03:41
+  end: 2026-11-03T14:07:57
+  wall_clock_s (model load + scoring): 254.7
+  scoring_s: 234.7
+  prompts_scored: 14000
+  torch_peak_allocated_MiB: 7409
+  peak_gpu_mem_used_MiB (nvidia-smi poll, whole GPU): 8612
+
+## Limitations
+  - One model, one prompt format, English instruction for all views; next-token letter probabilities only (no reasoning).
+  - Only the 4 cyclic shifts, not all 24 permutations; debiasing = averaging over these 4.
+  - Global-MMLU sw/yo/hi are translations of MMLU; EN items may be contaminated in pretraining.
+  - Headroom counts items where an English-derived label is right; it does not show that distillation would transfer.
+  - The TEACHER view contains the English text, so its accuracy is not attainable by an L-only student at test time.
+  - N = 500; subject and cultural-label breakdowns are small and noisy.

@@ -1,0 +1,132 @@
+Global-MMLU inspection  2026-11-03T14:03:32
+repo: CohereLabs/Global-MMLU
+configs (42): ['am', 'ar', 'bn', 'cs', 'de', 'el', 'en', 'es', 'fa', 'fil', 'fr', 'ha', 'he', 'hi', 'id', 'ig', 'it', 'ja', 'ko', 'ky', 'lt', 'mg', 'ms', 'ne', 'nl', 'ny', 'pl', 'pt', 'ro', 'ru', 'si', 'sn', 'so', 'sr', 'sv', 'sw', 'te', 'tr', 'uk', 'vi', 'yo', 'zh']
+
+================================================================================
+LANGUAGE en: CohereLabs/Global-MMLU/en/test  (14042 rows)
+columns: ['sample_id', 'subject', 'subject_category', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'required_knowledge', 'time_sensitive', 'reference', 'culture', 'region', 'country', 'cultural_sensitivity_label', 'is_annotated']
+features: {'sample_id': Value('string'), 'subject': Value('string'), 'subject_category': Value('string'), 'question': Value('string'), 'option_a': Value('string'), 'option_b': Value('string'), 'option_c': Value('string'), 'option_d': Value('string'), 'answer': Value('string'), 'required_knowledge': Value('string'), 'time_sensitive': Value('string'), 'reference': Value('string'), 'culture': Value('string'), 'region': Value('string'), 'country': Value('string'), 'cultural_sensitivity_label': Value('string'), 'is_annotated': Value('bool')}
+fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+one full row (row 0):
+{
+  "sample_id": "abstract_algebra/test/0",
+  "subject": "abstract_algebra",
+  "subject_category": "STEM",
+  "question": "Find the degree for the given field extension Q(sqrt(2), sqrt(3), sqrt(18)) over Q.",
+  "option_a": "0",
+  "option_b": "4",
+  "option_c": "2",
+  "option_d": "6",
+  "answer": "B",
+  "required_knowledge": "[]",
+  "time_sensitive": "[]",
+  "reference": "[]",
+  "culture": "[]",
+  "region": "[]",
+  "country": "[]",
+  "cultural_sensitivity_label": "-",
+  "is_annotated": false
+}
+gold value counts: {'B': 3462, 'C': 3582, 'D': 3776, 'A': 3222}
+cultural_sensitivity_label counts: {'-': 11192, 'CA': 2058, 'CS': 792}
+unique sample_ids: 14042 / 14042
+
+================================================================================
+LANGUAGE sw: CohereLabs/Global-MMLU/sw/test  (14042 rows)
+columns: ['sample_id', 'subject', 'subject_category', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'required_knowledge', 'time_sensitive', 'reference', 'culture', 'region', 'country', 'cultural_sensitivity_label', 'is_annotated']
+features: {'sample_id': Value('string'), 'subject': Value('string'), 'subject_category': Value('string'), 'question': Value('string'), 'option_a': Value('string'), 'option_b': Value('string'), 'option_c': Value('string'), 'option_d': Value('string'), 'answer': Value('string'), 'required_knowledge': Value('string'), 'time_sensitive': Value('string'), 'reference': Value('string'), 'culture': Value('string'), 'region': Value('string'), 'country': Value('string'), 'cultural_sensitivity_label': Value('string'), 'is_annotated': Value('bool')}
+fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+one full row (row 0):
+{
+  "sample_id": "abstract_algebra/test/0",
+  "subject": "abstract_algebra",
+  "subject_category": "STEM",
+  "question": "Tafuta kiwango kwa upanuzi wa sehemu uliyopewa Q(sqrt(2), sqrt(3), sqrt(18)) juu ya Q.",
+  "option_a": "0",
+  "option_b": "4",
+  "option_c": "2",
+  "option_d": "6",
+  "answer": "B",
+  "required_knowledge": "[]",
+  "time_sensitive": "[]",
+  "reference": "[]",
+  "culture": "[]",
+  "region": "[]",
+  "country": "[]",
+  "cultural_sensitivity_label": "-",
+  "is_annotated": false
+}
+gold value counts: {'B': 3462, 'C': 3582, 'D': 3776, 'A': 3222}
+cultural_sensitivity_label counts: {'-': 11192, 'CA': 2058, 'CS': 792}
+unique sample_ids: 14042 / 14042
+
+================================================================================
+LANGUAGE yo: CohereLabs/Global-MMLU/yo/test  (14042 rows)
+columns: ['sample_id', 'subject', 'subject_category', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'required_knowledge', 'time_sensitive', 'reference', 'culture', 'region', 'country', 'cultural_sensitivity_label', 'is_annotated']
+features: {'sample_id': Value('string'), 'subject': Value('string'), 'subject_category': Value('string'), 'question': Value('string'), 'option_a': Value('string'), 'option_b': Value('string'), 'option_c': Value('string'), 'option_d': Value('string'), 'answer': Value('string'), 'required_knowledge': Value('string'), 'time_sensitive': Value('string'), 'reference': Value('string'), 'culture': Value('string'), 'region': Value('string'), 'country': Value('string'), 'cultural_sensitivity_label': Value('string'), 'is_annotated': Value('bool')}
+fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+one full row (row 0):
+{
+  "sample_id": "abstract_algebra/test/0",
+  "subject": "abstract_algebra",
+  "subject_category": "STEM",
+  "question": "Wá ìwọ̀n fún ààyè ìtèsíwájú tí a pèsè Q(sqrt(2), sqrt(3), sqrt(18)) l'órí Q.",
+  "option_a": "0",
+  "option_b": "4",
+  "option_c": "2",
+  "option_d": "6",
+  "answer": "B",
+  "required_knowledge": "[]",
+  "time_sensitive": "[]",
+  "reference": "[]",
+  "culture": "[]",
+  "region": "[]",
+  "country": "[]",
+  "cultural_sensitivity_label": "-",
+  "is_annotated": false
+}
+gold value counts: {'B': 3461, 'C': 3584, 'D': 3775, 'A': 3222}
+cultural_sensitivity_label counts: {'-': 11192, 'CA': 2058, 'CS': 792}
+unique sample_ids: 14042 / 14042
+
+================================================================================
+LANGUAGE hi: CohereLabs/Global-MMLU/hi/test  (14042 rows)
+columns: ['sample_id', 'subject', 'subject_category', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'required_knowledge', 'time_sensitive', 'reference', 'culture', 'region', 'country', 'cultural_sensitivity_label', 'is_annotated']
+features: {'sample_id': Value('string'), 'subject': Value('string'), 'subject_category': Value('string'), 'question': Value('string'), 'option_a': Value('string'), 'option_b': Value('string'), 'option_c': Value('string'), 'option_d': Value('string'), 'answer': Value('string'), 'required_knowledge': Value('string'), 'time_sensitive': Value('string'), 'reference': Value('string'), 'culture': Value('string'), 'region': Value('string'), 'country': Value('string'), 'cultural_sensitivity_label': Value('string'), 'is_annotated': Value('bool')}
+fields used: question='question', options=['option_a', 'option_b', 'option_c', 'option_d'], gold='answer', id='sample_id', subject='subject', cultural label='cultural_sensitivity_label'
+one full row (row 0):
+{
+  "sample_id": "abstract_algebra/test/0",
+  "subject": "abstract_algebra",
+  "subject_category": "STEM",
+  "question": "Q पर दिए गए क्षेत्र विस्तार Q(sqrt(2), sqrt(3), sqrt(18)) की डिग्री बताएं.",
+  "option_a": "0",
+  "option_b": "4",
+  "option_c": "2",
+  "option_d": "6",
+  "answer": "B",
+  "required_knowledge": "[]",
+  "time_sensitive": "[]",
+  "reference": "[]",
+  "culture": "[]",
+  "region": "[]",
+  "country": "[]",
+  "cultural_sensitivity_label": "-",
+  "is_annotated": false
+}
+gold value counts: {'B': 3462, 'C': 3582, 'D': 3776, 'A': 3222}
+cultural_sensitivity_label counts: {'-': 11192, 'CA': 2058, 'CS': 792}
+unique sample_ids: 14042 / 14042
+
+================================================================================
+ALIGNMENT by sample_id
+sw: 14042 ids shared with en (en has 14042, sw has 14042); gold mismatches 0/14042 = 0.0000; first 5: []
+   cultural label differs from en for 0 ids
+yo: 14042 ids shared with en (en has 14042, yo has 14042); gold mismatches 2/14042 = 0.0001; first 5: ['business_ethics/test/93', 'human_aging/test/118']
+   cultural label differs from en for 0 ids
+hi: 14042 ids shared with en (en has 14042, hi has 14042); gold mismatches 0/14042 = 0.0000; first 5: []
+   cultural label differs from en for 0 ids
+ids present in all of ['en', 'sw', 'yo', 'hi']: 14042
+sampled 500 ids, stratified by subject (proportional, largest remainder, seed 42); 57 subjects represented; allocation: {'abstract_algebra': 4, 'anatomy': 5, 'astronomy': 5, 'business_ethics': 4, 'clinical_knowledge': 9, 'college_biology': 5, 'college_chemistry': 4, 'college_computer_science': 4, 'college_mathematics': 4, 'college_medicine': 6, 'college_physics': 4, 'computer_security': 4, 'conceptual_physics': 8, 'econometrics': 4, 'electrical_engineering': 5, 'elementary_mathematics': 13, 'formal_logic': 4, 'global_facts': 4, 'high_school_biology': 11, 'high_school_chemistry': 7, 'high_school_computer_science': 4, 'high_school_european_history': 6, 'high_school_geography': 7, 'high_school_government_and_politics': 7, 'high_school_macroeconomics': 14, 'high_school_mathematics': 10, 'high_school_microeconomics': 8, 'high_school_physics': 5, 'high_school_psychology': 19, 'high_school_statistics': 8, 'high_school_us_history': 7, 'high_school_world_history': 8, 'human_aging': 8, 'human_sexuality': 5, 'international_law': 4, 'jurisprudence': 4, 'logical_fallacies': 6, 'machine_learning': 4, 'management': 4, 'marketing': 8, 'medical_genetics': 3, 'miscellaneous': 28, 'moral_disputes': 12, 'moral_scenarios': 32, 'nutrition': 11, 'philosophy': 11, 'prehistory': 11, 'professional_accounting': 10, 'professional_law': 55, 'professional_medicine': 10, 'professional_psychology': 22, 'public_relations': 4, 'security_studies': 9, 'sociology': 7, 'us_foreign_policy': 3, 'virology': 6, 'world_religions': 6}
+sample gold distribution (en): {'A': 109, 'B': 122, 'C': 144, 'D': 125}
+sample cultural label distribution (en): {'CS': 19, '-': 396, 'CA': 85}
