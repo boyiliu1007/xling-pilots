@@ -1,0 +1,29 @@
+COPSD run report: copsd_gold_eval4096
+generated 2026-11-11T13:30:23
+
+## Setup
+  eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}
+  eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+  checkpoints: /data/user_data/boyil2/copsd_gold_ckpt
+  sw-lang: share of samples whose function words are mostly Swahili (LaTeX removed)
+
+## DEV (50 items; used only for checkpoint selection)
+  base     pass@n 8/50 = 0.160 [0.083, 0.285] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.033  format 0.253  trunc 0.750  sw-lang 0.985
+  step20   pass@n 15/50 = 0.300 [0.191, 0.438] maj@n 7/50 = 0.140 [0.070, 0.262] mean_acc 0.073  format 0.808  trunc 0.173  sw-lang 0.965
+  step40   pass@n 11/50 = 0.220 [0.128, 0.352] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.090  format 0.940  trunc 0.045  sw-lang 0.903
+  step60   pass@n 15/50 = 0.300 [0.191, 0.438] maj@n 7/50 = 0.140 [0.070, 0.262] mean_acc 0.080  format 0.933  trunc 0.030  sw-lang 0.962
+  SELECTED by DEV pass@n (ties -> earlier step): step20
+
+## TEST (200 items): base vs selected checkpoint
+  base     pass@n 30/200 = 0.150 [0.107, 0.206] maj@n 18/200 = 0.090 [0.058, 0.138] mean_acc 0.028  format 0.233  trunc 0.772  sw-lang 0.983
+  step20   pass@n 49/200 = 0.245 [0.191, 0.309] maj@n 21/200 = 0.105 [0.070, 0.155] mean_acc 0.064  format 0.807  trunc 0.174  sw-lang 0.944
+  Δ (selected - base), paired bootstrap over items, 10,000 resamples:
+    pass@n    +9.50 pts  [+4.00, +15.50]
+    maj@n     +1.50 pts  [-2.50, +5.50]
+    mean_acc  +3.62 pts  [+2.17, +5.17]
+    format    +57.42 pts  [+54.62, +60.17]   (do gains track format?)
+  pass@n discordant items: gained 28, lost 9
+  base     accuracy among formatted samples: 67/560 = 0.120 [0.095, 0.149]  (composition-biased: the base formats mostly its short, easy samples)
+  step20   accuracy among formatted samples: 154/1938 = 0.079 [0.068, 0.092]  (composition-biased: the base formats mostly its short, easy samples)
+
+  base pass@n on all 250 items (DEV+TEST): 15.2 (COPSD paper, Qwen3-1.7B Swahili, pass@12 at 4096 tokens: 14.8)

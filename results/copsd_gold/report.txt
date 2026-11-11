@@ -1,0 +1,41 @@
+COPSD run report: copsd_gold
+generated 2026-11-11T13:27:58
+
+## Setup
+  teacher context: {'include_problem_en': True, 'reference_solution': 'gold COPSD `solution`'}
+  - 1 GPU instead of 4: micro-batch 4 x grad-accum 8 = 32 prompts/step (official 4 GPUs x 4 x 2 = 32). Same per-micro-batch loss normalisation.
+  - Backward is done one sample at a time inside each micro-batch, with the micro-batch padding layout and the micro-batch token count as denominator: identical loss/gradient to the official micro-batch of 4, lower peak memory.
+  - Completions are not right-padded to 2048 before the forward pass (official pads every completion to max_completion_length); pads are masked and causal, so the loss is unchanged.
+  - Steps: 60 = min(official 100, 60). LR schedule kept on the official 100-step linear horizon, so steps 1-60 see the same LR as the official run.
+  - Checkpoints every 10 steps (official save_steps 5); DEV evaluation at steps 10..60 (official evaluates 5..50).
+  - Own implementation of the OPSD training loop (official: TRL 0.26 GOLD/SFTTrainer + accelerate + DeepSpeed + vLLM 0.11 colocate). Collator, prompts, think prefix and generalized_jsd_loss are imported/copied from the official repo.
+  - Generation: all 32 prompts of a step in one vLLM call (official: one call per micro-batch, same weights since no optimizer step in between).
+  - Student weights reach vLLM as a LoRA adapter (vLLM LoRA, saved after every optimizer step) instead of merge_adapter + load_weights; numerically equivalent up to bf16 rounding.
+  - Data order: per-epoch torch.randperm(seed 42+epoch), micro-batches of 4, optimizer step every 8 micro-batches or at epoch end (HF-like); not the identical sample order of the official run.
+  - Attention: PyTorch SDPA (official: flash_attention_2). Same right-padded prompt layout with masked pads.
+  - Software: torch 2.14 / transformers 5.20 / vLLM 0.33 / peft 0.21 (official pins torch 2.8 / transformers 4.57.1 / vLLM 0.11 / peft 0.17.1).
+  - Training data field mapping: problem_translated -> problem_swa (released HF data vs official script's expected column).
+  - Divergence: official flags give beta=0 => F.kl_div(student_logp, teacher_logp) = KL(teacher || student), i.e. FORWARD KL over the full vocabulary (temperature 1.1 applied to both logits, per-(token,vocab) clip at 0.05). The task description said reverse KL; we follow the code.
+  - Evaluation sampling uses vLLM seed 42 (official: unseeded) and max_model_len 4096 (official 40960; generations are capped at 1024 new tokens anyway).
+
+## Loss-sign check (unclipped KL must be >= 0; the official 0.05 clip can make the loss negative)
+  step60_adapter: {'adapter': '/data/user_data/boyil2/copsd_gold_ckpt/step-60/adapter', 'n_samples': 8, 'n_tokens': 11154, 'unclipped_per_token': {'min': -1.1417467504770684e-07, 'mean': 0.21617566049098969, 'max': 8.660662651062012, 'frac_negative(<-1e-4)': 0.0}, 'clipped_per_token': {'min': -0.31693851947784424, 'mean': -0.02202490344643593, 'max': 5.033283233642578, 'frac_negative(<-1e-4)': 0.44432491064071655}, 'loss_unclipped (official batchmean)': 0.21617566049098969, 'loss_clipped (official batchmean)': -0.02202490344643593}
+
+## Training
+  steps logged: 60; seconds/step mean 63.7 (min 47.1, max 69.6); total 1.06 h; peak torch alloc 14339 MiB; peak GPU used (incl. vLLM) 39244 MiB
+  step  loss      grad_norm  mean_len  trunc  boxed
+     1  0.00377  0.0903      1925   0.88   0.12
+     2  0.00355  0.0799      1989   0.94   0.06
+     3  0.00480  0.0941      1878   0.84   0.16
+     5  0.00372  0.0775      1857   0.88   0.12
+    10  0.00146  0.0700      1853   0.78   0.22
+    15  -0.00146  0.0910      1737   0.72   0.22
+    20  -0.00638  0.1176      1676   0.66   0.41
+    25  -0.01072  0.1239      1515   0.44   0.56
+    30  -0.01489  0.1218      1622   0.50   0.53
+    35  -0.01734  0.1079      1495   0.44   0.50
+    40  -0.01798  0.1002      1560   0.53   0.50
+    45  -0.02342  0.1109      1397   0.34   0.69
+    50  -0.02416  0.1038      1276   0.28   0.72
+    55  -0.02318  0.0867      1494   0.38   0.59
+    60  -0.02762  0.1096      1458   0.31   0.69

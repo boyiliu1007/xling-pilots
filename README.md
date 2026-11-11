@@ -1,74 +1,110 @@
-# Cross-lingual self-distillation pilots (Qwen3-1.7B, African languages)
+# Cross-lingual self-distillation on AfriMGSM (Qwen3-1.7B)
 
-A set of small, pre-registered pilot experiments asking whether a model's **English** reasoning can serve as a teacher signal
-for the **same model** on low-resource languages (Swahili, Yoruba, Hindi), and whether gold-reference
-[COPSD](https://github.com/cisnlp/COPSD) (Crosslingual On-Policy Self-Distillation) improves Qwen3-1.7B on AfriMGSM Swahili.
+Code and first results for *Teaching Low-Resource Languages with a Model's Own English Understanding*:
+transfer Qwen3-1.7B's English math reasoning to Swahili (and Yoruba) with crosslingual on-policy self-distillation
+([COPSD](https://github.com/cisnlp/COPSD)), replacing COPSD's gold English reference with the model's own
+English majority vote.
 
-Every pilot fixed its decision rule before seeing results. Each `pilot_*_out/report.txt` reports
-numerator / denominator / estimate with 95% Wilson intervals, or paired-bootstrap CIs (10,000 resamples) for differences.
-The raw per-sample generations behind every number are included.
+Two tools:
 
-All runs: one NVIDIA RTX A6000 (48 GB), `Qwen/Qwen3-1.7B` in bf16, seed 42.
-
-## Results at a glance
-
-| Pilot | Question | Pre-registered verdict |
+| Tool | What it does | Proposal |
 |---|---|---|
-| **A** `pilot_out/` | On AfriMGSM items where the swa/yor majority vote is wrong, is the English majority vote (8 samples) right? | **PASS** (swa, yor) |
-| **C** `pilot_c_out/` | On Global-MMLU, is the EN–L gap option-order instability that permutation debiasing removes? | **FAIL** (sw, yo, hi) |
-| **A2** `pilot_a2_out/` | Is English self-consensus precise on COPSD's actual training distribution? | COPSD set **NOT USABLE**; GSM8K train **USABLE** |
-| **R** `pilot_r_out/` | Does gold COPSD (official hyperparameters) improve AfriMGSM-swa pass@12? Thinking mode, 1024-token eval | **NO-GO** |
-| **R2** `pilot_r2_out/` | Same, but non-thinking mode for training and eval (2048-token eval) | **NO-GO** |
-| **R3** `pilot_r3_out/` | Pilot R checkpoints re-evaluated with the COPSD paper protocol (thinking, 4096 tokens) | **NO-GO** (only on the formatted-accuracy clause) |
+| `python -m votedistill.consensus` | Samples n answers per question, majority-votes, and scores the vote against gold | Teacher reliability (§6.3); the label-free reference for Experiment 1; student-capability signals for Experiments 2–3 |
+| `python -m votedistill.copsd` | Single-GPU COPSD trainer, AfriMGSM evaluation with COPSD's own grader, report | Gold-COPSD baseline (§5.1); Experiments 1–3 change what the teacher sees |
 
-### Pilot A: English self-consensus on AfriMGSM (250 items, n = 8)
-Majority-vote accuracy (maj@8): en 0.852, swa 0.084, yor 0.040.
-On items where the L majority is wrong, the English consensus filtered at vote share ≥ 0.625 has
-precision 0.910 [0.864, 0.942] with 0.921 coverage (swa), and 0.906 [0.860, 0.938] with 0.929 coverage (yor).
-Caveat: the English rescue rate (0.85) equals overall English accuracy, because swa/yor are near the floor.
-This used the dataset's human-parallel English questions, so it is an upper bound.
+All runs so far: one NVIDIA RTX A6000 (48 GB), `Qwen/Qwen3-1.7B` in bf16, seed 42.
 
-### Pilot C: MCQ option-order bias (Global-MMLU, 500 items, 4 cyclic shifts)
-| | en | sw | yo | hi |
-|---|---|---|---|---|
-| debiased accuracy | 0.546 | 0.296 | 0.324 | 0.400 |
-| order-sensitive items | 0.556 | 0.846 | 0.810 | 0.684 |
-| debiasing gain (vs single order) | +0.032 | −0.024 | +0.022 | +0.018 |
+## Results so far
 
-Order sensitivity is higher in the target languages, but debiasing closes none of the EN–L gap; the gap is knowledge.
-A "teacher view" (L question + English translation) is about as accurate as English.
-Deviation: the assistant turn is prefilled with `The correct answer is: **`. Without it, letter-probability mass was 0.07–0.56.
+### English consensus (earlier non-thinking runs; raw outputs removed)
+These votes used non-thinking mode, while the proposal's teacher follows COPSD's thinking mode, so their raw outputs
+were removed and only the summary numbers are kept here as motivation. Re-run with
+`python -m votedistill.consensus generate --thinking ...` before relying on them; the earlier code is in git history (4e5abab).
 
-### Pilot A2: English consensus on the training distribution (n = 8)
-| Set | maj@8 | coverage @0.625 | precision @0.625 |
+AfriMGSM (n = 8, 250 test items): majority-vote accuracy English 0.852, Swahili 0.084, Yoruba 0.040.
+On items where the Swahili majority is wrong, the English majority at vote share ≥ 5/8 covers 0.921 of them with
+precision 0.910 [0.864, 0.942] (Yoruba: 0.929, 0.906). This used AfriMGSM's human-parallel English (an upper bound)
+and included the TEST items, so it is a diagnostic only.
+
+Training data (n = 8):
+
+| Set | maj@8 | coverage at ≥ 5/8 | precision at ≥ 5/8 |
 |---|---|---|---|
-| COPSD train (500 OpenThoughts olympiad problems), non-thinking | 0.586 | 0.564 | 0.787 [0.736, 0.831] |
-| COPSD train, thinking, 4096 tokens (100 items; 71% truncated) | 0.440 | 0.230 | 0.957 [0.790, 0.992] |
-| GSM8K train (500) | 0.894 | 0.938 | 0.930 [0.903, 0.949] |
+| COPSD train (500 OpenThoughts olympiad problems) | 0.586 | 0.564 | 0.787 [0.736, 0.831] |
+| GSM8K train (500-item sample) | 0.894 | 0.938 | 0.930 [0.903, 0.949] |
 
-### Pilots R / R2 / R3: gold COPSD on AfriMGSM Swahili (DEV 50 / TEST 200 split, pass@12)
-| | eval protocol | base TEST pass@12 | DEV-selected ckpt TEST pass@12 | Δ [95% CI] | format rate base → ckpt |
-|---|---|---|---|---|---|
-| R | thinking, 1024 tok, T = 1.0 | 0.145 | 0.165 (step 60) | +2.0 [−3.5, +7.5] | 0.20 → 0.55 |
-| R2 | non-thinking, 2048 tok, T = 0.7 | 0.240 | 0.230 (step 60) | −1.0 [−6.5, +4.5] | 0.75 → 0.73 |
-| R3 | thinking, 4096 tok, T = 1.0 | 0.150 | 0.245 (step 20) | **+9.5 [+4.0, +15.5]** | 0.23 → 0.81 |
+**Open issue for Experiment 1:** on COPSD's own training set, about 1 in 5 voted references would be wrong at the
+proposal's 5/8 threshold, and even unanimous votes are only 0.889 precise. GSM8K-style problems give a much cleaner
+signal but have no Swahili translations here. In thinking mode with 4096 tokens, 71% of samples were truncated on the
+COPSD set, so the token budget for thinking-mode voting is also open.
 
-- R3's base (15.0 on 200 items; 15.2 on all 250) matches COPSD's reported Swahili base for Qwen3-1.7B (14.8).
-- R3 fails only the third clause of its rule: accuracy among formatted samples fell 0.120 → 0.079.
-  That clause is composition-biased, because the base formats only its easy, short samples.
-  Mean sample accuracy rose +3.6 pts [+2.2, +5.2].
-- R2: the share of Swahili reasoning roughly halves after training (0.53 → 0.27).
-- The official loss (forward KL(teacher‖student) with a per-(token, vocab) clip at 0.05) goes negative during training.
-  `pilot_r2_out/loss_check.json` shows this comes entirely from the clip; the unclipped KL is never negative.
-- `pilot_r_out/report.txt` also has an ORACLE section (every checkpoint on TEST, not used for decisions).
-  Steps 20–40 reach +5 to +6.5 pts at 1024 tokens.
+### Gold-COPSD baseline — `results/copsd_gold/` (training), `results/copsd_gold_eval4096/` (evaluation)
+60 training steps with the official hyperparameters, thinking mode. Evaluated with the COPSD paper protocol
+(thinking, n = 12, T = 1.0, 4096 new tokens) on a fixed split of AfriMGSM Swahili: DEV 50 items for checkpoint
+selection, TEST 200 items (`results/splits/`).
+
+| TEST, base → step 20 (DEV-selected) | Δ [95% paired-bootstrap CI] |
+|---|---|
+| pass@12: 0.150 → 0.245 | **+9.5 [+4.0, +15.5]** |
+| maj@12: 0.090 → 0.105 | +1.5 [−2.5, +5.5] |
+| mean per-sample accuracy: 0.028 → 0.064 | +3.6 [+2.2, +5.2] |
+| answer format rate: 0.23 → 0.81 | +57.4 |
+
+- The base score (15.2 pass@12 on all 250 items) matches COPSD's reported 14.8, so the setup reproduces.
+- The gain is mostly the model learning to finish and box its answer. Under majority vote it is not significant.
+  **Decide on one headline metric before running the proposal's experiments.**
+- One seed, 60 rather than 100 steps, and DEV selection only among steps 20, 40, 60 (compute budget).
+  Treat this as a sanity check, not the final baseline.
+- The training loss goes negative because of the official per-(token, vocab) clip at 0.05; `loss_check.json` shows
+  the unclipped KL is never negative.
+
+## Layout
+
+| Path | Contents |
+|---|---|
+| `votedistill/answers_numeric.py` | `\boxed{}` / last-number extraction and numeric majority vote (AfriMGSM, GSM8K) |
+| `votedistill/answers_math.py` | math-verify checking and equivalence-class voting, mirroring COPSD's grader (olympiad answers) |
+| `votedistill/data.py` | AfriMGSM, COPSD training set and GSM8K loaders; AfriMGSM row-alignment check; the DEV/TEST split |
+| `votedistill/consensus.py` | Majority-vote sampling and its report |
+| `votedistill/copsd/` | `collator.py` (student/teacher prompts: **where teacher-context experiments go**), `loss.py`, `train.py`, `evaluate.py`, `report.py`, `losscheck.py`, `config.py` (official hyperparameters and every deviation) |
+| `votedistill/stats.py`, `gpu.py`, `utils.py`, `paths.py` | Wilson and paired-bootstrap intervals; GPU wait and memory polling; I/O; machine-specific paths |
+| `slurm/` | `copsd.sbatch` (train + DEV/TEST eval + report) and `consensus.sbatch` |
+| `tests/` | Answer extraction and voting tests (`pytest tests`) |
+| `results/<run>/` | `report.txt`, `config.json`, per-item JSONL with every generation |
+
+## Running
+
+```bash
+pip install -r requirements.txt
+git clone https://github.com/cisnlp/COPSD     # collator, language config and eval helpers are imported from it
+export COPSD_DIR=/path/to/COPSD               # see votedistill/paths.py for the other path variables
+pytest tests
+
+# majority votes (finished runs are skipped)
+python -m votedistill.consensus generate --out results/consensus_train_thinking --runs copsd:en gsm8k:en --thinking --max_tokens 4096
+python -m votedistill.consensus report --out results/consensus_train_thinking
+
+# COPSD: train, evaluate, select on DEV, report
+RUN=copsd_gold MAX_STEPS=100 sbatch slurm/copsd.sbatch
+RUN=copsd_noref TRAIN_ARGS="--no_reference" sbatch slurm/copsd.sbatch   # teacher sees the English question only (L1)
+python -m votedistill.copsd report --run_dir results/copsd_gold_eval4096
+```
+
+Each `results/` directory pins its settings: a COPSD run directory refuses evaluations whose sampling differs from
+its `eval_config.json`, so a new protocol needs a new `--run_dir` (pointing `--ckpt_dir` at existing checkpoints).
+
+## Where the proposal's experiments plug in
+
+- **Experiment 1 (voted reference):** pick an agreeing English trace per problem from a `consensus` run, write it into
+  each training row's `solution` in `votedistill/copsd/collator.py:prepare_rows`, and train as usual.
+- **Experiment 2 (L1/L2/L3):** L1 = `--no_reference`; L3 = a voted trace (Experiment 1); L2 (answer only) needs a new
+  teacher prompt path in the collator.
+- **Experiment 3 (adaptive):** per-problem choice of the above, driven by consensus vote shares.
 
 ## Models
 
-LoRA adapters (rank 64, alpha 128, all attention and MLP projections, fp32) on top of `Qwen/Qwen3-1.7B`,
-for Pilot R (thinking) and Pilot R2 (non-thinking), at steps 10, 20, 30, 40, 50 and 60.
-They are attached to the **v1.0 GitHub Release** as `pilot_r_stepXX.tar` and `pilot_r2_stepXX.tar`
-(about 279 MB each), because they exceed GitHub's per-file limit.
+LoRA adapters of the gold-COPSD run (rank 64, alpha 128, all attention and MLP projections) at steps 10–60 are
+attached to the **v1.0 GitHub Release** as `pilot_r_stepXX.tar` (about 279 MB each).
 
 ```python
 from transformers import AutoModelForCausalLM
@@ -77,61 +113,12 @@ base = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-1.7B", torch_dtype="bflo
 model = PeftModel.from_pretrained(base, "pilot_r_step20/adapter")   # after: tar xf pilot_r_step20.tar
 ```
 
-Prompt formats differ between R and R2/R3. See `eval_prompt()` in `pilot_r.py`.
-Optimizer and RNG states for resuming training are not released.
-
-## Layout
-
-| Path | Contents |
-|---|---|
-| `pilot.py`, `extract.py`, `stats.py` | Pilot A: vLLM generation, `\boxed{}` / numeric extraction, Wilson intervals |
-| `pilot_c.py`, `mcq.py` | Pilot C: next-token letter scoring over cyclic option shifts |
-| `pilot_a2.py`, `mathcheck.py` | Pilot A2: math-verify equivalence-class voting |
-| `pilot_r.py` | Pilots R / R2 / R3: single-GPU COPSD trainer, eval, loss check, report (`--variant r\|r2\|r3`) |
-| `run_*.sbatch` | Idempotent SLURM pipelines (resubmit until the report shows a verdict) |
-| `test_*.py` | Unit tests (`pytest`) |
-| `pilot_*_out/` | `report.txt`, `config.json` (hyperparameters, versions, every deviation), `run.log`, splits, per-item JSONL |
-
-## Reproducing
-
-```bash
-pip install -r requirements.txt
-git clone https://github.com/cisnlp/COPSD   # pilot_r.py imports its collator, language config and eval helpers
-python -m pytest -q test_extract.py test_mcq.py test_mathcheck.py
-python pilot.py --langs swa yor --n 8                         # Pilot A
-python pilot_c.py                                             # Pilot C
-python pilot_a2.py                                            # Pilot A2
-sbatch run_pilot_r.sbatch                                     # Pilot R  (also: run_pilot_r2.sbatch, run_pilot_r3.sbatch)
-```
-
-Paths to the COPSD checkout, checkpoints and caches are hard-coded near the top of `pilot_r.py` and in the `.sbatch` files
-(`/data/user_data/...`, `/home/...`); adjust them for your machine.
-`VLLM_USE_FLASHINFER_SAMPLER=0` is set because the FlashInfer sampler needs a JIT toolchain.
-
-## How Pilot R differs from the official COPSD setup
-
-The official run uses TRL 0.26 GOLD + accelerate + vLLM 0.11 on 4 GPUs. Pilot R is a single-GPU reimplementation that
-imports COPSD's data collator, prompts and evaluation helpers and copies its loss function.
-It keeps the official hyperparameters: lr 5e-6, LoRA 64/128, effective batch 32, temperature 1.1, top_p 0.95, top_k 20,
-max completion 2048, fixed teacher, beta 0, clip 0.05. Differences:
-
-- 1 GPU × micro-batch 4 × 8 accumulation steps.
-- 60 steps, on the official 100-step linear LR horizon.
-- Student weights reach vLLM as a LoRA adapter after every step.
-- SDPA attention instead of FlashAttention-2.
-- A seeded, HF-like data order.
-- Newer library versions.
-
-The full list is under `deviations` in `pilot_r_out/config.json`.
-
 ## Data, models and attribution
 
-- AfriMGSM (`masakhane/afrimgsm`, Apache-2.0); Global-MMLU (`CohereLabs/Global-MMLU`, Apache-2.0);
-  GSM8K (`openai/gsm8k`, MIT); Qwen3-1.7B (Apache-2.0).
+- AfriMGSM (`masakhane/afrimgsm`, Apache-2.0); GSM8K (`openai/gsm8k`, MIT); Qwen3-1.7B (Apache-2.0).
 - COPSD training data (`yihongLiu/COPSD-AfriMGSM-TrainDataset`) and the COPSD code (https://github.com/cisnlp/COPSD)
-  declare no license. `pilot_r.py` contains a verbatim copy of COPSD's `generalized_jsd_loss`, which extends TRL's
+  declare no license. `votedistill/copsd/loss.py` is a verbatim copy of COPSD's `generalized_jsd_loss`, which extends TRL's
   Apache-2.0 GKD loss. Several outputs and the released adapters derive from the COPSD training set.
   All credit for COPSD belongs to Liu, Zhao, Hedderich and Schütze, *Crosslingual On-Policy Self-Distillation for
   Multilingual Reasoning* (arXiv:2605.09548).
-- The result JSONLs contain benchmark question text and model generations.
-  Please do not train on benchmark test items.
+- The result JSONLs contain benchmark question text and model generations. Do not train on benchmark test items.

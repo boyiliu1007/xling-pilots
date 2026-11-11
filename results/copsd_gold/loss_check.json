@@ -1,0 +1,21 @@
+{
+  "step60_adapter": {
+    "adapter": "/data/user_data/boyil2/copsd_gold_ckpt/step-60/adapter",
+    "n_samples": 8,
+    "n_tokens": 11154,
+    "unclipped_per_token": {
+      "min": -1.1417467504770684e-07,
+      "mean": 0.21617566049098969,
+      "max": 8.660662651062012,
+      "frac_negative(<-1e-4)": 0.0
+    },
+    "clipped_per_token": {
+      "min": -0.31693851947784424,
+      "mean": -0.02202490344643593,
+      "max": 5.033283233642578,
+      "frac_negative(<-1e-4)": 0.44432491064071655
+    },
+    "loss_unclipped (official batchmean)": 0.21617566049098969,
+    "loss_clipped (official batchmean)": -0.02202490344643593
+  }
+}
