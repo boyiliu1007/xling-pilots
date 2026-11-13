@@ -73,3 +73,19 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   so for Swahili the teacher prompt without English question and reference is token-identical to the student prompt:
   training it is a no-op, and L1 vs L0 differs only by the English question. The identical context is kept in the
   pre-training screen as a correctness check ("L0-same", D must be ~0).
+- 2026-11-13, before any trained level was evaluated (decisions with the user):
+  - Padding (open decision 3): two L3-gold runs, `official` layout (faithful to COPSD) and `exact` layout (pads
+    stripped before the completion is appended; `copsd/train.py:LAYOUTS`). All other runs use `exact`.
+  - Training data (open decision 1): all three, as separate runs of L3-vote: `copsd`, `gsm8k-mt` (500 GSM8K *train*
+    questions, NLLB-200 3.3B sentence-level translation, number-preservation QC; `exp2/translate.py`) and `mix`
+    (half each). To compare data and not data size, every vote-context dataset is subsampled to the same size
+    N = min(accepted copsd, accepted gsm8k-mt), seed 42 (`exp2/trainsets.py`).
+  - Vote threshold (open decision 2): the proposal's 5/8 (unique majority), English thinking-mode consensus, n = 8,
+    T = 0.6, 16384 tokens. Rejected questions are dropped. Reference = text after `</think>` of the first finished
+    sample agreeing with the majority (matches the format of COPSD's gold `solution`, a worked solution, not a trace).
+  - Steps: the official 100 (the earlier gold run used 60), checkpoints every 10, DEV maj@12 selection over all ten.
+  - Training seed is now a parameter (data order, LoRA init, sampling); first seed 42, second seed after the first
+    round. Evaluation sampling seed stays 42 for every model.
+  - Capability axis (open decision 4): undecided. Candidate (gold-free, varies across items): number of the 12 L0
+    samples that finish (do not hit the 4096-token limit). TEST distribution 0: 38, 1-2: 74, 3-5: 57, 6-12: 31 items;
+    L0 pass@12 rises 0.00 / 0.08 / 0.21 / 0.39 across these bins.

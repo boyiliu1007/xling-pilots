@@ -1,0 +1,2 @@
+step,loss,grad_norm,lr,n_prompts,mean_completion_tokens,frac_truncated,frac_boxed,gen_s,train_s,step_s,peak_alloc_mib,gpu_used_mib
+1,0.001250,0.085746,4.9500e-06,32,1875.0,0.7812,0.2812,26.7,30.2,56.9,13751,35160
