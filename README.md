@@ -115,6 +115,13 @@ its `eval_config.json`, so a new protocol needs a new `--run_dir` (pointing `--c
   # one training run = <context>__<data>__<layout>__s<seed>; train, DEV eval of all checkpoints, TEST of the DEV pick
   NAME=L3-gold__copsd__exact__s42 sbatch slurm/exp2_run.sbatch     # preempt partition, requeues and resumes
   $PY -m votedistill.exp2 summary                      # results/exp2/SUMMARY.txt: all runs, contrasts, capability bins
+  # loss clip: diagnostics (where the official per-(token, vocab) 0.05 clip binds) and ablations
+  $PY -m votedistill.exp2 clipstats --name copsd_k2                           # base model as the student
+  $PY -m votedistill.exp2 clipstats --ckpt L3-gold__copsd__exact__s42 50      # a training checkpoint as the student
+  NAME=L3-gold__copsd__exact__noclip__s42 sbatch slurm/exp2_run.sbatch       # variants: noclip, clip0.2, clip0.5
+  # two-stage (gold-free): continue a clipped stage-1 run at step 30 without the clip; or self-SFT as stage 1
+  NAME=L3-vote__copsd__exact__s1vote30-noclip__s42 sbatch slurm/exp2_run.sbatch   # inits: s1vote30, s1gold30, s1sft30
+  NAME=selfsft-vote__copsd__exact__s42 sbatch slurm/exp2_run.sbatch               # vote-filtered self-SFT (exp2/selfsft.py)
   ```
   Layouts: `official` reproduces COPSD's right-padded teacher/student prompts (completion positions shifted by the
   pads); `exact` strips the pads (`votedistill/copsd/train.py:LAYOUTS`). Data: `copsd`, `gsm8k-mt`, `mix`
