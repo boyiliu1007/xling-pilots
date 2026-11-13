@@ -6,10 +6,11 @@
 #SBATCH --mem=48G
 #SBATCH --time=02:00:00
 #SBATCH --exclude=babel-w9-28,babel-w9-26,babel-l9-32
-#SBATCH --output=/home/boyil2/xling_pilot/logs/%x-%j.out
-# Majority-vote sampling. Finished runs are skipped, so resubmitting resumes.
+#SBATCH --output=logs/%x-%j.out
+# Majority-vote sampling. Submit from the repo root (mkdir -p logs first). Finished runs are skipped, so resubmitting resumes.
 #   OUT=results/consensus_train_thinking ARGS="--runs copsd:en gsm8k:en --thinking --max_tokens 4096" sbatch slurm/consensus.sbatch
 set -euo pipefail
-cd /home/boyil2/xling_pilot
-PY=${PY:-/data/user_data/boyil2/envs/vllm_pilot/bin/python}
+cd "${SLURM_SUBMIT_DIR:-$PWD}"
+[[ -d votedistill ]] || { echo "submit from the repository root"; exit 1; }
+PY=${PY:-/data/user_data/$USER/venvs/votedistill/bin/python}
 $PY -m votedistill.consensus generate --out ${OUT:?set OUT} ${ARGS:?set ARGS}

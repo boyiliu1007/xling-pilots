@@ -1,0 +1,40 @@
+Experiment 2 report: L0-eng
+generated 2026-11-12T19:39:15
+teacher context: none (frozen base model on English AfriMGSM; capability signal)
+eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}
+eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+environment: {'model': 'Qwen/Qwen3-1.7B', 'copsd_commit': '4f4410730e9b', 'versions': {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}, 'gpu': 'NVIDIA RTX A6000', 'git_commit': 'c9cc3d2139d29c5cc1020a9b0872d636591c848e', 'git_dirty': True}
+
+## DEV (50 items)
+  base     pass@n 50/50 = 1.000 [0.929, 1.000] maj@n 49/50 = 0.980 [0.895, 0.996] mean_acc 0.927  format 0.987  trunc 0.025  sw-lang 0.000
+  samples 600: truncated 0.025; formatted 0.987; finished without \boxed 0.000
+  repetitive (an 8-word window repeated >= 5 times): 0.155 of all samples, 1.000 of truncated ones
+  output length (characters): median 2268, p10 1376, p90 6979
+
+## TEST (200 items)
+  base     pass@n 192/200 = 0.960 [0.923, 0.980] maj@n 183/200 = 0.915 [0.868, 0.946] mean_acc 0.886  format 0.966  trunc 0.044  sw-lang 0.000
+  samples 2400: truncated 0.044; formatted 0.966; finished without \boxed 0.000
+  repetitive (an 8-word window repeated >= 5 times): 0.167 of all samples, 0.972 of truncated ones
+  output length (characters): median 2410, p10 1383, p90 7929
+
+## Capability groups from L0-eng x L0 (gold-free; English confident = en_share > 0.5)
+  DEV (50 items)
+    English majority correct (gold check of the teacher signal): 49/50 = 0.980 [0.895, 0.996]
+    group                                  items  English maj correct        Swahili maj correct        sw mean_acc
+    A: English solves, Swahili does not       42  41/42 = 0.976 [0.877, 0.996] 2/42 = 0.048 [0.013, 0.158] 0.012
+    B: English solves, Swahili agrees          4  4/4 = 1.000 [0.510, 1.000] 4/4 = 1.000 [0.510, 1.000] 0.292
+    C: English not confident                   4  4/4 = 1.000 [0.510, 1.000] 0/4 = 0.000 [0.000, 0.490] 0.000
+    English confidence vs English accuracy (does the label-free reliability signal work?):
+      en_share in [0.00, 0.50):    2 items, English maj correct 2/2 = 1.000 [0.342, 1.000]
+      en_share in [0.50, 0.75):    4 items, English maj correct 3/4 = 0.750 [0.301, 0.954]
+      en_share in [0.75, 1.00]:   44 items, English maj correct 44/44 = 1.000 [0.920, 1.000]
+  TEST (200 items)
+    English majority correct (gold check of the teacher signal): 184/200 = 0.920 [0.874, 0.950]
+    group                                  items  English maj correct        Swahili maj correct        sw mean_acc
+    A: English solves, Swahili does not      174  166/174 = 0.954 [0.912, 0.977] 3/174 = 0.017 [0.006, 0.049] 0.009
+    B: English solves, Swahili agrees         15  15/15 = 1.000 [0.796, 1.000] 14/15 = 0.933 [0.702, 0.988] 0.267
+    C: English not confident                  11  3/11 = 0.273 [0.097, 0.566] 1/11 = 0.091 [0.016, 0.377] 0.008
+    English confidence vs English accuracy (does the label-free reliability signal work?):
+      en_share in [0.00, 0.50):    8 items, English maj correct 2/8 = 0.250 [0.071, 0.591]
+      en_share in [0.50, 0.75):   12 items, English maj correct 7/12 = 0.583 [0.320, 0.807]
+      en_share in [0.75, 1.00]:  180 items, English maj correct 175/180 = 0.972 [0.937, 0.988]

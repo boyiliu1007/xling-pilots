@@ -1,0 +1,52 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "lang": "swa",
+  "n_problems": 500,
+  "k": 2,
+  "seed": 42,
+  "copsd_commit": "4f4410730e9b",
+  "sampling": {
+    "temperature": 1.1,
+    "top_p": 0.95,
+    "top_k": 20,
+    "max_tokens": 2048
+  },
+  "kl_temperature": 1.1,
+  "kl_clip": 0.05,
+  "versions": {
+    "python": "3.11.16",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  },
+  "contexts": {
+    "L0+instr": {
+      "problem_en": false,
+      "reference": null,
+      "note": "Swahili question + the teacher's 'think in Swahili' instruction; no English"
+    },
+    "L1": {
+      "problem_en": true,
+      "reference": null,
+      "note": "+ English question"
+    },
+    "L2-gold": {
+      "problem_en": true,
+      "reference": "gold_answer",
+      "note": "+ gold final answer only"
+    },
+    "L3-gold": {
+      "problem_en": true,
+      "reference": "gold",
+      "note": "+ gold English solution (= gold COPSD)"
+    },
+    "L3-shuffled-gold": {
+      "problem_en": true,
+      "reference": "shuffled_gold",
+      "note": "+ gold English solution of a different problem (placebo)"
+    }
+  }
+}

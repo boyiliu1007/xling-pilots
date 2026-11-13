@@ -1,0 +1,42 @@
+Experiment 2 report: L0
+generated 2026-11-12T18:53:37
+teacher context: none (frozen base model, no training)
+eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}
+eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+environment: {'model': 'Qwen/Qwen3-1.7B', 'copsd_commit': '4f4410730e9b', 'versions': {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}, 'gpu': 'NVIDIA RTX A6000', 'git_commit': 'c9cc3d2139d29c5cc1020a9b0872d636591c848e', 'git_dirty': True}
+
+## DEV (50 items)
+  base     pass@n 8/50 = 0.160 [0.083, 0.285] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.033  format 0.253  trunc 0.750  sw-lang 0.985
+  samples 600: truncated 0.750; formatted 0.253; finished without \boxed 0.003
+  repetitive (an 8-word window repeated >= 5 times): 0.840 of all samples, 0.993 of truncated ones
+  output length (characters): median 8948, p10 1138, p90 10240
+
+## TEST (200 items)
+  base     pass@n 30/200 = 0.150 [0.107, 0.206] maj@n 18/200 = 0.090 [0.058, 0.138] mean_acc 0.028  format 0.233  trunc 0.772  sw-lang 0.983
+  samples 2400: truncated 0.772; formatted 0.233; finished without \boxed 0.009
+  repetitive (an 8-word window repeated >= 5 times): 0.852 of all samples, 0.995 of truncated ones
+  output length (characters): median 9132, p10 1217, p90 10276
+
+## Reproducibility: this run vs the earlier base evaluation (/home/jeffc2/ANLP_final/xling-pilots/results/copsd_gold_eval4096/eval)
+  DEV (50 items)
+  ours     pass@n 8/50 = 0.160 [0.083, 0.285] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.033  format 0.253  trunc 0.750  sw-lang 0.985
+  reference pass@n 8/50 = 0.160 [0.083, 0.285] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.033  format 0.253  trunc 0.750  sw-lang 0.985
+    Δ pass@n    (ours - reference) +0.00 pts [+0.00, +0.00]
+    Δ maj@n     (ours - reference) +0.00 pts [+0.00, +0.00]
+    Δ mean_acc  (ours - reference) +0.00 pts [+0.00, +0.00]
+    identical generations: 600/600; items with the same pass@n: 50/50, same maj@n: 50/50
+  TEST (200 items)
+  ours     pass@n 30/200 = 0.150 [0.107, 0.206] maj@n 18/200 = 0.090 [0.058, 0.138] mean_acc 0.028  format 0.233  trunc 0.772  sw-lang 0.983
+  reference pass@n 30/200 = 0.150 [0.107, 0.206] maj@n 18/200 = 0.090 [0.058, 0.138] mean_acc 0.028  format 0.233  trunc 0.772  sw-lang 0.983
+    Δ pass@n    (ours - reference) +0.00 pts [+0.00, +0.00]
+    Δ maj@n     (ours - reference) +0.00 pts [+0.00, +0.00]
+    Δ mean_acc  (ours - reference) +0.00 pts [+0.00, +0.00]
+    identical generations: 2400/2400; items with the same pass@n: 200/200, same maj@n: 200/200
+
+## Gold-free capability signal vs gold accuracy (DEV+TEST, 250 items)
+  majority share = samples giving the most common formatted answer / n
+  bin                   items  maj@n                       mean_acc
+  no formatted answer      38  0/38 = 0.000 [0.000, 0.092]  0.000
+  share 1-3/12            189  15/189 = 0.079 [0.049, 0.127]  0.018
+  share 4-7/12             22  9/22 = 0.409 [0.233, 0.613]  0.167
+  share 8-12/12             1  0/1 = 0.000 [0.000, 0.793]  0.167

@@ -14,7 +14,7 @@ from ..data import load_afrimgsm, load_split
 from ..gpu import wait_for_gpu
 from ..paths import MODEL
 from ..utils import read_json, read_jsonl, write_json, write_jsonl
-from .collator import import_copsd
+from .collator import import_copsd_eval
 from .config import SEED
 
 log = logging.getLogger("votedistill.copsd.eval")
@@ -59,8 +59,7 @@ def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
         return
     if any(n != "base" for n in todo) and ckpt_dir is None:
         raise SystemExit("--ckpt_dir is required to evaluate checkpoints")
-    import_copsd()
-    import evaluate_math as EM
+    EM = import_copsd_eval()
     from transformers import AutoTokenizer
     from vllm import LLM, SamplingParams
     from vllm.lora.request import LoRARequest

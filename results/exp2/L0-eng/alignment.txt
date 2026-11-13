@@ -1,0 +1,16 @@
+
+================================================================================
+AfriMGSM en: masakhane/afrimgsm / eng / test (250 rows)
+columns: ['question', 'answer', 'answer_number', 'equation_solution']; question = 'question', gold = 'answer_number'
+example row 0: {"question": "Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?", "answer": null, "answer_number": 18, "equation_solution": null}
+
+================================================================================
+AfriMGSM swa: masakhane/afrimgsm / swa / test (250 rows)
+columns: ['question', 'answer', 'answer_number', 'equation_solution']; question = 'question', gold = 'answer_number'
+example row 0: {"question": "Bata wa Janet hutaga mayai 16 kila siku. Huwa anakula matatu wakati wa staftahi kila asubuhi na huokea marafiki zake mafini kila siku kwa mayai manne. Huwa anauza yaliyosalia katika soko la wakulima kila siku kwa $2 kwa kila yai la bata. Huwa anatengeneza pesa ngapi katika dola kila siku katika soko la wakulima?", "answer": null, "answer_number": 18, "equation_solution": null}
+
+================================================================================
+ALIGNMENT swa vs en (row order; no ID column)
+gold mismatches: 0/250 = 0.0000; first 5: []
+question-number overlap (Jaccard) vs English: mean 0.992, median 1.000, items < 0.5: 3; off-by-one control mean 0.061
+RESULT: OK (max mismatch 5%)

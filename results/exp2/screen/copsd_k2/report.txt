@@ -1,0 +1,39 @@
+Pre-training screen: copsd_k2
+500 problems x 2 student rollouts (training prompt and sampling), base model = step-0 student
+rollouts: 1000; truncated at 2048 tokens: 0.838; contain \boxed: 0.194
+Per-problem means, 95% bootstrap CI over problems. D = mean |log p_student - log p_teacher| of the sampled token (Zou et al.); fkl/fkl_clip = COPSD per-token loss at step 0 (unclipped / official clip).
+
+  context            D                        signed    fkl       fkl_clip  D finished  D truncated prompt tok
+  L0-same            0.0000 [0.0000, 0.0000]  +0.0000  0.0000   0.0000   0.0000      0.0000      172
+  L1                 0.0269 [0.0246, 0.0292]  +0.0119  0.0133   0.0016   0.0842      0.0163      259
+  L2-gold            0.0403 [0.0372, 0.0436]  +0.0203  0.0216   0.0021   0.1274      0.0237      468
+  L3-gold            0.0502 [0.0465, 0.0541]  +0.0275  0.0300   0.0027   0.1548      0.0302      1165
+  L3-shuffled-gold   0.0409 [0.0380, 0.0439]  +0.0195  0.0205   0.0021   0.1205      0.0255      1165
+
+  paired differences in D vs L1 (over problems):
+    L0-same            -0.0269 [-0.0292, -0.0246]
+    L2-gold            +0.0135 [+0.0122, +0.0148]
+    L3-gold            +0.0233 [+0.0213, +0.0254]
+    L3-shuffled-gold   +0.0140 [+0.0128, +0.0153]
+
+  real reference vs placebo (L3-gold - L3-shuffled-gold), paired over problems:
+    D, all rollouts          +0.0093 [+0.0081, +0.0105]  (500 problems)
+    D, finished rollouts     +0.0343 [+0.0298, +0.0388]  (138 problems)
+    fkl (unclipped)          +0.0095 [+0.0082, +0.0108]  (500 problems)
+    fkl_clip (official)      +0.0006 [+0.0005, +0.0007]  (500 problems)
+
+  signal concentration and the official clip (per-token arrays):
+  context            |delta| mass in first 10% of tokens   tokens with fkl > clip   share of KL kept by clip
+  L0-same            nan                                   0.000                    nan
+  L1                 0.49                                  0.024                    0.13
+  L2-gold            0.53                                  0.041                    0.11
+  L3-gold            0.49                                  0.055                    0.09
+  L3-shuffled-gold   0.56                                  0.045                    0.11
+
+  where the divergence sits: mean |delta| by relative position in the rollout (deciles), all rollouts
+  context              0%  10%  20%  30%  40%  50%  60%  70%  80%  90%
+  L0-same            0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+  L1                 0.10 0.04 0.02 0.01 0.01 0.01 0.01 0.01 0.00 0.01
+  L2-gold            0.16 0.05 0.02 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+  L3-gold            0.19 0.07 0.03 0.02 0.01 0.01 0.01 0.01 0.01 0.01
+  L3-shuffled-gold   0.18 0.05 0.02 0.01 0.01 0.01 0.01 0.01 0.01 0.01

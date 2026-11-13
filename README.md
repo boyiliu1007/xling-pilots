@@ -75,9 +75,10 @@ selection, TEST 200 items (`results/splits/`).
 ## Running
 
 ```bash
-pip install -r requirements.txt
-git clone https://github.com/cisnlp/COPSD     # collator, language config and eval helpers are imported from it
-export COPSD_DIR=/path/to/COPSD               # see votedistill/paths.py for the other path variables
+pip install -r requirements.txt               # e.g. uv venv --python 3.11 /data/user_data/$USER/venvs/votedistill
+git clone https://github.com/cisnlp/COPSD /data/user_data/$USER/ext/COPSD && git -C /data/user_data/$USER/ext/COPSD checkout 4f4410730e9b
+# defaults live under /data/user_data/$USER (COPSD_DIR, CKPT_ROOT, HF_HOME); override via env vars, see votedistill/paths.py
+# Slurm scripts: submit from the repo root after `mkdir -p logs`
 pytest tests
 
 # majority votes (finished runs are skipped)
@@ -97,8 +98,19 @@ its `eval_config.json`, so a new protocol needs a new `--run_dir` (pointing `--c
 
 - **Experiment 1 (voted reference):** pick an agreeing English trace per problem from a `consensus` run, write it into
   each training row's `solution` in `votedistill/copsd/collator.py:prepare_rows`, and train as usual.
-- **Experiment 2 (L1/L2/L3):** L1 = `--no_reference`; L3 = a voted trace (Experiment 1); L2 (answer only) needs a new
-  teacher prompt path in the collator.
+- **Experiment 2 (L0–L3):** lives in `votedistill/exp2/` (results in `results/exp2/`; analysis plan fixed in
+  `results/exp2/PREREGISTRATION.md`). Levels and teacher contexts are in `votedistill/exp2/levels.py`: L2, L3 and the
+  L3-shuffled placebo all fill the same COPSD reference slot (answer only / full trace / another problem's trace).
+  ```bash
+  PY=/data/user_data/$USER/venvs/votedistill/bin/python
+  $PY -m votedistill.exp2 eval --level L0 --split dev test && $PY -m votedistill.exp2 report --level L0
+  $PY -m votedistill.exp2 eval --level L0-eng --split dev test && $PY -m votedistill.exp2 report --level L0-eng  # capability groups
+  $PY -m votedistill.exp2 screen --name copsd_k2 --contexts L0-same L1 L2-gold L3-gold L3-shuffled-gold         # pre-training D screen
+  $PY -m votedistill.exp2 screen-report --name copsd_k2
+  LEVEL=L0 sbatch slurm/exp2.sbatch
+  ```
+  Note: for the African languages COPSD's `language_config.py` sets `teacher_final_instruction = student_instruction`,
+  so a teacher with neither English question nor reference has exactly the student's prompt (training it is a no-op).
 - **Experiment 3 (adaptive):** per-problem choice of the above, driven by consensus vote shares.
 
 ## Models

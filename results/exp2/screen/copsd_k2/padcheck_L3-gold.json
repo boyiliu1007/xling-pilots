@@ -1,0 +1,24 @@
+{
+  "context": "L3-gold",
+  "sequences": 100,
+  "tokens": 187101,
+  "pads_per_teacher_prompt": {
+    "mean": 394.46,
+    "max": 1378,
+    "share_with_pads": 0.75
+  },
+  "KL(exact||padded) per token": {
+    "mean": 0.01042525377124548,
+    "p99": 0.1280263066291809,
+    "max": 17.65550994873047
+  },
+  "|delta log p(y)| per token": {
+    "mean": 0.02094401605427265,
+    "p99": 0.4432588815689087
+  },
+  "mean KL per sequence, with pads vs without": [
+    0.020609771832823753,
+    0.0
+  ],
+  "note": "sequences without pads measure bf16/kernel noise only (same input, mask given vs not)"
+}

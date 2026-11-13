@@ -11,3 +11,4 @@ logs/
 __pycache__/
 .pytest_cache/
 .resubmits
+results/exp2/screen/*/tokens_*.npz
