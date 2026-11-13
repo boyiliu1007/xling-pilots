@@ -38,6 +38,11 @@ def _base(split="test"):
     return read_jsonl(level_dir("L0") / "eval" / f"base_{split}.jsonl")
 
 
+def final_test(name, step=100):
+    p = RUNS / name / "eval" / f"step{step}_test.jsonl"
+    return read_jsonl(p) if p.exists() else None
+
+
 def selected_test(name):
     """(selected checkpoint, TEST records) or (None, None)."""
     rd = RUNS / name
@@ -79,15 +84,28 @@ def build_summary():
                  + " ".join(f"{_fmt(*_gain(base, R, k)):<22}" for k, _ in METRICS)
                  + f"  rows {cfg.get('data', {}).get('rows', '?')}")
 
+    T += ["", "## Selection-free: TEST at the final checkpoint (step 100)"]
+    fres = {}
+    for rd in sorted(RUNS.glob("*__*")):
+        R = final_test(rd.name)
+        if R is not None:
+            fres[rd.name] = R
+            T.append(f"{rd.name:<42} {'step100':>7} {np.mean([r['maj_correct'] for r in R]):7.3f} "
+                     f"{np.mean([r['pass_at_n'] for r in R]):8.3f} {np.mean([r['mean_acc'] for r in R]):6.3f} "
+                     f"{np.mean([np.mean(r['truncated']) for r in R]):6.3f}   "
+                     + " ".join(f"{_fmt(*_gain(base, R, k)):<22}" for k, _ in METRICS))
+
     T += ["", "## Planned contrasts (B - A on TEST, same seed)"]
-    seeds = sorted({n.rsplit("__", 1)[1] for n in res})
-    for label, a, b in CONTRASTS:
-        for s in seeds:
-            A = base if a is None else res.get(f"{a}__{s}")
-            B = res.get(f"{b}__{s}")
-            if A is None or B is None:
-                continue
-            T.append(f"  {label:<46} {s:<4} " + "  ".join(f"{lab} {_fmt(*_gain(A, B, k))}" for k, lab in METRICS))
+    for tag, pool in (("DEV-selected", res), ("step100", fres)):
+        T.append(f"  [{tag}]")
+        seeds = sorted({n.rsplit("__", 1)[1] for n in pool})
+        for label, a, b in CONTRASTS:
+            for s in seeds:
+                A = base if a is None else pool.get(f"{a}__{s}")
+                B = pool.get(f"{b}__{s}")
+                if A is None or B is None:
+                    continue
+                T.append(f"  {label:<46} {s:<4} " + "  ".join(f"{lab} {_fmt(*_gain(A, B, k))}" for k, lab in METRICS))
 
     T += ["", "## Gain over L0 by capability bin (number of the 12 L0 samples that finish; gold-free)"]
     fin = np.array([12 - sum(r["truncated"]) for r in base])

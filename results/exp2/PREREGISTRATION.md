@@ -89,3 +89,7 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   - Capability axis (open decision 4): undecided. Candidate (gold-free, varies across items): number of the 12 L0
     samples that finish (do not hit the 4096-token limit). TEST distribution 0: 38, 1-2: 74, 3-5: 57, 6-12: 31 items;
     L0 pass@12 rises 0.00 / 0.08 / 0.21 / 0.39 across these bins.
+- 2026-11-13, after seeing DEV curves but before any TEST result: DEV maj@12 barely moves across checkpoints
+  (0.08-0.14 for every run, base 0.12; one item = 0.02), so DEV maj@12 selection is close to random. The primary
+  analysis stays as written (DEV maj@12 selection); added a selection-free analysis: every run is also evaluated on
+  TEST at its final checkpoint (step 100), and all contrasts are reported for both.

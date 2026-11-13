@@ -59,7 +59,7 @@ def copy_base(name):
 
 
 def eval_run(name, split, max_steps=MAX_STEPS):
-    """DEV: every checkpoint. TEST: the DEV-selected checkpoint only. Returns the selected name (or None)."""
+    """DEV: every checkpoint. TEST: the DEV-selected checkpoint and the final one (selection-free comparison). Returns the selected name (or None)."""
     from ..copsd.config import EVAL, SAVE_EVERY
     from ..copsd.evaluate import evaluate, select_checkpoint
     rd, ck = paths(name)
@@ -71,7 +71,8 @@ def eval_run(name, split, max_steps=MAX_STEPS):
     sel = select_checkpoint(rd, SELECT_METRIC, steps)
     if sel is None:
         raise SystemExit(f"{name}: DEV evaluations incomplete, cannot select")
-    evaluate(rd, [sel], "test", dict(EVAL), ck)
+    final = f"step{max_steps}"
+    evaluate(rd, list(dict.fromkeys([sel, final])), "test", dict(EVAL), ck)   # DEV pick + the final checkpoint
     return sel
 
 
