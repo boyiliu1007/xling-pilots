@@ -108,7 +108,17 @@ its `eval_config.json`, so a new protocol needs a new `--run_dir` (pointing `--c
   $PY -m votedistill.exp2 screen --name copsd_k2 --contexts L0-same L1 L2-gold L3-gold L3-shuffled-gold         # pre-training D screen
   $PY -m votedistill.exp2 screen-report --name copsd_k2
   LEVEL=L0 sbatch slurm/exp2.sbatch
+  # training data and voted references
+  $PY -m votedistill.exp2 translate                    # GSM8K train sample -> Swahili (NLLB-200 3.3B + number QC)
+  $PY -m votedistill.consensus generate --out results/exp2/consensus --runs gsm8k:en copsd:en --thinking --max_tokens 16384
+  $PY -m votedistill.exp2 trainsets                    # dataset sizes, vote acceptance
+  # one training run = <context>__<data>__<layout>__s<seed>; train, DEV eval of all checkpoints, TEST of the DEV pick
+  NAME=L3-gold__copsd__exact__s42 sbatch slurm/exp2_run.sbatch     # preempt partition, requeues and resumes
+  $PY -m votedistill.exp2 summary                      # results/exp2/SUMMARY.txt: all runs, contrasts, capability bins
   ```
+  Layouts: `official` reproduces COPSD's right-padded teacher/student prompts (completion positions shifted by the
+  pads); `exact` strips the pads (`votedistill/copsd/train.py:LAYOUTS`). Data: `copsd`, `gsm8k-mt`, `mix`
+  (`votedistill/exp2/trainsets.py`).
   Note: for the African languages COPSD's `language_config.py` sets `teacher_final_instruction = student_instruction`,
   so a teacher with neither English question nor reference has exactly the student's prompt (training it is a no-op).
 - **Experiment 3 (adaptive):** per-problem choice of the above, driven by consensus vote shares.
