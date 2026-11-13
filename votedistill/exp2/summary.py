@@ -12,7 +12,7 @@ from ..copsd.evaluate import select_checkpoint
 from ..stats import paired_bootstrap
 from ..utils import read_json, read_jsonl
 from .levels import run_dir as level_dir
-from .runs import RUNS, SELECT_METRIC
+from .runs import RUNS, SELECT_METRIC, eval_steps, final_step
 
 METRICS = (("maj_correct", "maj@12"), ("pass_at_n", "pass@12"), ("mean_acc", "mean_acc"))
 # (label, run A, run B): B - A on TEST. Seeds are matched by the suffix when both runs exist.
@@ -38,24 +38,38 @@ CONTRASTS = [
     ("clip effect (L3-gold): none - 0.05", "L3-gold__copsd__exact", "L3-gold__copsd__exact__noclip"),
     ("clip effect (L1): 0.5 - 0.05", "L1__copsd__exact", "L1__copsd__exact__clip0.5"),
     ("clip effect (L3-gold): 0.5 - 0.05", "L3-gold__copsd__exact", "L3-gold__copsd__exact__clip0.5"),
+    # two-stage, gold-free (PREREGISTRATION.md 2026-11-13 two-stage entry): stage 1 = clipped L3-vote to step 30
+    ("2-stage: L3-vote - L1", "L1__copsd__exact__s1vote30-noclip", "L3-vote__copsd__exact__s1vote30-noclip"),
+    ("2-stage: L3-vote - placebo", "L3-shuffled-vote__copsd__exact__s1vote30-noclip", "L3-vote__copsd__exact__s1vote30-noclip"),
+    ("2-stage vs plain COPSD (L3-vote)", "L3-vote__copsd__exact", "L3-vote__copsd__exact__s1vote30-noclip"),
+    ("2-stage vs no stage 1 (L3-vote, no clip)", "L3-vote__copsd__exact__noclip", "L3-vote__copsd__exact__s1vote30-noclip"),
+    ("2-stage: vote - gold oracle", "L3-gold__copsd__exact__s1gold30-noclip", "L3-vote__copsd__exact__s1vote30-noclip"),
+    ("stage 1: self-SFT - clipped COPSD (then no clip)", "L3-vote__copsd__exact__s1vote30-noclip", "L3-vote__copsd__exact__s1sft30-noclip"),
+    ("self-SFT only (step 30) - plain COPSD (L3-vote)", "L3-vote__copsd__exact", "selfsft-vote__copsd__exact"),
 ]
 FINISH_BINS = ((0, 0), (1, 2), (3, 5), (6, 12))
+DEGEN_TTR = 0.3   # calibrated on L0 / gold runs: finished answers median 0.40-0.43, L1 word salad median 0.25
+
+
+def ttr(text, n=300):
+    """Distinct-word share of the last n words (low = loops or word salad)."""
+    w = text.split()[-n:]
+    return len(set(w)) / max(len(w), 1)
 
 
 def _base(split="test"):
     return read_jsonl(level_dir("L0") / "eval" / f"base_{split}.jsonl")
 
 
-def final_test(name, step=100):
-    p = RUNS / name / "eval" / f"step{step}_test.jsonl"
+def final_test(name, step=None):
+    p = RUNS / name / "eval" / f"step{step or final_step(name)}_test.jsonl"
     return read_jsonl(p) if p.exists() else None
 
 
 def selected_test(name):
     """(selected checkpoint, TEST records) or (None, None)."""
     rd = RUNS / name
-    steps = [f"step{s}" for s in range(10, 101, 10)]
-    sel = select_checkpoint(rd, SELECT_METRIC, steps) if (rd / "eval").exists() else None
+    sel = select_checkpoint(rd, SELECT_METRIC, eval_steps(name)) if (rd / "eval").exists() else None
     p = rd / "eval" / f"{sel}_test.jsonl"
     return (sel, read_jsonl(p)) if sel and p.exists() else (sel, None)
 
@@ -116,7 +130,10 @@ def build_summary():
                 T.append(f"  {label:<46} {s:<4} " + "  ".join(f"{lab} {_fmt(*_gain(A, B, k))}" for k, lab in METRICS))
 
     T += ["", "## Mechanism: does training stop the looping, or also make finished answers more accurate?",
-          f"  {'run':<42} {'trunc':>6} {'loop':>6} {'acc|finished':>13} {'finished/item':>14} {'sw-lang':>8}"]
+          f"  {'run':<42} {'trunc':>6} {'loop':>6} {'acc|finished':>13} {'finished/item':>14} {'sw-lang':>8} "
+          f"{'ttr':>6} {'degen':>6}",
+          "  (ttr = distinct-word share of the last 300 words; degen = truncated and (loop or ttr < "
+          f"{DEGEN_TTR}): also catches the word salad the verbatim loop detector misses)"]
     from .report import is_repetitive
 
     def mech(R):
@@ -124,8 +141,10 @@ def build_summary():
         cf = [c for r in R for c, t in zip(r["correct"], r["truncated"]) if not t]
         lp = [is_repetitive(o) for r in R for o in r["outputs"]]
         sw = [l == "sw" for r in R for l in r["language"]]
+        zr = [ttr(o) for r in R for o in r["outputs"]]
+        dg = [t and (l or z < DEGEN_TTR) for t, l, z in zip(tr, lp, zr)]
         return (f"{np.mean(tr):6.3f} {np.mean(lp):6.3f} {np.mean(cf) if cf else float('nan'):13.3f} "
-                f"{12 * (1 - np.mean(tr)):14.2f} {np.mean(sw):8.3f}")
+                f"{12 * (1 - np.mean(tr)):14.2f} {np.mean(sw):8.3f} {np.mean(zr):6.3f} {np.mean(dg):6.3f}")
     T.append(f"  {'L0 (base)':<42} " + mech(base))
     for name, R in res.items():
         T.append(f"  {name + ' (sel)':<42} " + mech(R))

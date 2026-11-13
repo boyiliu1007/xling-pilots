@@ -93,3 +93,34 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   (0.08-0.14 for every run, base 0.12; one item = 0.02), so DEV maj@12 selection is close to random. The primary
   analysis stays as written (DEV maj@12 selection); added a selection-free analysis: every run is also evaluated on
   TEST at its final checkpoint (step 100), and all contrasts are reported for both.
+- 2026-11-13 ~15:30, loss-clip ablation (decided with the user after the D screen, before any ablation TEST result):
+  runs `<ctx>__copsd__exact__{noclip,clip0.5}__s{42,43}` for L1 and L3-gold, plus L3-shuffled-gold without clip.
+  Contrasts in `summary.py` ("no clip: ...", "clip 0.5: ...", "clip effect ..."). Clip diagnostics:
+  `exp2/clipstats.py`, results/exp2/screen/*/clipstats.txt.
+- 2026-11-13 ~16:00, two-stage gold-free experiment (written before any TEST result of the clip ablation or of these
+  runs; known at the time: TEST of the official-clip grid and of 3 L3-vote runs, the clip diagnostics, and the
+  *training-rollout* curves of the ablation runs, in which clipped runs learn to finish, boxed 0.28-0.40 at steps
+  31-60, and unclipped / clip-0.5 runs do not, 0.09-0.19).
+  Hypothesis: the official clip produces COPSD's gain on Swahili (learning to terminate) and blocks the teacher's
+  information; stage 1 with the clip teaches termination, stage 2 without it transfers information.
+  Everything is gold-free except evaluation: the teacher reference is the English majority vote (L3-vote), the
+  self-SFT filter is agreement with that vote, and the **primary analysis uses the fixed final checkpoint (step 100;
+  self-SFT alone: step 30)**, since DEV selection uses gold labels (DEV-selected numbers are reported as secondary).
+  - Switch step N = 30, by a gold-free rule fixed now: the first checkpoint after which the boxed rate of the clipped
+    runs' training rollouts stops rising (L3-vote/L3-gold copsd s42/s43, 10-step windows: 0.20-0.22, 0.32-0.38,
+    0.50-0.57, then 0.46-0.54 and lower).
+  - Stage 2 continues the stage-1 run (adapter, AdamW state, LR schedule, RNG) to step 100 with the arm's context
+    and clip; data copsd (vote-accepted rows for vote contexts), exact layout, seeds 42 and 43.
+  - Arms: A (method) stage 1 = clipped L3-vote 30 steps, stage 2 no clip with L3-vote / L1 / L3-shuffled-vote;
+    A-oracle the same with L3-gold in both stages; B = plain clipped L3-vote 100 steps (existing runs); C = L3-vote
+    without clip from step 0; D stage 1 = vote-filtered self-SFT 30 steps (`exp2/selfsft.py`: base model, 8 samples
+    per vote-accepted question with the student prompt and training sampling, keep finished answers equivalent to
+    the vote, at most 2 per question; NLL with the COPSD optimizer, batch and schedule), then stage 2 as A (L3-vote);
+    D-alone = the self-SFT checkpoint at step 30.
+  - Primary contrasts (TEST, step 100, paired bootstrap, per seed and pooled over seeds): (1) A L3-vote - A placebo,
+    (2) A L3-vote - A L1, (3) A L3-vote - B, (4) A L3-vote - A-oracle; secondary: A - C, D - A, D-alone - B.
+    Metrics as before (maj@12 primary, pass@12, mean_acc), plus the mechanism table (truncation, loops, accuracy of
+    finished answers, distinct-word degeneration measure, language).
+  - Degeneration measure added to the mechanism table (calibrated on existing step-100 outputs before these runs):
+    truncated and (verbatim loop or distinct-word share of the last 300 words < 0.3); the verbatim loop detector alone
+    misses the word salad of L1 runs.
