@@ -107,6 +107,23 @@ def build_summary():
                     continue
                 T.append(f"  {label:<46} {s:<4} " + "  ".join(f"{lab} {_fmt(*_gain(A, B, k))}" for k, lab in METRICS))
 
+    T += ["", "## Mechanism: does training stop the looping, or also make finished answers more accurate?",
+          f"  {'run':<42} {'trunc':>6} {'loop':>6} {'acc|finished':>13} {'finished/item':>14} {'sw-lang':>8}"]
+    from .report import is_repetitive
+
+    def mech(R):
+        tr = [t for r in R for t in r["truncated"]]
+        cf = [c for r in R for c, t in zip(r["correct"], r["truncated"]) if not t]
+        lp = [is_repetitive(o) for r in R for o in r["outputs"]]
+        sw = [l == "sw" for r in R for l in r["language"]]
+        return (f"{np.mean(tr):6.3f} {np.mean(lp):6.3f} {np.mean(cf) if cf else float('nan'):13.3f} "
+                f"{12 * (1 - np.mean(tr)):14.2f} {np.mean(sw):8.3f}")
+    T.append(f"  {'L0 (base)':<42} " + mech(base))
+    for name, R in res.items():
+        T.append(f"  {name + ' (sel)':<42} " + mech(R))
+    for name, R in fres.items():
+        T.append(f"  {name + ' (step100)':<42} " + mech(R))
+
     T += ["", "## Gain over L0 by capability bin (number of the 12 L0 samples that finish; gold-free)"]
     fin = np.array([12 - sum(r["truncated"]) for r in base])
     bins = [(lo, hi, np.where((fin >= lo) & (fin <= hi))[0]) for lo, hi in FINISH_BINS]
