@@ -60,6 +60,7 @@ def main():
     cs = sub.add_parser("clipstats", help="where the official loss clip binds (re-scores the screen rollouts)")
     cs.add_argument("--name", default="copsd_k2")
     cs.add_argument("--report_only", action="store_true")
+    cs.add_argument("--ckpt", nargs=2, metavar=("RUN", "STEP"), help="student = that run's checkpoint (new rollouts)")
     sub.add_parser("summary")
     sub.add_parser("translate")
     sub.add_parser("trainsets")
@@ -79,8 +80,11 @@ def main():
         return run_commands(args)
 
     if args.cmd == "clipstats":
-        from .clipstats import clipstats, clipstats_report
+        from .clipstats import ckpt_rollouts, clipstats, clipstats_report
         from .screen import screen_dir
+        if args.ckpt:
+            setup_logging(screen_dir("copsd_k2") / "logs" / "clipstats_ckpt.log")
+            args.name = ckpt_rollouts(args.ckpt[0], int(args.ckpt[1]))
         if args.report_only:
             print(clipstats_report(args.name))
             return

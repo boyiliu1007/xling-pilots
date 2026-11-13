@@ -52,6 +52,8 @@ def _cf(c):
 
 
 def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, limit=None):
+    """Score the rollouts of screen dir <name>. If its config.json has "student_ckpt" (made by ckpt_rollouts), the
+    student is base + that LoRA adapter and the teacher is the base model (adapter disabled), as in training."""
     import torch
     import torch.nn.functional as F
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -68,11 +70,20 @@ def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, lim
         col = make_collator(tok, OFFICIAL["max_length"], **flags)
         tprompts[c] = {i: _prompt_ids(col, trows[i], "teacher") for i in idx}
     model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=torch.bfloat16, attn_implementation="sdpa").cuda().eval()
+    ckpt = cfg.get("student_ckpt")
+    if ckpt:
+        from contextlib import nullcontext
+        from peft import PeftModel
+        model = PeftModel.from_pretrained(model, ckpt).eval()
+        teacher_ctx = model.disable_adapter
+    else:
+        from contextlib import nullcontext
+        teacher_ctx = nullcontext
     pairs = [p for p in PAIRS if p[0] in contexts and p[1] in contexts]
 
-    out = {"rollout": [], "rel_pos": [], "finished": []}
+    out = {"rollout": [], "rel_pos": [], "finished": [], "sampled": []}
     for c in contexts:
-        out[f"{c}|fkl"], out[f"{c}|g2"], out[f"{c}|pull"] = [], [], []
+        out[f"{c}|fkl"], out[f"{c}|g2"], out[f"{c}|pull"], out[f"{c}|top1_id"] = [], [], [], []
         for cv in clips:
             for f in FIELDS:
                 out[f"{c}|{_cf(cv)}|{f}"] = []
@@ -80,6 +91,7 @@ def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, lim
         out[f"{a}~{b}|full"] = []
         for cv in clips:
             out[f"{a}~{b}|{_cf(cv)}"] = []
+            out[f"{a}~{b}|{_cf(cv)}|dot"] = []
 
     t0 = time.time()
     with torch.no_grad():
@@ -87,11 +99,13 @@ def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, lim
             comp = r["completion_ids"]
             L = len(comp)
             s_log = _completion_logits(model, r["student_prompt_ids"], comp)
-            t_logs = {c: _completion_logits(model, tprompts[c][r["problem"]], comp) for c in contexts}
+            with teacher_ctx():
+                t_logs = {c: _completion_logits(model, tprompts[c][r["problem"]], comp) for c in contexts}
             y = torch.tensor(comp, device="cuda")
             out["rollout"].append(np.full(L, n, np.int32))
             out["rel_pos"].append((np.arange(L) / L).astype(np.float32))
             out["finished"].append(np.full(L, r["finish_reason"] == "stop"))
+            out["sampled"].append(np.array(comp, np.int32))
             for s0 in range(0, L, CHUNK):
                 ls = F.log_softmax(s_log[s0:s0 + CHUNK].float() / T, -1)
                 ps = ls.exp()
@@ -106,6 +120,7 @@ def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, lim
                     out[f"{c}|fkl"].append(term.sum(-1).cpu().numpy())
                     out[f"{c}|g2"].append((g * g).sum(-1).cpu().numpy())
                     out[f"{c}|pull"].append((-g.gather(-1, a1))[:, 0].cpu().numpy())
+                    out[f"{c}|top1_id"].append(a1[:, 0].int().cpu().numpy())
                     g_full[c] = g
                     for cv in clips:
                         over = term > cv
@@ -122,9 +137,11 @@ def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, lim
                 for a, b in pairs:
                     d = g_full[a] - g_full[b]
                     out[f"{a}~{b}|full"].append((d * d).sum(-1).cpu().numpy())
+                    dfull = d
                     for cv in clips:
                         d = g_clip[(a, cv)] - g_clip[(b, cv)]
                         out[f"{a}~{b}|{_cf(cv)}"].append((d * d).sum(-1).cpu().numpy())
+                        out[f"{a}~{b}|{_cf(cv)}|dot"].append((d * dfull).sum(-1).cpu().numpy())
                 del g_full, g_clip, ls, ps
             del s_log, t_logs
             if (n + 1) % 50 == 0:
@@ -133,6 +150,7 @@ def clipstats(name="copsd_k2", contexts=CONTEXTS, clips=CLIPS, samples=None, lim
     np.savez_compressed(sd / "clipstats.npz", **arr)
     write_json(sd / "clipstats_config.json", {"contexts": list(contexts), "clips": list(clips), "pairs": pairs,
                                               "rollouts": len(recs), "samples": samples, "temperature": T,
+                                              "student_ckpt": ckpt,
                                               "doc": __doc__})
     log.info(f"done in {time.time() - t0:.0f}s")
     return clipstats_report(name)
@@ -168,7 +186,9 @@ def clipstats_report(name="copsd_k2"):
         for a, b in pairs:
             full = z[f"{a}~{b}|full"][mask].sum()
             T.append(f"    {a + ' vs ' + b:<32} " + "  ".join(
-                f"clip {cv:g}: {np.sqrt(z[f'{a}~{b}|{cv:g}'][mask].sum() / full):.3f}" for cv in clips)
+                f"clip {cv:g}: {np.sqrt(z[f'{a}~{b}|{cv:g}'][mask].sum() / full):.3f}"
+                + (f" (cos {z[f'{a}~{b}|{cv:g}|dot'][mask].sum() / np.sqrt(z[f'{a}~{b}|{cv:g}'][mask].sum() * full):+.3f})"
+                   if f'{a}~{b}|{cv:g}|dot' in z else "") for cv in clips)
                 + f"   (unclipped |Δg| rms {np.sqrt(full / mask.sum()):.4f})")
         T.append("")
 
@@ -188,6 +208,97 @@ def clipstats_report(name="copsd_k2"):
     T.append("  share of all unclipped KL by decile: " + "  ".join(
         f"{c}: " + ",".join(f"{z[f'{c}|fkl'][dec == d].sum() / z[f'{c}|fkl'].sum():.2f}" for d in range(10))
         for c in ctxs))
+    if "sampled" in z:
+        T += [""] + token_tables(z, ctxs, dec)
     text = "\n".join(T) + "\n"
     (sd / "clipstats.txt").write_text(text)
     return text
+
+
+def _tok_kind(t):
+    s = t.strip()
+    if not s:
+        return "whitespace"
+    if any(ch.isdigit() for ch in s) or s in set("+-*/=^()[]{}\\$<>.,:;%|_") or s.startswith("\\"):
+        return "math/punct"
+    return "word"
+
+
+def token_tables(z, ctxs, dec, clip=0.05, top=25):
+    """Which teacher top-1 tokens the official clip removes (and reverses), decoded; pooled over all positions."""
+    from collections import Counter
+    from transformers import AutoTokenizer
+    tok = AutoTokenizer.from_pretrained(MODEL)
+    dec_tok = lambda i: tok.decode([int(i)]).replace("\n", "\\n")
+    T = [f"## Which tokens: teacher top-1 token at positions where it is clipped (clip {clip:g}); "
+         "rev = clipped gradient lowers it although the full gradient raises it"]
+    for c in ctxs:
+        top1 = z[f"{c}|top1_id"]
+        clipped = z[f"{c}|{clip:g}|top1"].astype(bool)
+        rev = (z[f"{c}|pull"] > 0) & (z[f"{c}|{clip:g}|pull_c"] < 0)
+        cnt_c, cnt_r, cnt_all = Counter(top1[clipped].tolist()), Counter(top1[rev].tolist()), Counter(top1.tolist())
+        same = np.mean(top1[clipped] == z["sampled"][clipped]) if clipped.any() else float("nan")
+        kinds = Counter(_tok_kind(dec_tok(i)) for i in top1[clipped].tolist())
+        early = np.mean(dec[clipped] == 0) if clipped.any() else float("nan")
+        T.append(f"  {c}: {clipped.sum()} clipped top-1 positions, {len(cnt_c)} distinct tokens; top-1 == sampled token "
+                 f"{same:.2f}; in first decile {early:.2f}; kinds " + ", ".join(f"{k} {v / clipped.sum():.2f}" for k, v in kinds.most_common()))
+        T.append(f"    {'token':<16} {'clipped':>8} {'share':>6} {'rate':>6} {'rev':>6}   (rate = clipped / times it is top-1)")
+        for i, n in cnt_c.most_common(top):
+            T.append(f"    {repr(dec_tok(i)):<16} {n:8d} {n / clipped.sum():6.3f} {n / cnt_all[i]:6.3f} {cnt_r[i]:6d}")
+        # where the student wrote something else: (student token -> teacher token), with one example context
+        pos = np.where(clipped & (top1 != z["sampled"]))[0]
+        pairs = Counter(zip(z["sampled"][pos].tolist(), top1[pos].tolist()))
+        T.append(f"    student wrote -> teacher top-1 (clipped, different token; {len(pos)} positions), with the preceding text of one example:")
+        for (a_, b_), n in pairs.most_common(12):
+            k = pos[(z["sampled"][pos] == a_) & (top1[pos] == b_)][0]
+            r0 = k
+            while r0 > 0 and z["rollout"][r0 - 1] == z["rollout"][k] and k - r0 < 12:
+                r0 -= 1
+            ctx = tok.decode([int(x) for x in z["sampled"][r0:k]]).replace("\n", "\\n")[-60:]
+            T.append(f"      {n:5d}  {repr(dec_tok(a_)):<14} -> {repr(dec_tok(b_)):<14} ...{ctx}")
+        T.append("")
+    return T
+
+
+def ckpt_rollouts(run, step, n_problems=500, lang="swa"):
+    """Screen dir clip_<run>_step<step>: one rollout per problem sampled from that checkpoint's student (base + LoRA),
+    with the training prompt and sampling, same problems and per-problem seeds as the copsd_k2 screen (sample 0)."""
+    from transformers import AutoTokenizer
+    from vllm import LLM, SamplingParams
+    from vllm.lora.request import LoRARequest
+    from ..copsd.config import SEED
+    from .runs import paths
+    adapter = paths(run)[1] / f"step-{step}" / "adapter"
+    if not adapter.exists():
+        raise SystemExit(f"{adapter} missing")
+    name = f"clip_{run}_step{step}"
+    sd = screen_dir(name)
+    sd.mkdir(parents=True, exist_ok=True)
+    base_cfg = read_json(screen_dir("copsd_k2") / "config.json")
+    write_json(sd / "config.json", {**{k: base_cfg[k] for k in ("model", "lang", "n_problems", "seed", "sampling")},
+                                    "k": 1, "student_ckpt": str(adapter), "run": run, "step": step})
+    if (sd / "rollouts.jsonl").exists():
+        return name
+    tok = AutoTokenizer.from_pretrained(MODEL)
+    rows = prepare_rows(load_copsd_train(lang), lang)
+    idx = select_problems(len(rows), n_problems)
+    col = make_collator(tok, OFFICIAL["max_length"], False, False)
+    sp_ids = {i: _prompt_ids(col, rows[i], "student") for i in idx}
+    llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.5, max_model_len=8192, seed=SEED,
+              enable_lora=True, max_lora_rank=64)
+    sps = [SamplingParams(n=1, temperature=OFFICIAL["temperature"], top_p=OFFICIAL["top_p"], top_k=OFFICIAL["top_k"],
+                          min_p=0.0, max_tokens=OFFICIAL["max_completion_length"], seed=SEED * 1_000_003 + i * 100)
+           for i in idx]
+    outs = llm.generate([{"prompt_token_ids": sp_ids[i]} for i in idx], sps, use_tqdm=False,
+                        lora_request=LoRARequest(name, 1, str(adapter)))
+    from ..utils import write_jsonl
+    write_jsonl(sd / "rollouts.jsonl", [
+        {"problem": i, "sample": 0, "student_prompt_ids": sp_ids[i], "completion_ids": list(o.outputs[0].token_ids),
+         "text": o.outputs[0].text, "finish_reason": o.outputs[0].finish_reason} for i, o in zip(idx, outs)])
+    import gc
+    import torch
+    del llm
+    gc.collect()
+    torch.cuda.empty_cache()
+    log.info(f"{name}: {len(idx)} rollouts, truncated {np.mean([o.outputs[0].finish_reason != 'stop' for o in outs]):.3f}")
+    return name
