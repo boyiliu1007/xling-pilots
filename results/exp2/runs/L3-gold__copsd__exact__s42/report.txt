@@ -1,5 +1,5 @@
 COPSD run report: L3-gold__copsd__exact__s42
-generated 2026-11-13T04:20:35
+generated 2026-11-13T04:31:56
 
 ## Setup
   teacher context: {'include_problem_en': True, 'reference_solution': 'L3-gold: + gold English solution (= gold COPSD)'}
