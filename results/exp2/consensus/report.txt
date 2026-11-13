@@ -1,0 +1,65 @@
+Self-consensus report: consensus
+generated 2026-11-13T09:11:36
+Every rate: k/N = estimate [95% Wilson]. Gold answers are used only to score the vote.
+
+## Config
+  model: Qwen/Qwen3-1.7B
+  prompt_template: {question}
+Please reason step by step, and put your final answer within \boxed{{}}.
+  versions: {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}
+  run gsm8k_en_thinking: {'items': 500, 'n': 8, 'sampling': {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, 'max_tokens': 16384, 'thinking': True, 'answer_mode': 'numeric', 'seed': 42, 'generation_s': 3734.5, 'generated_tokens': 8456967, 'peak_gpu_mem_used_MiB': 44968, 'finished': '2026-11-13T01:36:50', 'host': 'babel-w9-16', 'slurm_job_id': '11129721'}
+  run copsd_en_thinking: {'items': 500, 'n': 8, 'sampling': {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, 'max_tokens': 16384, 'thinking': True, 'answer_mode': 'math', 'seed': 42, 'generation_s': 27188.0, 'generated_tokens': 27544742, 'peak_gpu_mem_used_MiB': 44968, 'finished': '2026-11-13T09:10:32', 'host': 'babel-w9-16', 'slurm_job_id': '11129721'}
+
+## Per-run metrics
+ copsd_en_thinking  (N=500, n=8)
+   maj@8 (ties wrong):     424/500 = 0.848 [0.814, 0.877]
+   pass@1 (samples):         3108/4000 = 0.777 [0.764, 0.790]  (Wilson treats samples as independent)
+   pass@8:                  445/500 = 0.890 [0.860, 0.915]
+   tie rate:                 11/500 = 0.022 [0.012, 0.039]
+   no-answer (samples):      302/4000 = 0.075 [0.068, 0.084]
+   no-answer (all 8 unparseable): 2/500 = 0.004 [0.001, 0.014]
+   truncated (samples):      302/4000 = 0.075 [0.068, 0.084]
+   mean vote share:          0.871
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 442/500 = 0.884 [0.853, 0.909]   precision 393/442 = 0.889 [0.856, 0.915]
+     t=0.750: coverage 419/500 = 0.838 [0.803, 0.868]   precision 375/419 = 0.895 [0.862, 0.921]
+     t=0.875: coverage 380/500 = 0.760 [0.721, 0.795]   precision 343/380 = 0.903 [0.869, 0.929]
+     t=1.000: coverage 316/500 = 0.632 [0.589, 0.673]   precision 287/316 = 0.908 [0.871, 0.935]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/2 = 0.000 [0.000, 0.658]
+     1/8: 3/7 = 0.429 [0.158, 0.750]
+     2/8: 4/13 = 0.308 [0.127, 0.576]
+     3/8: 12/18 = 0.667 [0.437, 0.837]
+     4/8: 12/18 = 0.667 [0.437, 0.837]
+     5/8: 18/23 = 0.783 [0.581, 0.903]
+     6/8: 32/39 = 0.821 [0.673, 0.910]
+     7/8: 56/64 = 0.875 [0.772, 0.935]
+     8/8: 287/316 = 0.908 [0.871, 0.935]
+   gold-consistent subset (478 items) at t=0.625: coverage 424/478 = 0.887 [0.856, 0.912]  precision 393/424 = 0.927 [0.898, 0.948]
+ gsm8k_en_thinking  (N=500, n=8)
+   maj@8 (ties wrong):     464/500 = 0.928 [0.902, 0.948]
+   pass@1 (samples):         3704/4000 = 0.926 [0.917, 0.934]  (Wilson treats samples as independent)
+   pass@8:                  482/500 = 0.964 [0.944, 0.977]
+   tie rate:                 4/500 = 0.008 [0.003, 0.020]
+   no-answer (samples):      0/4000 = 0.000 [0.000, 0.001]
+   no-answer (all 8 unparseable): 0/500 = 0.000 [0.000, 0.008]
+   truncated (samples):      5/4000 = 0.001 [0.001, 0.003]
+   mean vote share:          0.968
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 488/500 = 0.976 [0.959, 0.986]   precision 463/488 = 0.949 [0.925, 0.965]
+     t=0.750: coverage 477/500 = 0.954 [0.932, 0.969]   precision 458/477 = 0.960 [0.939, 0.974]
+     t=0.875: coverage 465/500 = 0.930 [0.904, 0.949]   precision 451/465 = 0.970 [0.950, 0.982]
+     t=1.000: coverage 444/500 = 0.888 [0.857, 0.913]   precision 432/444 = 0.973 [0.953, 0.984]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     3/8: 0/2 = 0.000 [0.000, 0.658]
+     4/8: 1/10 = 0.100 [0.018, 0.404]
+     5/8: 5/11 = 0.455 [0.213, 0.720]
+     6/8: 7/12 = 0.583 [0.320, 0.807]
+     7/8: 19/21 = 0.905 [0.711, 0.973]
+     8/8: 432/444 = 0.973 [0.953, 0.984]
+
+## Caveats
+  - One model, one prompt, one seed per run; intervals on conditional rates use small subsets.
+  - Precision is about the voted final answer only, not the quality of the reasoning trace a teacher would see.
+  - Non-thinking answers come from the last \boxed{}; thinking answers (math mode) only from text after </think>.
+  - AfriMGSM English is human-parallel (an upper bound); COPSD target-language questions are machine translations.
