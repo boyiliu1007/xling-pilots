@@ -13,3 +13,4 @@ __pycache__/
 .resubmits
 results/exp2/screen/*/tokens_*.npz
 results/exp2/screen/*/clipstats.npz
+results/exp2/screen/clip_*/rollouts.jsonl
