@@ -30,6 +30,14 @@ CONTRASTS = [
     ("data (vote): mix - copsd", "L3-vote__copsd__exact", "L3-vote__mix__exact"),
     ("vote vs gold (copsd): L3-vote - L3-gold", "L3-gold__copsd__exact", "L3-vote__copsd__exact"),
     ("vote vs gold (gsm8k-mt): L3-vote - L3-gold", "L3-gold__gsm8k-mt__exact", "L3-vote__gsm8k-mt__exact"),
+    # loss-clip ablation (official clip 0.05 vs none / 0.5): does the information level matter without the clip?
+    ("no clip: L3-gold - L1", "L1__copsd__exact__noclip", "L3-gold__copsd__exact__noclip"),
+    ("no clip: L3-gold - L3-shuffled-gold", "L3-shuffled-gold__copsd__exact__noclip", "L3-gold__copsd__exact__noclip"),
+    ("clip 0.5: L3-gold - L1", "L1__copsd__exact__clip0.5", "L3-gold__copsd__exact__clip0.5"),
+    ("clip effect (L1): none - 0.05", "L1__copsd__exact", "L1__copsd__exact__noclip"),
+    ("clip effect (L3-gold): none - 0.05", "L3-gold__copsd__exact", "L3-gold__copsd__exact__noclip"),
+    ("clip effect (L1): 0.5 - 0.05", "L1__copsd__exact", "L1__copsd__exact__clip0.5"),
+    ("clip effect (L3-gold): 0.5 - 0.05", "L3-gold__copsd__exact", "L3-gold__copsd__exact__clip0.5"),
 ]
 FINISH_BINS = ((0, 0), (1, 2), (3, 5), (6, 12))
 

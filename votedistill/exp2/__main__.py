@@ -4,6 +4,7 @@
   python -m votedistill.exp2 report --level L0                       # writes results/exp2/L0/report.txt
   python -m votedistill.exp2 screen --name copsd_k2 --contexts L0-same L1 L2-gold L3-gold L3-shuffled-gold
   python -m votedistill.exp2 screen-report --name copsd_k2           # pre-training D screen (Zou et al. 2026)
+  python -m votedistill.exp2 clipstats --name copsd_k2               # where the official loss clip binds
   python -m votedistill.exp2 translate                               # GSM8K train sample -> Swahili (NLLB)
   python -m votedistill.exp2 trainsets                               # sizes of every training set / vote acceptance
   python -m votedistill.exp2 train      --name L3-gold__copsd__exact__s42   # <context>__<data>__<layout>__s<seed>
@@ -56,6 +57,9 @@ def main():
     sc.add_argument("--k", type=int, default=2, help="student rollouts per problem")
     sr = sub.add_parser("screen-report")
     sr.add_argument("--name", required=True)
+    cs = sub.add_parser("clipstats", help="where the official loss clip binds (re-scores the screen rollouts)")
+    cs.add_argument("--name", default="copsd_k2")
+    cs.add_argument("--report_only", action="store_true")
     sub.add_parser("summary")
     sub.add_parser("translate")
     sub.add_parser("trainsets")
@@ -74,6 +78,15 @@ def main():
     if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report"):
         return run_commands(args)
 
+    if args.cmd == "clipstats":
+        from .clipstats import clipstats, clipstats_report
+        from .screen import screen_dir
+        if args.report_only:
+            print(clipstats_report(args.name))
+            return
+        setup_logging(screen_dir(args.name) / "logs" / "clipstats.log")
+        print(clipstats(args.name))
+        return
     if args.cmd == "screen-report":
         from .screen import screen_report
         print(screen_report(args.name))

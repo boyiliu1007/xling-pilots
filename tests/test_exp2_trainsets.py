@@ -38,4 +38,6 @@ def test_qc():
 
 def test_run_names_roundtrip():
     n = run_name("L3-vote", "gsm8k-mt", "exact", 7)
-    assert parse_name(n) == ("L3-vote", "gsm8k-mt", "exact", 7)
+    assert parse_name(n) == ("L3-vote", "gsm8k-mt", "exact", 7, 0.05)
+    assert parse_name(run_name("L1", "copsd", "exact", 42, "noclip")) == ("L1", "copsd", "exact", 42, None)
+    assert parse_name("L1__copsd__exact__clip0.5__s43") == ("L1", "copsd", "exact", 43, 0.5)

@@ -10,6 +10,7 @@ import logging
 import shutil
 
 from ..utils import write_jsonl
+from ..copsd.config import OFFICIAL
 from .levels import EXP2_CKPT, EXP2_RESULTS, TEACHER_CONTEXTS, run_dir as level_dir, teacher_rows
 from .trainsets import DATASETS, training_rows
 
@@ -17,17 +18,29 @@ log = logging.getLogger("votedistill.exp2.runs")
 RUNS = EXP2_RESULTS / "runs"
 SELECT_METRIC = "maj_correct"
 MAX_STEPS = 100
+OFFICIAL_CLIP = OFFICIAL["jsd_token_clip"]
 
 
-def run_name(context, data, layout, seed):
-    return f"{context}__{data}__{layout}__s{seed}"
+CLIP_VARIANTS = {"noclip": None, "clip0.2": 0.2, "clip0.5": 0.5}   # loss clip ablations; absent = official 0.05
+
+
+def run_name(context, data, layout, seed, clip_variant=None):
+    return "__".join([context, data, layout] + ([clip_variant] if clip_variant else []) + [f"s{seed}"])
 
 
 def parse_name(name):
-    context, data, layout, s = name.split("__")
+    """<context>__<data>__<layout>[__<clip variant>]__s<seed> -> (context, data, layout, seed, clip)."""
+    parts = name.split("__")
+    if len(parts) == 4:
+        (context, data, layout, s), clip = parts, OFFICIAL_CLIP
+    elif len(parts) == 5 and parts[3] in CLIP_VARIANTS:
+        context, data, layout, v, s = parts
+        clip = CLIP_VARIANTS[v]
+    else:
+        raise SystemExit(f"bad run name {name}")
     if context not in TEACHER_CONTEXTS or data not in DATASETS:
         raise SystemExit(f"bad run name {name}")
-    return context, data, layout, int(s[1:])
+    return context, data, layout, int(s[1:]), clip
 
 
 def paths(name):
@@ -36,7 +49,7 @@ def paths(name):
 
 def train_run(name, max_steps=MAX_STEPS):
     from ..copsd.train import train
-    context, data, layout, seed = parse_name(name)
+    context, data, layout, seed, clip = parse_name(name)
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     rows, desc = training_rows(data, context)
@@ -46,7 +59,7 @@ def train_run(name, max_steps=MAX_STEPS):
     log.info(f"{name}: {len(trows)} rows {desc}; collator flags {flags}")
     train(rd, ck, "swa", max_steps, include_problem_en=flags["include_problem_en"],
           include_reference_solution_en=flags["include_reference_solution_en"], seed=seed, layout=layout, rows=trows,
-          data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}")
+          data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}", clip=clip)
 
 
 def copy_base(name):
