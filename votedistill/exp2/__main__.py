@@ -9,6 +9,7 @@
   python -m votedistill.exp2 train      --name L3-gold__copsd__exact__s42   # <context>__<data>__<layout>__s<seed>
   python -m votedistill.exp2 eval-run   --name ... --split dev|test  # DEV: all checkpoints; TEST: DEV-selected
   python -m votedistill.exp2 run-report --name ...
+  python -m votedistill.exp2 summary                                 # all runs: results/exp2/SUMMARY.txt
 
 Outputs: results/exp2/<level>/{eval/*.jsonl, eval_config.json, env.json, report.txt, logs/}.
 """
@@ -55,6 +56,7 @@ def main():
     sc.add_argument("--k", type=int, default=2, help="student rollouts per problem")
     sr = sub.add_parser("screen-report")
     sr.add_argument("--name", required=True)
+    sub.add_parser("summary")
     sub.add_parser("translate")
     sub.add_parser("trainsets")
     for c in ("train", "eval-run", "run-report"):
@@ -65,6 +67,10 @@ def main():
             x.add_argument("--split", choices=["dev", "test"], required=True)
     args = ap.parse_args()
 
+    if args.cmd == "summary":
+        from .summary import build_summary
+        print(build_summary())
+        return
     if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report"):
         return run_commands(args)
 

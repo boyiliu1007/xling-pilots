@@ -1,0 +1,17 @@
+Experiment 2 summary, generated 2026-11-13T01:09:08
+TEST 200 items; checkpoint selected by DEV maj@12 among steps 10..100; gains in points with 95% paired-bootstrap CI
+
+run                                            sel  maj@12  pass@12   mean  trunc   Δmaj@12 vs L0          Δpass@12 vs L0         Δmean_acc vs L0       
+L0 (base)                                        -   0.090    0.150  0.028  0.772
+L1__copsd__exact__s42                            -   (no TEST yet)
+L2-gold__copsd__exact__s42                       -   (no TEST yet)
+L3-gold__copsd__exact__s42                       -   (no TEST yet)
+L3-gold__copsd__official__s42                    -   (no TEST yet)
+L3-shuffled-gold__copsd__exact__s42              -   (no TEST yet)
+
+## Planned contrasts (B - A on TEST, same seed)
+
+## Gain over L0 by capability bin (number of the 12 L0 samples that finish; gold-free)
+  run                                        finish 0-0 (n=38)          finish 1-2 (n=74)          finish 3-5 (n=57)          finish 6-12 (n=31)        
+  L0 maj@12 / mean_acc                       0.000 / 0.000            0.054 / 0.008            0.123 / 0.029            0.226 / 0.108           
+  (cells: Δ mean_acc in points; maj@12 is too coarse within bins)
