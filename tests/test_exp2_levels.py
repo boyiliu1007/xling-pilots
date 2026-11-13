@@ -2,7 +2,8 @@ from votedistill.exp2.levels import TEACHER_CONTEXTS, answer_only, derangement, 
 
 
 def _rows(n=7):
-    return [{"problem": f"q{i}", "solution": f"sol{i}", "Answer": str(i)} for i in range(n)]
+    return [{"problem": f"q{i}", "solution": f"sol{i}", "Answer": str(i), "vote_solution": f"vote{i}",
+             "vote_answer": str(i + 1)} for i in range(n)]
 
 
 def test_derangement_has_no_fixed_points_and_is_deterministic():
@@ -33,3 +34,14 @@ def test_teacher_rows_reference_content():
 def test_all_contexts_buildable():
     for c in TEACHER_CONTEXTS:
         teacher_rows(_rows(), c)
+
+
+def test_vote_contexts():
+    rows = _rows()
+    r, f = teacher_rows(rows, "L3-vote")
+    assert f["include_reference_solution_en"] and [x["solution"] for x in r] == [x["vote_solution"] for x in rows]
+    r, _ = teacher_rows(rows, "L2-vote")
+    assert [x["solution"] for x in r] == [answer_only(x["vote_answer"]) for x in rows]
+    r, _ = teacher_rows(rows, "L3-shuffled-vote")
+    assert all(x["solution"] != y["vote_solution"] for x, y in zip(r, rows))
+    assert sorted(x["solution"] for x in r) == sorted(x["vote_solution"] for x in rows)

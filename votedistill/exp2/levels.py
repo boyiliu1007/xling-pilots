@@ -6,7 +6,9 @@ contains:
   gold           the released COPSD English reference solution
   gold_answer    "The final answer is \\boxed{<gold Answer>}." (answer only, no reasoning)
   shuffled_gold  the gold solution of a different problem (fixed-seed derangement): placebo for reference content
-Label-free variants (vote, vote_answer, shuffled_vote) need an English thinking-mode consensus run first.
+  vote           the model's own English majority-vote solution (exp2/trainsets.py; needs a consensus run)
+  vote_answer    "The final answer is \\boxed{<majority answer>}."
+  shuffled_vote  the voted solution of a different problem
 """
 import random
 
@@ -35,6 +37,10 @@ TEACHER_CONTEXTS = {
     "L3-gold": dict(problem_en=True, reference="gold", note="+ gold English solution (= gold COPSD)"),
     "L3-shuffled-gold": dict(problem_en=True, reference="shuffled_gold",
                              note="+ gold English solution of a different problem (placebo)"),
+    "L2-vote": dict(problem_en=True, reference="vote_answer", note="+ English majority answer only"),
+    "L3-vote": dict(problem_en=True, reference="vote", note="+ the model's own English majority-vote solution"),
+    "L3-shuffled-vote": dict(problem_en=True, reference="shuffled_vote",
+                             note="+ voted English solution of a different problem (placebo)"),
 }
 
 # Earlier base-model evaluation with the same protocol (git 4e5abab, another user's environment). L0 is checked
@@ -77,4 +83,11 @@ def teacher_rows(rows, context):
     if ref == "shuffled_gold":
         perm = derangement(len(rows))
         return [{**r, "solution": rows[perm[i]]["solution"]} for i, r in enumerate(rows)], flags
+    if ref == "vote":
+        return [{**r, "solution": r["vote_solution"]} for r in rows], flags
+    if ref == "vote_answer":
+        return [{**r, "solution": answer_only(r["vote_answer"])} for r in rows], flags
+    if ref == "shuffled_vote":
+        perm = derangement(len(rows))
+        return [{**r, "solution": rows[perm[i]]["vote_solution"]} for i, r in enumerate(rows)], flags
     raise ValueError(f"reference source {ref} is not implemented")

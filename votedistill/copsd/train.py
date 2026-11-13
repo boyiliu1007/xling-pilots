@@ -61,19 +61,42 @@ def latest_ckpt(ckpt_dir):
     return steps[-1] if steps else None
 
 
-def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en):
+LAYOUTS = {
+    "official": "teacher/student prompt right-padded to the longest prompt of its micro-batch, completion appended after "
+                "the pads, pad-only attention mask, no position ids (as multilingual_opsd_trainer.py): the completion's "
+                "positions are shifted by the number of pads",
+    "exact": "pads removed before the completion is appended (each sequence is scored one at a time, so no padding is "
+             "needed): the model sees exactly the prompt + completion it would see unbatched",
+}
+
+
+def unpad(ids, pad):
+    """Strip right padding; refuses prompts with a pad token anywhere else."""
+    keep = ids[ids != pad]
+    if not (ids[:len(keep)] == keep).all():
+        raise ValueError("pad token inside a prompt (not only right padding)")
+    return keep
+
+
+def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
+                       seed=SEED, layout="official", data_desc=None, reference_desc=None):
     write_json(run_dir / "config.json", {
         "model": MODEL, "language": lang, "official": OFFICIAL,
         "ours": {"gpus": 1, "micro_batch": MICRO_BS, "grad_accum": GA, "effective_batch": MICRO_BS * GA,
                  "train_steps": max_steps, "lr_schedule_horizon": OFFICIAL["max_steps"], "save_every": SAVE_EVERY,
-                 "attn": "sdpa", "checkpoint_dir": str(ckpt_dir)},
+                 "attn": "sdpa", "checkpoint_dir": str(ckpt_dir), "seed": seed,
+                 "layout": {"name": layout, "description": LAYOUTS[layout]}},
+        "data": data_desc or "COPSD released training set (500 rows)",
         "teacher_context": {"include_problem_en": include_problem_en, "reference_solution": (
-            "gold COPSD `solution`" if include_reference_solution_en else "none")},
+            (reference_desc or "gold COPSD `solution`") if include_reference_solution_en else "none")},
         "versions": versions(), "copsd_commit": "4f4410730e9b", "deviations": deviations(max_steps)})
 
 
 def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_after=0, no_save=False,
-          include_problem_en=True, include_reference_solution_en=True):
+          include_problem_en=True, include_reference_solution_en=True, seed=SEED, layout="official", rows=None,
+          data_desc=None, reference_desc=None):
+    """rows: prepared training rows (copsd.collator.prepare_rows format, `solution` = the teacher's reference);
+    default the released COPSD set. layout: see LAYOUTS. seed: data order, LoRA init, generation and RNG state."""
     import torch
     from peft import LoraConfig, get_peft_model, set_peft_model_state_dict
     from safetensors.torch import load_file
@@ -87,24 +110,28 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
     if start_step >= max_steps:
         log.info(f"training already complete (step {start_step})")
         return
+    if layout not in LAYOUTS:
+        raise ValueError(f"layout {layout}; known: {list(LAYOUTS)}")
     if not no_save:
-        write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en)
+        write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
+                           seed, layout, data_desc, reference_desc)
     wait_for_gpu()
-    torch.manual_seed(SEED)
-    random.seed(SEED)
-    np.random.seed(SEED)
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
 
     tok = AutoTokenizer.from_pretrained(MODEL, padding_side="left")
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     collator = make_collator(tok, OFFICIAL["max_length"], include_problem_en, include_reference_solution_en)
-    rows = prepare_rows(load_copsd_train(lang), lang)
-    sched = data_schedule(len(rows), OFFICIAL["max_steps"])
+    if rows is None:
+        rows = prepare_rows(load_copsd_train(lang), lang)
+    sched = data_schedule(len(rows), OFFICIAL["max_steps"], seed)
 
     # vLLM first (it sizes itself from free memory); 0.4 of the GPU as in the official colocate setting
     llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=OFFICIAL["vllm_gpu_memory_utilization"],
               enable_lora=True, max_lora_rank=64, max_loras=1, max_cpu_loras=2, max_model_len=8192,
-              max_num_seqs=MICRO_BS * GA, seed=SEED)
+              max_num_seqs=MICRO_BS * GA, seed=seed)
     model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
     model.config.use_cache = False
     model = get_peft_model(model, LoraConfig(task_type="CAUSAL_LM", r=OFFICIAL["lora_r"], lora_alpha=OFFICIAL["lora_alpha"],
@@ -156,7 +183,7 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
                    for t in tok.batch_decode(b["student_prompts"], skip_special_tokens=False)]
         sps = [SamplingParams(n=1, temperature=temp, top_p=OFFICIAL["top_p"], top_k=OFFICIAL["top_k"], min_p=0.0,
                               repetition_penalty=1.0, presence_penalty=0.0, max_tokens=OFFICIAL["max_completion_length"],
-                              seed=SEED * 1_000_003 + step * 1000 + j) for j in range(len(prompts))]
+                              seed=seed * 1_000_003 + step * 1000 + j) for j in range(len(prompts))]
         outs = llm.generate(prompts, sps, lora_request=lora, use_tqdm=False)
         comps = [list(o.outputs[0].token_ids) for o in outs]
         texts = [o.outputs[0].text for o in outs]
@@ -174,8 +201,11 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
             mb_loss = 0.0
             for i in range(n_mb):   # per-sample backward == official micro-batch loss (sum over tokens / micro-batch token count)
                 c = torch.tensor(mc[i], dtype=torch.long)
-                s_ids = torch.cat([b["student_prompts"][i], c]).unsqueeze(0).cuda()
-                t_ids = torch.cat([b["teacher_prompts"][i], c]).unsqueeze(0).cuda()
+                sp_i, tp_i = b["student_prompts"][i], b["teacher_prompts"][i]
+                if layout == "exact":
+                    sp_i, tp_i = unpad(sp_i, pad), unpad(tp_i, pad)
+                s_ids = torch.cat([sp_i, c]).unsqueeze(0).cuda()
+                t_ids = torch.cat([tp_i, c]).unsqueeze(0).cuda()
                 lab = c.clone()
                 lab[lab == pad] = -100
                 lab = lab.unsqueeze(0).cuda()

@@ -4,6 +4,11 @@
   python -m votedistill.exp2 report --level L0                       # writes results/exp2/L0/report.txt
   python -m votedistill.exp2 screen --name copsd_k2 --contexts L0-same L1 L2-gold L3-gold L3-shuffled-gold
   python -m votedistill.exp2 screen-report --name copsd_k2           # pre-training D screen (Zou et al. 2026)
+  python -m votedistill.exp2 translate                               # GSM8K train sample -> Swahili (NLLB)
+  python -m votedistill.exp2 trainsets                               # sizes of every training set / vote acceptance
+  python -m votedistill.exp2 train      --name L3-gold__copsd__exact__s42   # <context>__<data>__<layout>__s<seed>
+  python -m votedistill.exp2 eval-run   --name ... --split dev|test  # DEV: all checkpoints; TEST: DEV-selected
+  python -m votedistill.exp2 run-report --name ...
 
 Outputs: results/exp2/<level>/{eval/*.jsonl, eval_config.json, env.json, report.txt, logs/}.
 """
@@ -50,7 +55,18 @@ def main():
     sc.add_argument("--k", type=int, default=2, help="student rollouts per problem")
     sr = sub.add_parser("screen-report")
     sr.add_argument("--name", required=True)
+    sub.add_parser("translate")
+    sub.add_parser("trainsets")
+    for c in ("train", "eval-run", "run-report"):
+        x = sub.add_parser(c)
+        x.add_argument("--name", required=True)
+        x.add_argument("--max_steps", type=int, default=None)
+        if c == "eval-run":
+            x.add_argument("--split", choices=["dev", "test"], required=True)
     args = ap.parse_args()
+
+    if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report"):
+        return run_commands(args)
 
     if args.cmd == "screen-report":
         from .screen import screen_report
@@ -86,6 +102,41 @@ def main():
         (rd / "alignment.txt").write_text("\n".join(lines) + "\n")
     for split in args.split:
         evaluate(rd, ["base"], split, dict(EVAL), ckpt_dir=None, lang=lang)
+
+
+def run_commands(args):
+    import logging
+    from . import runs
+    if args.cmd == "trainsets":
+        from .trainsets import DATASETS, training_rows
+        for ctx in ("L3-gold", "L3-vote"):
+            for d in DATASETS:
+                try:
+                    rows, desc = training_rows(d, ctx)
+                    print(ctx, d, desc)
+                except SystemExit as e:
+                    print(ctx, d, "unavailable:", e)
+        return
+    if args.cmd == "translate":
+        from .trainsets import MT_FILE
+        setup_logging(MT_FILE.parent / "logs" / "translate.log")
+        from .translate import translate
+        translate()
+        return
+    if args.cmd == "run-report":
+        print(runs.report_run(args.name))
+        return
+    runs.parse_name(args.name)
+    rd, _ = runs.paths(args.name)
+    setup_logging(rd / "logs" / f"{args.cmd}.log")
+    logging.getLogger("votedistill.exp2").info(
+        f"argv {sys.argv} host {platform.node()} job {os.environ.get('SLURM_JOB_ID')} git {_git('rev-parse', 'HEAD')}"
+        f"{'+dirty' if _git('status', '--porcelain', '--', 'votedistill') else ''}")
+    steps = args.max_steps or runs.MAX_STEPS
+    if args.cmd == "train":
+        runs.train_run(args.name, steps)
+    else:
+        print("selected:", runs.eval_run(args.name, args.split, steps))
 
 
 if __name__ == "__main__":
