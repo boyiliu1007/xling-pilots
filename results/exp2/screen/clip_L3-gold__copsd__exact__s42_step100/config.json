@@ -1,0 +1,16 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "lang": "swa",
+  "n_problems": 500,
+  "seed": 42,
+  "sampling": {
+    "temperature": 1.1,
+    "top_p": 0.95,
+    "top_k": 20,
+    "max_tokens": 2048
+  },
+  "k": 1,
+  "student_ckpt": "/data/user_data/jeffc2/votedistill_ckpt/exp2/L3-gold__copsd__exact__s42/step-100/adapter",
+  "run": "L3-gold__copsd__exact__s42",
+  "step": 100
+}

@@ -1,0 +1,235 @@
+Clip diagnostics: clip_L3-gold__copsd__exact__s42_step10, 500 rollouts, 901597 positions (base model = step-0 student), KL at T=1.1
+Definitions: votedistill/exp2/clipstats.py docstring.
+
+## all positions (901597 positions)
+  context             clip  any_clip  n_clip  top1_clip  samp_clip  loss_kept  |g_c|/|g|    cos  pull full  pull clip  top1_rev
+  L1                  0.05     0.117    0.14      0.092      0.055     -0.066      0.940 -0.438     0.0113    -0.0098     0.092
+  L1                   0.2     0.021    0.02      0.016      0.007      0.548      0.657  0.347     0.0113     0.0058     0.017
+  L1                   0.5     0.004    0.00      0.003      0.001      0.746      0.792  0.780     0.0113     0.0100     0.003
+  L2-gold             0.05     0.136    0.17      0.107      0.064     -0.047      0.743 -0.400     0.0150    -0.0100     0.107
+  L2-gold              0.2     0.035    0.04      0.028      0.011      0.481      0.586  0.255     0.0150     0.0054     0.028
+  L2-gold              0.5     0.009    0.01      0.007      0.001      0.714      0.735  0.711     0.0150     0.0117     0.007
+  L3-gold             0.05     0.149    0.19      0.113      0.066     -0.030      0.618 -0.359     0.0167    -0.0097     0.113
+  L3-gold              0.2     0.046    0.05      0.035      0.014      0.424      0.526  0.209     0.0167     0.0046     0.036
+  L3-gold              0.5     0.013    0.01      0.010      0.002      0.656      0.685  0.665     0.0167     0.0121     0.010
+  L3-shuffled-gold    0.05     0.142    0.17      0.111      0.067     -0.054      0.734 -0.419     0.0159    -0.0099     0.111
+  L3-shuffled-gold     0.2     0.039    0.04      0.032      0.013      0.508      0.599  0.235     0.0159     0.0051     0.032
+  L3-shuffled-gold     0.5     0.009    0.01      0.007      0.001      0.754      0.761  0.735     0.0159     0.0125     0.007
+  gradient difference between contexts that survives the clip, sqrt(sum|Δg_c|^2 / sum|Δg|^2):
+    L3-gold vs L3-shuffled-gold      clip 0.05: 0.824 (cos -0.210)  clip 0.2: 0.742 (cos +0.071)  clip 0.5: 0.739 (cos +0.477)   (unclipped |Δg| rms 0.0642)
+    L3-gold vs L1                    clip 0.05: 0.793 (cos -0.229)  clip 0.2: 0.682 (cos +0.124)  clip 0.5: 0.724 (cos +0.564)   (unclipped |Δg| rms 0.0788)
+    L2-gold vs L1                    clip 0.05: 1.015 (cos -0.232)  clip 0.2: 0.827 (cos +0.140)  clip 0.5: 0.800 (cos +0.579)   (unclipped |Δg| rms 0.0566)
+    L3-gold vs L2-gold               clip 0.05: 0.867 (cos -0.209)  clip 0.2: 0.763 (cos +0.084)  clip 0.5: 0.757 (cos +0.484)   (unclipped |Δg| rms 0.0632)
+
+## finished rollouts only (113117 positions)
+  context             clip  any_clip  n_clip  top1_clip  samp_clip  loss_kept  |g_c|/|g|    cos  pull full  pull clip  top1_rev
+  L1                  0.05     0.251    0.30      0.189      0.111     -0.060      0.794 -0.396     0.0235    -0.0196     0.189
+  L1                   0.2     0.056    0.06      0.042      0.017      0.487      0.594  0.291     0.0235     0.0095     0.043
+  L1                   0.5     0.012    0.01      0.009      0.002      0.706      0.745  0.732     0.0235     0.0193     0.009
+  L2-gold             0.05     0.287    0.36      0.215      0.125     -0.041      0.632 -0.357     0.0307    -0.0196     0.215
+  L2-gold              0.2     0.088    0.09      0.066      0.025      0.424      0.531  0.223     0.0307     0.0079     0.067
+  L2-gold              0.5     0.024    0.03      0.019      0.004      0.662      0.689  0.669     0.0307     0.0218     0.019
+  L3-gold             0.05     0.317    0.42      0.230      0.129     -0.029      0.510 -0.314     0.0361    -0.0189     0.230
+  L3-gold              0.2     0.118    0.13      0.087      0.032      0.358      0.463  0.172     0.0361     0.0060     0.087
+  L3-gold              0.5     0.038    0.04      0.028      0.005      0.592      0.628  0.609     0.0361     0.0226     0.028
+  L3-shuffled-gold    0.05     0.297    0.37      0.224      0.131     -0.055      0.641 -0.386     0.0326    -0.0195     0.224
+  L3-shuffled-gold     0.2     0.094    0.10      0.073      0.029      0.457      0.550  0.203     0.0326     0.0078     0.073
+  L3-shuffled-gold     0.5     0.024    0.03      0.019      0.004      0.715      0.720  0.694     0.0326     0.0237     0.019
+  gradient difference between contexts that survives the clip, sqrt(sum|Δg_c|^2 / sum|Δg|^2):
+    L3-gold vs L3-shuffled-gold      clip 0.05: 0.676 (cos -0.203)  clip 0.2: 0.642 (cos +0.054)  clip 0.5: 0.683 (cos +0.427)   (unclipped |Δg| rms 0.1156)
+    L3-gold vs L1                    clip 0.05: 0.666 (cos -0.221)  clip 0.2: 0.601 (cos +0.108)  clip 0.5: 0.677 (cos +0.508)   (unclipped |Δg| rms 0.1359)
+    L2-gold vs L1                    clip 0.05: 0.873 (cos -0.215)  clip 0.2: 0.752 (cos +0.127)  clip 0.5: 0.759 (cos +0.528)   (unclipped |Δg| rms 0.0944)
+    L3-gold vs L2-gold               clip 0.05: 0.711 (cos -0.200)  clip 0.2: 0.663 (cos +0.068)  clip 0.5: 0.704 (cos +0.431)   (unclipped |Δg| rms 0.1122)
+
+## truncated rollouts only (788480 positions)
+  context             clip  any_clip  n_clip  top1_clip  samp_clip  loss_kept  |g_c|/|g|    cos  pull full  pull clip  top1_rev
+  L1                  0.05     0.098    0.11      0.078      0.047     -0.069      1.011 -0.460     0.0095    -0.0084     0.078
+  L1                   0.2     0.016    0.02      0.013      0.005      0.579      0.689  0.375     0.0095     0.0053     0.013
+  L1                   0.5     0.003    0.00      0.002      0.000      0.766      0.817  0.806     0.0095     0.0086     0.002
+  L2-gold             0.05     0.115    0.14      0.091      0.055     -0.051      0.795 -0.421     0.0128    -0.0086     0.092
+  L2-gold              0.2     0.028    0.03      0.022      0.009      0.509      0.613  0.270     0.0128     0.0051     0.023
+  L2-gold              0.5     0.006    0.01      0.005      0.001      0.739      0.758  0.732     0.0128     0.0102     0.006
+  L3-gold             0.05     0.125    0.16      0.096      0.057     -0.031      0.669 -0.381     0.0140    -0.0084     0.096
+  L3-gold              0.2     0.036    0.04      0.028      0.011      0.459      0.558  0.227     0.0140     0.0044     0.028
+  L3-gold              0.5     0.009    0.01      0.007      0.001      0.689      0.715  0.693     0.0140     0.0107     0.007
+  L3-shuffled-gold    0.05     0.120    0.15      0.095      0.058     -0.053      0.774 -0.434     0.0135    -0.0085     0.095
+  L3-shuffled-gold     0.2     0.031    0.03      0.026      0.010      0.532      0.621  0.249     0.0135     0.0048     0.026
+  L3-shuffled-gold     0.5     0.006    0.01      0.005      0.001      0.772      0.780  0.754     0.0135     0.0109     0.006
+  gradient difference between contexts that survives the clip, sqrt(sum|Δg_c|^2 / sum|Δg|^2):
+    L3-gold vs L3-shuffled-gold      clip 0.05: 0.912 (cos -0.217)  clip 0.2: 0.803 (cos +0.080)  clip 0.5: 0.774 (cos +0.508)   (unclipped |Δg| rms 0.0529)
+    L3-gold vs L1                    clip 0.05: 0.860 (cos -0.236)  clip 0.2: 0.726 (cos +0.132)  clip 0.5: 0.751 (cos +0.594)   (unclipped |Δg| rms 0.0667)
+    L2-gold vs L1                    clip 0.05: 1.084 (cos -0.241)  clip 0.2: 0.864 (cos +0.146)  clip 0.5: 0.820 (cos +0.605)   (unclipped |Δg| rms 0.0489)
+    L3-gold vs L2-gold               clip 0.05: 0.956 (cos -0.217)  clip 0.2: 0.822 (cos +0.093)  clip 0.5: 0.790 (cos +0.515)   (unclipped |Δg| rms 0.0525)
+
+## by relative position (deciles), official clip 0.05: any_clip / loss_kept / |g_c|/|g| / top1_rev
+  L1                 0.45/-0.09/0.93/0.37 0.24/-0.07/1.03/0.19 0.14/-0.05/0.99/0.11 0.09/-0.05/0.96/0.07 0.06/-0.03/0.96/0.05 0.05/-0.05/0.90/0.04 0.05/-0.05/0.91/0.03 0.04/-0.04/0.81/0.03 0.03/-0.01/0.89/0.02 0.03/-0.02/0.67/0.02
+  L2-gold            0.50/-0.04/0.66/0.40 0.28/-0.08/0.84/0.22 0.17/-0.07/0.87/0.13 0.11/-0.06/0.85/0.08 0.08/-0.06/0.87/0.06 0.06/-0.05/0.77/0.05 0.06/-0.05/0.75/0.04 0.05/-0.03/0.67/0.03 0.03/-0.03/0.74/0.03 0.03/0.01/0.50/0.02 
+  L3-gold            0.51/0.00/0.60/0.40  0.30/-0.05/0.67/0.23 0.19/-0.06/0.66/0.14 0.12/-0.06/0.65/0.09 0.09/-0.07/0.64/0.07 0.07/-0.06/0.60/0.05 0.06/-0.05/0.60/0.05 0.05/-0.04/0.55/0.04 0.04/-0.05/0.60/0.03 0.04/-0.01/0.44/0.03
+  L3-shuffled-gold   0.51/-0.02/0.63/0.40 0.29/-0.09/0.80/0.23 0.18/-0.09/0.83/0.14 0.12/-0.09/0.84/0.09 0.08/-0.09/0.88/0.07 0.06/-0.08/0.82/0.05 0.06/-0.07/0.79/0.04 0.05/-0.06/0.72/0.04 0.04/-0.07/0.78/0.03 0.04/-0.03/0.62/0.03
+  share of all unclipped KL by decile: L1: 0.40,0.18,0.11,0.07,0.05,0.05,0.04,0.04,0.03,0.04  L2-gold: 0.44,0.16,0.09,0.06,0.04,0.04,0.04,0.04,0.03,0.06  L3-gold: 0.37,0.17,0.11,0.07,0.05,0.05,0.05,0.04,0.03,0.05  L3-shuffled-gold: 0.47,0.16,0.10,0.06,0.04,0.04,0.04,0.03,0.02,0.03
+
+## Which tokens: teacher top-1 token at positions where it is clipped (clip 0.05); rev = clipped gradient lowers it although the full gradient raises it
+  L1: 82777 clipped top-1 positions, 1398 distinct tokens; top-1 == sampled token 0.54; in first decile 0.40; kinds word 0.89, math/punct 0.10, whitespace 0.01
+    token             clipped  share   rate    rev   (rate = clipped / times it is top-1)
+    ' k'                23308  0.282  0.178  23314
+    'wa'                 5058  0.061  0.323   5061
+    'K'                  4667  0.056  0.316   4668
+    ' m'                 4117  0.050  0.109   4119
+    ' ya'                3722  0.045  0.128   3751
+    'if'                 2442  0.030  0.055   2444
+    ' K'                 2266  0.027  0.550   2266
+    ','                  1860  0.022  0.126   1868
+    ' $'                 1826  0.022  0.155   1827
+    'ama'                1346  0.016  0.104   1346
+    '.\\n\\n'            1327  0.016  0.110   1327
+    'af'                 1163  0.014  0.060   1164
+    ' na'                1082  0.013  0.117   1083
+    'ato'                1000  0.012  0.102   1001
+    'ati'                 850  0.010  0.071    853
+    ' '                   810  0.010  0.059    815
+    'aka'                 742  0.009  0.020    886
+    ' y'                  676  0.008  0.062    676
+    '.'                   669  0.008  0.172    671
+    'us'                  641  0.008  0.073    641
+    'ila'                 562  0.007  0.056    573
+    'is'                  504  0.006  0.101    505
+    ':'                   442  0.005  0.177    443
+    'ip'                  429  0.005  0.045    429
+    ' n'                  410  0.005  0.123    410
+    student wrote -> teacher top-1 (clipped, different token; 38011 positions), with the preceding text of one example:
+       3521  ' m'           -> ' k'           ...3} $.\n\n### 1. **Kila na
+        973  ' k'           -> ' m'           ... -c\n\end{cases}\n$$\nKwa
+        881  ' na'          -> ' k'           ... kifunguma kifunguma ya mafuta
+        617  ' k'           -> ' ya'          ... 5^{1003}\n\nKifunuma
+        586  ' ya'          -> ' k'           ... **Tafadhali kaka yafaa kuu
+        562  'M'            -> 'K'            ...^3 $**.\n\n---\n\n### 12. **
+        531  ','            -> ' k'           ...aidia 10.\n\nNimepamo mke
+        528  ' n'           -> ' k'           ... 10. Mwaka maelezo,
+        504  ' y'           -> ' k'           ... r = 5^1003. Nia
+        450  ' M'           -> ' K'           ...
+        450  'if'           -> 'wa'           ...aka kwa kaka yafaa kuu:\n\nK
+        441  ' w'           -> ' k'           ...wa kiasi mwingi kama na kazi ya
+
+  L2-gold: 96235 clipped top-1 positions, 1441 distinct tokens; top-1 == sampled token 0.54; in first decile 0.38; kinds word 0.87, math/punct 0.12, whitespace 0.01
+    token             clipped  share   rate    rev   (rate = clipped / times it is top-1)
+    ' k'                24347  0.253  0.186  24349
+    'wa'                 6119  0.064  0.369   6119
+    ' m'                 5235  0.054  0.138   5235
+    'K'                  4879  0.051  0.331   4880
+    ' ya'                3923  0.041  0.136   3937
+    ','                  2742  0.028  0.183   2743
+    'if'                 2686  0.028  0.060   2686
+    ' K'                 2528  0.026  0.600   2528
+    ' $'                 2279  0.024  0.194   2279
+    ' na'                1636  0.017  0.175   1636
+    'ila'                1478  0.015  0.139   1485
+    '.\\n\\n'            1427  0.015  0.121   1427
+    'ama'                1339  0.014  0.106   1339
+    '.'                  1139  0.012  0.283   1139
+    ' y'                 1058  0.011  0.097   1058
+    ' '                  1029  0.011  0.075   1031
+    'aka'                1005  0.010  0.027   1105
+    'af'                  978  0.010  0.051    979
+    'ati'                 827  0.009  0.071    830
+    'us'                  736  0.008  0.086    736
+    'ik'                  614  0.006  0.105    614
+    'w'                   535  0.006  0.099    535
+    'wan'                 533  0.006  0.121    539
+    ' n'                  517  0.005  0.156    517
+    ' \\'                 506  0.005  0.084    507
+    student wrote -> teacher top-1 (clipped, different token; 44420 positions), with the preceding text of one example:
+       3426  ' m'           -> ' k'           ...3} $.\n\n### 1. **Kila na
+       1217  ' k'           -> ' m'           ... -c\n\end{cases}\n$$\nKwa
+        899  ' na'          -> ' k'           ... yaliaka mafuta mizigo ya hivi
+        672  ' ya'          -> ' k'           ... **Tafadhali kaka yafaa kuu
+        586  ','            -> ' k'           ...ifunuma ya p < q < r\n\nHata
+        565  ' k'           -> ' ya'          ... 5^{1003}\n\nKifunuma
+        557  ' y'           -> ' k'           ... $. \n\n---\n\n### 5. **Kwa kaka
+        557  'M'            -> 'K'            ...2}(x_1 + x_2) $.\n\n
+        552  'if'           -> 'wa'           ...aka kwa kaka yafaa kuu:\n\nK
+        522  ' n'           -> ' k'           ... 10. Mwaka maelezo,
+        511  ' M'           -> ' K'           ...
+        490  'ama'          -> 'wa'           ... ya mafano ya kiswahili, k
+
+  L3-gold: 101806 clipped top-1 positions, 1494 distinct tokens; top-1 == sampled token 0.53; in first decile 0.35; kinds word 0.86, math/punct 0.13, whitespace 0.01
+    token             clipped  share   rate    rev   (rate = clipped / times it is top-1)
+    ' k'                25153  0.247  0.192  25156
+    'wa'                 5838  0.057  0.357   5839
+    ' m'                 5031  0.049  0.134   5034
+    'K'                  4727  0.046  0.323   4727
+    ' ya'                3846  0.038  0.134   3867
+    ','                  2860  0.028  0.191   2861
+    ' $'                 2788  0.027  0.236   2788
+    'if'                 2784  0.027  0.063   2784
+    ' K'                 2391  0.023  0.568   2391
+    '.\\n\\n'            2075  0.020  0.172   2075
+    ' na'                1486  0.015  0.160   1486
+    'ama'                1473  0.014  0.116   1473
+    'ila'                1388  0.014  0.132   1390
+    ' '                  1209  0.012  0.088   1210
+    ' y'                 1146  0.011  0.105   1148
+    'us'                 1131  0.011  0.128   1131
+    'af'                 1125  0.011  0.058   1125
+    'aka'                1086  0.011  0.029   1177
+    'ati'                 886  0.009  0.076    886
+    '.'                   835  0.008  0.219    835
+    ' ='                  728  0.007  0.129    729
+    'wan'                 605  0.006  0.135    609
+    'ik'                  599  0.006  0.102    599
+    ' n'                  591  0.006  0.178    591
+    ' \\'                 574  0.006  0.096    574
+    student wrote -> teacher top-1 (clipped, different token; 47786 positions), with the preceding text of one example:
+       3524  ' m'           -> ' k'           ...2 - x_1 = \lambda $**\nKwa
+       1163  ' k'           -> ' m'           ..._1 + x_2) $.\n\nMwana
+        951  ' na'          -> ' k'           ... kifunguma kifunguma ya mafuta
+        725  ' ya'          -> ' k'           ... **Tafadhali kaka yafaa kuu
+        589  ','            -> ' k'           ...ifunuma ya p < q < r\n\nHata
+        560  'M'            -> 'K'            ...2}(x_1 + x_2) $.\n\n
+        555  ' y'           -> ' k'           ...izigo ya hivi na kufa kati ya
+        521  'if'           -> 'wa'           ...aka kwa kaka yafaa kuu:\n\nK
+        521  ' k'           -> ' ya'          ...3}.\n\nMafuta kila kifunguma
+        514  ' n'           -> ' k'           ... 10. Mwaka maelezo,
+        487  ' M'           -> ' K'           ...
+        463  'ama'          -> 'wa'           ... ya mafano ya kiswahili, k
+
+  L3-shuffled-gold: 100116 clipped top-1 positions, 1455 distinct tokens; top-1 == sampled token 0.54; in first decile 0.36; kinds word 0.87, math/punct 0.12, whitespace 0.01
+    token             clipped  share   rate    rev   (rate = clipped / times it is top-1)
+    ' k'                25040  0.250  0.192  25049
+    'wa'                 5897  0.059  0.360   5898
+    ' m'                 4942  0.049  0.131   4948
+    'K'                  4860  0.049  0.332   4861
+    ' ya'                3908  0.039  0.136   3921
+    'if'                 2905  0.029  0.065   2905
+    ' $'                 2820  0.028  0.238   2822
+    ','                  2623  0.026  0.177   2623
+    ' K'                 2496  0.025  0.596   2497
+    '.\\n\\n'            1991  0.020  0.165   1992
+    ' na'                1535  0.015  0.165   1538
+    'ila'                1502  0.015  0.141   1507
+    'ama'                1481  0.015  0.117   1481
+    'af'                 1110  0.011  0.058   1111
+    ' '                  1086  0.011  0.079   1086
+    ' y'                 1069  0.011  0.098   1069
+    'aka'                1034  0.010  0.028   1123
+    'us'                  915  0.009  0.106    915
+    'ati'                 880  0.009  0.075    882
+    '.'                   854  0.009  0.222    854
+    'wan'                 637  0.006  0.142    637
+    ' n'                  610  0.006  0.183    610
+    'ik'                  593  0.006  0.102    593
+    ' \\'                 517  0.005  0.086    517
+    ' w'                  516  0.005  0.148    516
+    student wrote -> teacher top-1 (clipped, different token; 45651 positions), with the preceding text of one example:
+       3510  ' m'           -> ' k'           ...3} $.\n\n### 1. **Kila na
+       1128  ' k'           -> ' m'           ... -c\n\end{cases}\n$$\nKwa
+        939  ' na'          -> ' k'           ... kifunguma kifunguma ya mafuta
+        708  ' ya'          -> ' k'           ... **Tafadhali kaka yafaa kuu
+        606  ','            -> ' k'           ...ifunuma ya p < q < r\n\nHata
+        574  'M'            -> 'K'            ...2}(x_1 + x_2) $.\n\n
+        542  ' k'           -> ' ya'          ...3}.\n\nMafuta kila kifunguma
+        536  'if'           -> 'wa'           ...aka kwa kaka yafaa kuu:\n\nK
+        532  ' y'           -> ' k'           ... r = 5^1003. Nia
+        527  ' n'           -> ' k'           ... 10. Mwaka maelezo,
+        513  ' M'           -> ' K'           ...
+        480  'ama'          -> 'wa'           ... ya mafano ya kiswahili, k
+
