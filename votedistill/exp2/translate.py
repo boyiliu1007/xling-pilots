@@ -33,11 +33,22 @@ def split_sentences(text):
     return out
 
 
+SW_NUMBER_WORD = re.compile(r"\b(?:wa|vi|ki|m|ma|mi|ji|u|ku|pa|zi|li|i)?"
+                            r"(moja|mbili|wili|tatu|nne|tano|sita|saba|nane|tisa|kumi|nusu|robo|thuluthi)\b", re.I)
+WORD_MAX = 12   # numbers NLLB may legitimately spell out in Swahili (tatu = 3, wawili = 2, thuluthi mbili = 2/3)
+
+
 def qc(en, sw):
-    """(ok, reasons). Numbers must match exactly as multisets; length ratio in LEN_RATIO; no 4-word loop x3."""
+    """(ok, reasons). Numbers: every digit-number of the translation must come from the English question; English
+    numbers missing from the translation must be small (<= WORD_MAX, e.g. fraction parts) and the translation must
+    contain at least as many Swahili number words. Length ratio in LEN_RATIO; no 4-word loop x3."""
     reasons = []
-    if _question_numbers(en) != _question_numbers(sw):
-        reasons.append(f"numbers {dict(_question_numbers(en))} -> {dict(_question_numbers(sw))}")
+    ne, ns = _question_numbers(en), _question_numbers(sw)
+    extra, missing = ns - ne, ne - ns
+    words = len(SW_NUMBER_WORD.findall(sw))
+    if extra or any(abs(float(v)) > WORD_MAX or float(v) != int(float(v)) for v in missing) \
+            or words < sum(missing.values()):
+        reasons.append(f"numbers {dict(ne)} -> {dict(ns)} (+{words} number words)")
     ratio = len(sw) / max(len(en), 1)
     if not LEN_RATIO[0] <= ratio <= LEN_RATIO[1]:
         reasons.append(f"length ratio {ratio:.2f}")
@@ -46,6 +57,20 @@ def qc(en, sw):
     if grams and grams.most_common(1)[0][1] >= 3:
         reasons.append("repetition")
     return not reasons, reasons
+
+
+def requalify():
+    """Re-run QC on the stored translations (no new translation)."""
+    from ..utils import read_json, read_jsonl
+    recs = read_jsonl(MT_FILE)
+    for r in recs:
+        r["qc_ok"], r["qc_fail"] = qc(r["question_en"], r["question_sw"])
+    write_jsonl(MT_FILE, recs)
+    meta = read_json(MT_FILE.with_suffix(".meta.json"))
+    meta.update({"qc": qc.__doc__, "qc_ok": sum(r["qc_ok"] for r in recs),
+                 "requalified": datetime.now().isoformat(timespec="seconds")})
+    write_json(MT_FILE.with_suffix(".meta.json"), meta)
+    return recs
 
 
 def translate(batch_size=32):

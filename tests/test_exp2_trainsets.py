@@ -29,8 +29,11 @@ def test_split_sentences_keeps_numbers():
 
 def test_qc():
     assert qc("Tom has 3 apples and 12 pears.", "Tom ana tufaha 3 na pea 12.")[0]
-    ok, why = qc("Tom has 3 apples and 12 pears.", "Tom ana tufaha tatu na pea 12.")
+    assert qc("Tom has 3 apples and 12 pears.", "Tom ana tufaha tatu na pea 12.")[0]      # small number as a word
+    ok, why = qc("Tom has 3 apples and 12 pears.", "Tom ana tufaha na pea 12.")              # number dropped
     assert not ok and why[0].startswith("numbers")
+    assert not qc("Tom has 30 apples and 12 pears.", "Tom ana tufaha thelathini na pea 12.")[0]   # > WORD_MAX
+    assert not qc("Tom has 3 apples.", "Tom ana tufaha 3 na 5.")[0]                          # invented number
 
 
 def test_run_names_roundtrip():
