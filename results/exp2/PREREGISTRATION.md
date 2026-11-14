@@ -130,3 +130,20 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   two-stage vs plain COPSD: -9.8), and arm A's stage 2 undid stage 1, so the arm could not answer its question and
   the compute was better spent elsewhere. D-alone (self-SFT, step 30) is kept. Contrast "stage 1: self-SFT - clipped
   COPSD (then no clip)" is therefore not reported.
+- 2026-11-13 ~23:45, mechanism follow-ups (before any result of these runs; known: the two-stage and clip-ablation
+  TEST results, the token-level mechanism diagnostic `exp2/mechanism.py`, teacher generation `exp2/teachergen.py`).
+  Hypothesis: the official clip acts as an entropy regularizer (clipped loss = m x forward KL to the teacher with its
+  strongly preferred tokens removed; clipped checkpoints: student entropy +0.70 nats, loop escape x12, p(</think>)
+  x70-100 on the base model's text), and this, not the teacher's information, produces COPSD's Swahili gain.
+  1. Think in English (copsd/styles.py; Swahili question, English instruction and COPSD's English thinking prefix):
+     base-model levels L0-enthink-sw (answer in Swahili), L0-enthink-en, L0-selftrans-sw (translate the question
+     first); COPSD with English thinking for student, teacher and evaluation: L1 and L3-vote (official clip) and
+     L3-vote without clip, s42/s43. Prediction: the teacher's information can transfer only when the student's text
+     is coherent, i.e. L3-vote > L1 here although not with Swahili thinking.
+  2. Translation ability of the model itself (exp2/translation.py), before any translate-own-reasoning pipeline.
+  3. Teacher-free controls on the official Swahili prompt, s42/s43, no clip: hot-self distillation (teacher = the
+     base model on the student's prompt at temperature 1.5 or 2.5) and unlikelihood on verbatim 8-token loops; and
+     decoding-only levels (sampling temperature 1.3 / 1.5, repetition penalty 1.1 / 1.3). Prediction: if the clip
+     is an entropy regularizer, hot-self (and perhaps higher temperature) reaches COPSD's pass@12 gain over L0
+     (+7 to +12 at step 100) without any teacher information. Primary comparison: step-100 TEST, each control - L0
+     and each control - clipped COPSD L3-gold (contrasts in summary.py).
