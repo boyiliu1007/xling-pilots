@@ -12,10 +12,13 @@ contains:
 """
 import random
 
-from ..paths import CKPT_ROOT, RESULTS
+from ..paths import CKPT_ROOT, MODEL, RESULTS
 
-EXP2_RESULTS = RESULTS / "exp2"
-EXP2_CKPT = CKPT_ROOT / "exp2"
+# Qwen3-1.7B (the main model) keeps results/exp2; another BASE_MODEL gets its own tree, e.g. results/exp2_qwen3-4b
+DEFAULT_MODEL = "Qwen/Qwen3-1.7B"
+MODEL_TAG = "" if MODEL == DEFAULT_MODEL else "_" + MODEL.split("/")[-1].lower()
+EXP2_RESULTS = RESULTS / f"exp2{MODEL_TAG}"
+EXP2_CKPT = CKPT_ROOT / f"exp2{MODEL_TAG}"
 SHUFFLE_SEED = 42
 
 # Evaluation-level definitions (results/exp2/<level>/).

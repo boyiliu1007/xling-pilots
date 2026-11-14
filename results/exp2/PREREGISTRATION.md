@@ -165,3 +165,30 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   is the Swahili looping specific to 1.7B, does the penalty still help a bigger model, and how does Qwen3-1.7B
   with the penalty compare with a 2.4x / 4.7x bigger model. Expectation (not a test): bigger models loop less and
   gain less from the penalty. Descriptive; no checkpoint selection involved.
+- 2026-11-14 ~10:00, Qwen3-4B and penalty-rollout self-distillation (requested by the user: a gold-free, on-policy
+  method that keeps Swahili output while breaking loops; written before any result of these runs). Known: all
+  Qwen3-1.7B results above, base Qwen3-4B/8B with and without repetition penalty 1.1.
+  Hypothesis: the teacher's information has not transferred in any setting because the teacher scores degenerate
+  student text; if the student's own rollouts are coherent, it can. Method "rp" (penalty-rollout self-distillation):
+  COPSD's trainer unchanged except that the student's on-policy rollouts are sampled with repetition penalty 1.1
+  (vLLM; evaluation decoding is separate). Teacher = the same model with its *own* English majority-vote solution
+  (L3-vote; gold-free). Second candidate "penalty-decoded self-SFT" (selfsft-vote ... __rp): the model's own Swahili
+  answers sampled with penalty 1.1, kept if finished, in Swahili, and equal to its English majority vote; 30 SFT steps.
+  Grid, seeds 42/43, 100 steps (self-SFT 30), official hyperparameters otherwise:
+    Qwen3-4B: L3-vote, L1, L3-vote no clip (default rollouts); L3-vote rp, L1 rp, L3-vote rp-noclip; hot-self τ1.5
+              (teacher-free control); penalty-decoded self-SFT. Qwen3-4B's voted references come from its own English
+              thinking consensus (same settings as the 1.7B consensus: 500 COPSD items, n 8, T 0.6, 16384 tokens,
+              vote threshold 5/8), run in 5 shards (items[i::5]) and merged.
+    Qwen3-1.7B: L3-vote rp, L1 rp, L3-vote rp-noclip, penalty-decoded self-SFT (default-rollout runs exist).
+  Evaluation (selection-free, no DEV sweep): TEST at the final checkpoint with default decoding and with repetition
+  penalty 1.1 (`exp2 eval-final`); existing 1.7B runs L1, L3-vote noclip and hot-self τ1.5 also get the penalty
+  evaluation. 4B training runs on RTX PRO 6000 (does not fit an A6000 next to vLLM); all evaluation on A6000.
+  Primary outcomes (paired bootstrap, per seed), for each model:
+    P1 beats the training-free baseline: rp L3-vote with penalty decoding - base + penalty 1.1, and rp L3-vote with
+       default decoding - base + penalty 1.1 (loop-breaking internalised); on maj@12, pass@12, mean_acc.
+    P2 Swahili kept: answer-language share of rp L3-vote >= that of base + penalty 1.1 (descriptive, with CI).
+    P3 transfer: rp L3-vote - rp L1 (information effect when rollouts are coherent).
+    P4 clip: rp L3-vote - rp L3-vote no clip.
+  Predictions: P3 > 0 on Qwen3-4B (and smaller or none on 1.7B); P1 >= 0; P4 smaller than with default rollouts
+  (with coherent rollouts the clip's entropy effect matters less). A method "works" only if P1 > 0 on mean_acc or
+  maj@12 with the CI excluding zero in both seeds and P2 holds.

@@ -109,7 +109,9 @@ def cmd_generate(args):
     runs = load_runs(args.runs, args.thinking, args.seed, lines)
     with open(out / "dataset_inspection.txt", "a") as fh:
         fh.write("\n".join(lines) + "\n")
-    todo = {k: v for k, v in runs.items() if args.overwrite or not (out / f"{k}.jsonl").exists()}
+    si, sk = (map(int, args.shard.split("/")) if args.shard else (0, 1))
+    tag = f".shard{si}of{sk}" if args.shard else ""     # shard i of k = items[i::k]; merge with `consensus merge`
+    todo = {k: v for k, v in runs.items() if args.overwrite or not (out / f"{k}{tag}.jsonl").exists()}
     for k in runs.keys() - todo.keys():
         log.info(f"[skip] {k}.jsonl exists (use --overwrite to regenerate)")
     if not todo:
@@ -128,11 +130,13 @@ def cmd_generate(args):
     tok = llm.get_tokenizer()
     sc = sampling(args.thinking)
     sp = SamplingParams(n=args.n, max_tokens=args.max_tokens, seed=args.seed, **sc)
-    cfg = read_json(out / "config.json", {})
+    cfg_file = out / f"config{tag}.json"
+    cfg = read_json(cfg_file, {})
     cfg.update({"model": MODEL, "prompt_template": PROMPT, "versions": versions()})
     cfg.setdefault("runs", {})
     for name, (dataset, items) in todo.items():
         items = items[: args.limit] if args.limit else items
+        items = items[si::sk]
         prompts = [tok.apply_chat_template([{"role": "user", "content": PROMPT.format(question=it["question"])}],
                                            tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
                    for it in items]
@@ -146,14 +150,37 @@ def cmd_generate(args):
         recs = [make_record(name, it, [c.text for c in o.outputs], [c.finish_reason for c in o.outputs],
                             [len(c.token_ids) for c in o.outputs], ANSWER_MODE[dataset], args.thinking, args.n)
                 for it, o in zip(items, res)]
-        write_jsonl(out / f"{name}.jsonl", recs)
+        write_jsonl(out / f"{name}{tag}.jsonl", recs)
         cfg["runs"][name] = {"items": len(items), "n": args.n, "sampling": sc, "max_tokens": args.max_tokens,
                              "thinking": args.thinking, "answer_mode": ANSWER_MODE[dataset], "seed": args.seed,
                              "generation_s": round(dt, 1), "generated_tokens": sum(sum(r["num_generated_tokens"]) for r in recs),
                              "peak_gpu_mem_used_MiB": mon.peak, "finished": datetime.now().isoformat(timespec="seconds"),
-                             "host": platform.node(), "slurm_job_id": os.environ.get("SLURM_JOB_ID")}
-        write_json(out / "config.json", cfg)
+                             "host": platform.node(), "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
+                             "shard": args.shard}
+        write_json(cfg_file, cfg)
         log.info(f"{name}: {dt:.1f}s, maj@{args.n} {sum(r['majority_correct'] for r in recs)}/{len(recs)}")
+    if not args.shard:
+        print(build_report(out))
+
+
+def cmd_merge(args):
+    """Interleave shard i of k (items[i::k]) back into the original item order; config = union of shard configs."""
+    out, k = Path(args.out), args.k
+    for name in args.names:
+        shards = [read_jsonl(out / f"{name}.shard{i}of{k}.jsonl") for i in range(k)]
+        merged = [shards[j % k][j // k] for j in range(sum(map(len, shards)))]
+        write_jsonl(out / f"{name}.jsonl", merged)
+        cfgs = [read_json(out / f"config.shard{i}of{k}.json", {}) for i in range(k)]
+        cfg = read_json(out / "config.json", {})
+        cfg.update({x: cfgs[0][x] for x in ("model", "prompt_template", "versions")})
+        r = dict(cfgs[0]["runs"][name])
+        r.update(items=len(merged), generation_s=sum(c["runs"][name]["generation_s"] for c in cfgs),
+                 generated_tokens=sum(c["runs"][name]["generated_tokens"] for c in cfgs),
+                 shard=f"merged from {k} shards", host=[c["runs"][name]["host"] for c in cfgs],
+                 slurm_job_id=[c["runs"][name]["slurm_job_id"] for c in cfgs])
+        cfg.setdefault("runs", {})[name] = r
+        write_json(out / "config.json", cfg)
+        log.info(f"merged {name}: {len(merged)} items from {k} shards")
     print(build_report(out))
 
 
@@ -281,12 +308,19 @@ def main():
     g.add_argument("--limit", type=int, default=None, help="first N items only (smoke test)")
     g.add_argument("--seed", type=int, default=42)
     g.add_argument("--overwrite", action="store_true")
+    g.add_argument("--shard", default=None, help="i/k: generate items[i::k] only (merge the k shards with `merge`)")
+    m = sub.add_parser("merge")
+    m.add_argument("--out", required=True)
+    m.add_argument("--names", nargs="+", required=True, help="run names, e.g. copsd_en_thinking")
+    m.add_argument("--k", type=int, required=True)
     r = sub.add_parser("report")
     r.add_argument("--out", required=True)
     args = ap.parse_args()
     setup_logging(Path(args.out) / "logs" / "consensus.log" if args.cmd == "generate" else None)
     if args.cmd == "generate":
         cmd_generate(args)
+    elif args.cmd == "merge":
+        cmd_merge(args)
     else:
         print(build_report(args.out))
 

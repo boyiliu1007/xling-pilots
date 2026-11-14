@@ -69,6 +69,18 @@ CONTRASTS = [
     ("hot-self τ2.5 - base+penalty1.1", "@L0-reppen1.1", "L0-same__copsd__exact__hot2.5"),
     ("loop unlikelihood - base+penalty1.1", "@L0-reppen1.1", "L0-same__copsd__exact__ul"),
     ("enthink COPSD (L3-vote) - base+penalty1.1", "@L0-reppen1.1", "L3-vote__copsd__exact__enthink"),
+    # penalty-rollout self-distillation (PREREGISTRATION 2026-11-14 penalty-rollout entry), Qwen3-1.7B and Qwen3-4B
+    ("rp: L3-vote - base+penalty1.1", "@L0-reppen1.1", "L3-vote__copsd__exact__rp"),
+    ("rp: L3-vote - L1 (transfer, coherent rollouts)", "L1__copsd__exact__rp", "L3-vote__copsd__exact__rp"),
+    ("rp: no clip - clip (L3-vote)", "L3-vote__copsd__exact__rp", "L3-vote__copsd__exact__rp-noclip"),
+    ("rp vs default rollouts (L3-vote)", "L3-vote__copsd__exact", "L3-vote__copsd__exact__rp"),
+    ("rp vs default rollouts (L1)", "L1__copsd__exact", "L1__copsd__exact__rp"),
+    ("rp: L1 - base+penalty1.1", "@L0-reppen1.1", "L1__copsd__exact__rp"),
+    ("rp: L3-vote no clip - base+penalty1.1", "@L0-reppen1.1", "L3-vote__copsd__exact__rp-noclip"),
+    ("penalty-decoded self-SFT - base+penalty1.1", "@L0-reppen1.1", "selfsft-vote__copsd__exact__rp"),
+    ("penalty-decoded self-SFT - rp COPSD (L3-vote)", "L3-vote__copsd__exact__rp", "selfsft-vote__copsd__exact__rp"),
+    ("COPSD L3-vote - base+penalty1.1", "@L0-reppen1.1", "L3-vote__copsd__exact"),
+    ("COPSD L1 - base+penalty1.1", "@L0-reppen1.1", "L1__copsd__exact"),
     ("decoding: temperature 1.3 - L0", None, "@L0-temp1.3"),
     ("decoding: temperature 1.5 - L0", None, "@L0-temp1.5"),
     ("decoding: repetition penalty 1.1 - L0", None, "@L0-reppen1.1"),
@@ -177,13 +189,15 @@ def build_summary():
           "  (B - A on TEST; A = same checkpoint with default decoding, or the base model with the same decoding)"]
     from .runs import DECODE
     for d in sorted(DECODE.glob("*__*")) if DECODE.exists() else []:
-        R = read_jsonl(d / "eval" / "step100_test.jsonl") if (d / "eval" / "step100_test.jsonl").exists() else None
-        if R is None:
+        fs = sorted((d / "eval").glob("step*_test.jsonl"))
+        if not fs:
             continue
+        R = read_jsonl(fs[-1])
         run, level = d.name.rsplit("__", 1)
-        T.append(f"  {d.name:<52} maj@12 {np.mean([r['maj_correct'] for r in R]):.3f}  pass@12 "
+        T.append(f"  {d.name + ' ' + fs[-1].name.split('_')[0]:<60} maj@12 {np.mean([r['maj_correct'] for r in R]):.3f}  pass@12 "
                  f"{np.mean([r['pass_at_n'] for r in R]):.3f}  mean {np.mean([r['mean_acc'] for r in R]):.3f}  trunc "
-                 f"{np.mean([np.mean(r['truncated']) for r in R]):.3f}")
+                 f"{np.mean([np.mean(r['truncated']) for r in R]):.3f}  sw-lang "
+                 f"{np.mean([l == 'sw' for r in R for l in r['language']]):.3f}")
         lv = level_dir(level) / "eval" / "base_test.jsonl"
         for lab, A in (("vs L0", base), ("vs same ckpt, default decoding", fres.get(run)),
                        (f"vs base model + {level}", read_jsonl(lv) if lv.exists() else None)):

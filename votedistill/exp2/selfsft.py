@@ -34,17 +34,20 @@ GEN_SEED = 42
 SFT_DIR = EXP2_RESULTS / "selfsft"
 
 
-def gen_file(data):
-    return SFT_DIR / f"gen_{data}.jsonl"
+def gen_file(data, rep_pen=1.0):
+    return SFT_DIR / (f"gen_{data}.jsonl" if rep_pen == 1.0 else f"gen_{data}_rp{rep_pen}.jsonl")
 
 
-def generate(data):
-    """Sample, filter by agreement with the English vote, write gen_<data>.jsonl (all samples, with a `keep` flag)."""
+def generate(data, rep_pen=1.0):
+    """Sample, filter by agreement with the English vote, write gen_<data>.jsonl (all samples, with a `keep` flag).
+    rep_pen > 1 (penalty-decoded self-SFT, run variant "rp"): samples drawn with that repetition penalty, and an answer
+    is kept only if it is also in Swahili (copsd.evaluate.language_of), so the SFT target keeps the answer language."""
+    from ..copsd.evaluate import language_of
     SFT_DIR.mkdir(parents=True, exist_ok=True)
-    with open(SFT_DIR / f".lock_{data}", "w") as lk:      # several seeds may start at once: generate only once
+    with open(SFT_DIR / f".lock_{gen_file(data, rep_pen).stem}", "w") as lk:      # several seeds may start at once: generate only once
         fcntl.flock(lk, fcntl.LOCK_EX)
-        if gen_file(data).exists():
-            return read_jsonl(gen_file(data))
+        if gen_file(data, rep_pen).exists():
+            return read_jsonl(gen_file(data, rep_pen))
         from transformers import AutoTokenizer
         from vllm import LLM, SamplingParams
         rows, desc = training_rows(data, "L3-vote")
@@ -54,6 +57,7 @@ def generate(data):
         llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.85, max_model_len=8192, seed=GEN_SEED)
         sps = [SamplingParams(n=GEN_N, temperature=OFFICIAL["temperature"], top_p=OFFICIAL["top_p"],
                               top_k=OFFICIAL["top_k"], min_p=0.0, max_tokens=OFFICIAL["max_completion_length"],
+                              repetition_penalty=rep_pen,
                               seed=GEN_SEED * 1_000_003 + i) for i in range(len(rows))]
         t0 = time.time()
         outs = llm.generate([{"prompt_token_ids": p} for p in sp_ids], sps, use_tqdm=False)
@@ -64,14 +68,16 @@ def generate(data):
             for j, c in enumerate(o.outputs):
                 s, pp = extract_pred(c.text, thinking=True)
                 ok = c.finish_reason == "stop" and s is not None and equiv(m, parse_answer(m), s, pp)
+                lang = language_of(c.text)
+                ok = ok and (rep_pen == 1.0 or lang == "sw")
                 keep = ok and kept < PER_Q
                 kept += keep
                 recs.append({"dataset": r["dataset"], "qid": r["qid"], "sample": j, "student_prompt_ids": p,
                              "completion_ids": list(c.token_ids), "text": c.text, "finish_reason": c.finish_reason,
-                             "pred": s, "vote_answer": m, "agrees": bool(ok), "keep": bool(keep)})
-        write_jsonl(gen_file(data), recs)
+                             "pred": s, "vote_answer": m, "agrees": bool(ok), "keep": bool(keep), "lang": lang})
+        write_jsonl(gen_file(data, rep_pen), recs)
         n_keep = sum(r["keep"] for r in recs)
-        write_json(gen_file(data).with_suffix(".meta.json"), {
+        write_json(gen_file(data, rep_pen).with_suffix(".meta.json"), {"repetition_penalty": rep_pen,
             "doc": __doc__, "rows": desc, "gen_n": GEN_N, "per_question_cap": PER_Q, "seed": GEN_SEED,
             "samples": len(recs), "finished": sum(r["finish_reason"] == "stop" for r in recs),
             "agree_with_vote": sum(r["agrees"] for r in recs), "kept": n_keep,
@@ -87,7 +93,7 @@ def generate(data):
         return recs
 
 
-def train_sft(name, data, layout, seed):
+def train_sft(name, data, layout, seed, rep_pen=1.0):
     import shutil
     import torch
     from peft import LoraConfig, get_peft_model, set_peft_model_state_dict
@@ -101,7 +107,7 @@ def train_sft(name, data, layout, seed):
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     ck.mkdir(parents=True, exist_ok=True)
-    recs = [r for r in generate(data) if r["keep"]]
+    recs = [r for r in generate(data, rep_pen) if r["keep"]]
     if len(recs) < MICRO_BS * GA:
         raise SystemExit(f"only {len(recs)} vote-consistent answers: too few for self-SFT")
     start = latest_ckpt(ck) or 0
@@ -110,7 +116,7 @@ def train_sft(name, data, layout, seed):
         return
     write_json(rd / "config.json", {"model": MODEL, "method": "vote-filtered self-SFT (selfsft.py)", "doc": __doc__,
                                     "examples": len(recs), "questions": len({r["qid"] for r in recs}),
-                                    "data": str(gen_file(data)), "steps": SFT_STEPS, "seed": seed, "layout": layout,
+                                    "data": str(gen_file(data, rep_pen)), "generation_repetition_penalty": rep_pen, "steps": SFT_STEPS, "seed": seed, "layout": layout,
                                     "official_optimizer": {k: OFFICIAL[k] for k in ("learning_rate", "max_grad_norm",
                                                            "lora_r", "lora_alpha", "max_steps")},
                                     "batch": f"{MICRO_BS} x {GA}", "versions": versions()})

@@ -80,14 +80,15 @@ def unpad(ids, pad):
 
 def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
                        seed=SEED, layout="official", data_desc=None, reference_desc=None,
-                       clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None):
+                       clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None, rollout_rep_pen=1.0):
     write_json(run_dir / "config.json", {
         "model": MODEL, "language": lang, "official": OFFICIAL,
         "ours": {"gpus": 1, "micro_batch": MICRO_BS, "grad_accum": GA, "effective_batch": MICRO_BS * GA,
                  "train_steps": max_steps, "lr_schedule_horizon": OFFICIAL["max_steps"], "save_every": SAVE_EVERY,
                  "attn": "sdpa", "checkpoint_dir": str(ckpt_dir), "seed": seed,
                  "layout": {"name": layout, "description": LAYOUTS[layout]},
-                 "loss_token_clip": clip, "objective": objective, "teacher_temperature": teacher_temp},
+                 "loss_token_clip": clip, "objective": objective, "teacher_temperature": teacher_temp,
+                 "rollout_repetition_penalty": rollout_rep_pen},
         "data": data_desc or "COPSD released training set (500 rows)",
         "teacher_context": {"include_problem_en": include_problem_en, "reference_solution": (
             (reference_desc or "gold COPSD `solution`") if include_reference_solution_en else "none")},
@@ -96,8 +97,11 @@ def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, i
 
 def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_after=0, no_save=False,
           include_problem_en=True, include_reference_solution_en=True, seed=SEED, layout="official", rows=None,
-          data_desc=None, reference_desc=None, clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None):
-    """objective: "copsd" (distillation from the teacher prompt; teacher_temp, if set, replaces the loss temperature
+          data_desc=None, reference_desc=None, clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None,
+          rollout_rep_pen=1.0):
+    """rollout_rep_pen: vLLM repetition penalty for the student's rollouts (1.0 = official; >1 = penalty-rollout
+    variant: the student still samples its own rollouts, but with a decoding-time guard against loops).
+    objective: "copsd" (distillation from the teacher prompt; teacher_temp, if set, replaces the loss temperature
     for the teacher's logits only, e.g. a hotter copy of the base model = an entropy-raising target), or
     "unlikelihood" (no teacher: -log(1 - p_student(y)) at positions whose token continues a verbatim 8-token repeat
     of the student's own rollout; Welleck et al. 2019). clip: the per-(token, vocab) loss clamp (official 0.05; None = no clip). rows: prepared training rows (copsd.collator.prepare_rows format, `solution` = the teacher's reference);
@@ -119,7 +123,7 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
         raise ValueError(f"layout {layout}; known: {list(LAYOUTS)}")
     if not no_save:
         write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
-                           seed, layout, data_desc, reference_desc, clip, objective, teacher_temp)
+                           seed, layout, data_desc, reference_desc, clip, objective, teacher_temp, rollout_rep_pen)
     wait_for_gpu()
     torch.manual_seed(seed)
     random.seed(seed)
@@ -187,7 +191,7 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
         prompts = [t.replace(tok.pad_token, "") for b in batches
                    for t in tok.batch_decode(b["student_prompts"], skip_special_tokens=False)]
         sps = [SamplingParams(n=1, temperature=temp, top_p=OFFICIAL["top_p"], top_k=OFFICIAL["top_k"], min_p=0.0,
-                              repetition_penalty=1.0, presence_penalty=0.0, max_tokens=OFFICIAL["max_completion_length"],
+                              repetition_penalty=rollout_rep_pen, presence_penalty=0.0, max_tokens=OFFICIAL["max_completion_length"],
                               seed=seed * 1_000_003 + step * 1000 + j) for j in range(len(prompts))]
         outs = llm.generate(prompts, sps, lora_request=lora, use_tqdm=False)
         comps = [list(o.outputs[0].token_ids) for o in outs]

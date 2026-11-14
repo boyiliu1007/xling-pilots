@@ -37,18 +37,33 @@ STYLE_VARIANTS = {"enthink": "en-think-sw"}
 OBJECTIVE_VARIANTS = {"hot1.5": ("copsd", 1.5), "hot2.5": ("copsd", 2.5), "ul": ("unlikelihood", None)}
 
 
+# Penalty-rollout prefix (PREREGISTRATION 2026-11-14 penalty-rollout entry): "rp" or "rp-<variant>" = the student's
+# training rollouts are sampled with repetition penalty ROLLOUT_PEN (default decoding at evaluation unless stated).
+ROLLOUT_PREFIX, ROLLOUT_PEN = "rp", 1.1
+
+
+def _strip_rp(v):
+    head, _, rest = v.partition("-")
+    return (True, rest) if head == ROLLOUT_PREFIX else (False, v)
+
+
+def rollout_pen_of(name):
+    parts = name.split("__")
+    return ROLLOUT_PEN if len(parts) == 5 and _strip_rp(parts[3])[0] else 1.0
+
+
 def objective_of(name):
     """(objective, teacher_temp) for the trainer."""
     parts = name.split("__")
-    if len(parts) == 5 and parts[3] in OBJECTIVE_VARIANTS:
-        return OBJECTIVE_VARIANTS[parts[3]]
+    if len(parts) == 5 and _strip_rp(parts[3])[1] in OBJECTIVE_VARIANTS:
+        return OBJECTIVE_VARIANTS[_strip_rp(parts[3])[1]]
     return "copsd", None   # prompt style (copsd/styles.py) for student, teacher and evaluation
 
 
 def style_of(name):
     parts = name.split("__")
     if len(parts) == 5:
-        head = parts[3].split("-")[0]
+        head = _strip_rp(parts[3])[1].split("-")[0]
         if head in STYLE_VARIANTS:
             return STYLE_VARIANTS[head]
     return "copsd"
@@ -56,7 +71,10 @@ def style_of(name):
 
 def parse_variant(v):
     """-> (init (source context, step) or None, clip). A leading style token (e.g. "enthink", "enthink-noclip")
-    selects the prompt style; it is stripped here and read by style_of."""
+    selects the prompt style; it is stripped here and read by style_of. So is a leading "rp" (rollout_pen_of)."""
+    rp, v = _strip_rp(v)
+    if rp and not v:
+        return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
     head, _, rest = v.partition("-")
@@ -148,7 +166,7 @@ def train_run(name, max_steps=MAX_STEPS):
     rd.mkdir(parents=True, exist_ok=True)
     if context == SFT_CONTEXT:
         from .selfsft import train_sft
-        return train_sft(name, data, layout, seed)
+        return train_sft(name, data, layout, seed, rollout_pen_of(name))
     from ..copsd.styles import apply_style
     apply_style(style_of(name))
     rows, desc = training_rows(data, context)
@@ -163,7 +181,7 @@ def train_run(name, max_steps=MAX_STEPS):
     train(rd, ck, "swa", max_steps, include_problem_en=flags["include_problem_en"],
           include_reference_solution_en=flags["include_reference_solution_en"], seed=seed, layout=layout, rows=trows,
           data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}", clip=clip,
-          objective=objective, teacher_temp=teacher_temp)
+          objective=objective, teacher_temp=teacher_temp, rollout_rep_pen=rollout_pen_of(name))
 
 
 STYLE_BASE_LEVEL = {"copsd": "L0", "en-think-sw": "L0-enthink-sw"}
@@ -205,8 +223,8 @@ def eval_run(name, split, max_steps=MAX_STEPS):
 DECODE = EXP2_RESULTS / "decode"
 
 
-def decode_dir(name, level, step=100):
-    return DECODE / f"{name}__{level}" if step == 100 else DECODE / f"{name}__step{step}__{level}"
+def decode_dir(name, level, step=None):
+    return DECODE / f"{name}__{level}"      # eval/step<N>_test.jsonl inside
 
 
 def decode_eval(name, step, level):
@@ -229,6 +247,19 @@ def decode_eval(name, step, level):
     cfg = dict(EVAL, **({"prompt_style": style} if style != "copsd" else {}), **LEVELS[level]["sampling"])
     evaluate(out, [f"step{step}"], "test", cfg, ck)
     return out
+
+
+def eval_final(name, decode_level="L0-reppen1.1"):
+    """Selection-free evaluation (Qwen3-4B runs and the penalty-rollout runs; PREREGISTRATION 2026-11-14): TEST of the
+    final checkpoint only, with default decoding and with `decode_level`'s decoding. No DEV sweep."""
+    from ..copsd.config import EVAL
+    from ..copsd.evaluate import evaluate
+    rd, ck = paths(name)
+    style = style_of(name)
+    copy_base(name)
+    step = final_step(name)
+    evaluate(rd, [f"step{step}"], "test", dict(EVAL, **({"prompt_style": style} if style != "copsd" else {})), ck)
+    return decode_eval(name, step, decode_level)
 
 
 def report_run(name):

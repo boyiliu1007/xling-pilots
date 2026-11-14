@@ -69,7 +69,7 @@ def main():
     de.add_argument("--level", required=True, choices=list(LEVELS))
     sub.add_parser("translate")
     sub.add_parser("trainsets")
-    for c in ("train", "eval-run", "run-report"):
+    for c in ("train", "eval-run", "run-report", "eval-final"):
         x = sub.add_parser(c)
         x.add_argument("--name", required=True)
         x.add_argument("--max_steps", type=int, default=None)
@@ -81,7 +81,7 @@ def main():
         from .summary import build_summary
         print(build_summary())
         return
-    if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report"):
+    if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report", "eval-final"):
         return run_commands(args)
 
     if args.cmd == "decode-eval":
@@ -171,6 +171,8 @@ def run_commands(args):
     steps = args.max_steps or runs.MAX_STEPS
     if args.cmd == "train":
         runs.train_run(args.name, steps)
+    elif args.cmd == "eval-final":
+        print(runs.eval_final(args.name))
     else:
         print("selected:", runs.eval_run(args.name, args.split, steps))
 
