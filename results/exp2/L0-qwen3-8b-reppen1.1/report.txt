@@ -1,0 +1,18 @@
+Experiment 2 report: L0-qwen3-8b-reppen1.1
+generated 2026-11-14T02:11:57
+teacher context: none; Qwen3-8B, repetition penalty 1.1
+eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True, 'model': 'Qwen/Qwen3-8B', 'repetition_penalty': 1.1}
+eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+environment: {'model': 'Qwen/Qwen3-1.7B', 'copsd_commit': '4f4410730e9b', 'versions': {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}, 'gpu': 'NVIDIA RTX A6000', 'git_commit': 'a685c6ef3f6595a6d7549ad368a7dbab588d5fc3', 'git_dirty': False}
+
+## DEV (50 items)
+  base     pass@n 46/50 = 0.920 [0.812, 0.968] maj@n 33/50 = 0.660 [0.522, 0.776] mean_acc 0.458  format 0.982  trunc 0.022  sw-lang 0.722
+  samples 600: truncated 0.022; formatted 0.982; finished without \boxed 0.003
+  repetitive (an 8-word window repeated >= 5 times): 0.050 of all samples, 0.769 of truncated ones
+  output length (characters): median 3082, p10 1590, p90 6897
+
+## TEST (200 items)
+  base     pass@n 160/200 = 0.800 [0.739, 0.850] maj@n 119/200 = 0.595 [0.526, 0.661] mean_acc 0.445  format 0.973  trunc 0.033  sw-lang 0.690
+  samples 2400: truncated 0.033; formatted 0.973; finished without \boxed 0.004
+  repetitive (an 8-word window repeated >= 5 times): 0.058 of all samples, 0.608 of truncated ones
+  output length (characters): median 3174, p10 1533, p90 7904

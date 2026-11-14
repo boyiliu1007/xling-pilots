@@ -1,0 +1,81 @@
+COPSD run report: L1__copsd__exact__enthink__s43
+generated 2026-11-14T03:51:08
+
+## Setup
+  teacher context: {'include_problem_en': True, 'reference_solution': 'none'}
+  - 1 GPU instead of 4: micro-batch 4 x grad-accum 8 = 32 prompts/step (official 4 GPUs x 4 x 2 = 32). Same per-micro-batch loss normalisation.
+  - Backward is done one sample at a time inside each micro-batch, with the micro-batch token count as denominator: identical loss/gradient to the official micro-batch of 4, lower peak memory.
+  - Completions are not right-padded to 2048 before the forward pass (official pads every completion to max_completion_length); pads are masked and causal, so the loss is unchanged.
+  - Steps: 100. The LR schedule keeps the official 100-step linear horizon, so each step sees the official LR.
+  - Checkpoints every 10 steps (official save_steps 5).
+  - Own implementation of the OPSD training loop (official: TRL 0.26 GOLD/SFTTrainer + accelerate + DeepSpeed + vLLM 0.11 colocate). Collator, prompts, think prefix and generalized_jsd_loss are imported/copied from the official repo.
+  - Generation: all 32 prompts of a step in one vLLM call (official: one call per micro-batch, same weights since no optimizer step in between).
+  - Student weights reach vLLM as a LoRA adapter saved after every optimizer step, instead of merge_adapter + load_weights; equivalent up to bf16 rounding.
+  - Data order: per-epoch torch.randperm(seed 42+epoch), micro-batches of 4, optimizer step every 8 micro-batches or at epoch end (HF-like); not the identical sample order of the official run.
+  - Attention: PyTorch SDPA (official: flash_attention_2). Same right-padded prompt layout with masked pads.
+  - Software: torch 2.14 / transformers 5.20 / vLLM 0.33 / peft 0.21 (official pins torch 2.8 / transformers 4.57.1 / vLLM 0.11 / peft 0.17.1).
+  - Training data field mapping: problem_translated -> problem_<lang> (released HF data vs the official script's expected column).
+  - Loss: official flags give beta=0 => F.kl_div(student_logp, teacher_logp) = KL(teacher || student), i.e. FORWARD KL over the full vocabulary (temperature 1.1 on both logits, per-(token, vocab) clip at 0.05). The clip makes the reported loss go negative; the unclipped KL is never negative.
+  - Evaluation sampling uses vLLM seed 42 (official: unseeded) and max_model_len = max_new_tokens + 2048 (official 40960).
+  eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True, 'prompt_style': 'en-think-sw'}
+  eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+  checkpoints: /data/user_data/jeffc2/votedistill_ckpt/exp2/L1__copsd__exact__enthink__s43
+  sw-lang: share of samples whose function words are mostly Swahili (LaTeX removed)
+
+## Training
+  steps logged: 100; seconds/step mean 49.2 (min 33.9, max 55.8); total 1.37 h; peak torch alloc 14362 MiB; peak GPU used (incl. vLLM) 39966 MiB
+  step  loss      grad_norm  mean_len  trunc  boxed
+     1  0.00321  0.1974      1634   0.50   0.62
+     2  0.00196  0.1844      1750   0.66   0.53
+     3  0.00198  0.1561      1768   0.66   0.44
+     5  0.00081  0.1183      1523   0.47   0.66
+    10  -0.00031  0.0767      1569   0.41   0.62
+    15  -0.00103  0.0731      1638   0.47   0.69
+    20  -0.00288  0.0651      1381   0.31   0.75
+    25  -0.00348  0.0452      1603   0.50   0.56
+    30  -0.00374  0.0447      1537   0.47   0.66
+    35  -0.00398  0.0411      1384   0.34   0.69
+    40  -0.00464  0.0550      1609   0.38   0.78
+    45  -0.00449  0.0611      1686   0.50   0.75
+    50  -0.00603  0.0624      1693   0.53   0.56
+    55  -0.00580  0.0584      1730   0.50   0.62
+    60  -0.00701  0.0528      1723   0.62   0.44
+    65  -0.00776  0.0573      1786   0.66   0.50
+    70  -0.00831  0.0536      1822   0.56   0.53
+    75  -0.00878  0.0503      1665   0.50   0.62
+    80  -0.00877  0.0643      1843   0.70   0.35
+    85  -0.00941  0.0645      1819   0.75   0.34
+    90  -0.01125  0.0594      1927   0.81   0.38
+    95  -0.01028  0.0589      1895   0.84   0.41
+   100  -0.00988  0.0565      1787   0.69   0.41
+
+## DEV (50 items; used only for checkpoint selection)
+  base     pass@n 20/50 = 0.400 [0.276, 0.538] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.078  format 0.905  trunc 0.112  sw-lang 0.018
+  step10   pass@n 18/50 = 0.360 [0.241, 0.499] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.090  format 0.935  trunc 0.077  sw-lang 0.005
+  step20   pass@n 19/50 = 0.380 [0.259, 0.518] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.087  format 0.958  trunc 0.068  sw-lang 0.008
+  step30   pass@n 18/50 = 0.360 [0.241, 0.499] maj@n 4/50 = 0.080 [0.032, 0.188] mean_acc 0.073  format 0.992  trunc 0.027  sw-lang 0.005
+  step40   pass@n 14/50 = 0.280 [0.175, 0.417] maj@n 4/50 = 0.080 [0.032, 0.188] mean_acc 0.058  format 0.988  trunc 0.025  sw-lang 0.000
+  step50   pass@n 19/50 = 0.380 [0.259, 0.518] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.077  format 0.948  trunc 0.097  sw-lang 0.005
+  step60   pass@n 20/50 = 0.400 [0.276, 0.538] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.082  format 0.870  trunc 0.177  sw-lang 0.000
+  step70   pass@n 17/50 = 0.340 [0.224, 0.478] maj@n 3/50 = 0.060 [0.021, 0.162] mean_acc 0.073  format 0.842  trunc 0.230  sw-lang 0.000
+  step80   pass@n 16/50 = 0.320 [0.208, 0.458] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.065  format 0.815  trunc 0.298  sw-lang 0.005
+  step90   pass@n 17/50 = 0.340 [0.224, 0.478] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.082  format 0.787  trunc 0.303  sw-lang 0.000
+  step100  pass@n 21/50 = 0.420 [0.294, 0.558] maj@n 3/50 = 0.060 [0.021, 0.162] mean_acc 0.088  format 0.787  trunc 0.313  sw-lang 0.000
+  SELECTED by DEV maj@n (ties -> earlier step): step10
+
+## TEST (200 items): base vs selected checkpoint
+  base     pass@n 53/200 = 0.265 [0.209, 0.330] maj@n 21/200 = 0.105 [0.070, 0.155] mean_acc 0.075  format 0.885  trunc 0.129  sw-lang 0.013
+  step10   pass@n 49/200 = 0.245 [0.191, 0.309] maj@n 24/200 = 0.120 [0.082, 0.172] mean_acc 0.074  format 0.919  trunc 0.100  sw-lang 0.008
+  Δ (selected - base), paired bootstrap over items, 10,000 resamples:
+    pass@n    -2.00 pts  [-7.00, +3.00]
+    maj@n     +1.50 pts  [-2.50, +6.00]
+    mean_acc  -0.13 pts  [-1.50, +1.29]
+    format    +3.46 pts  [+1.83, +5.12]   (do gains track format?)
+  pass@n discordant items: gained 12, lost 16
+  base     accuracy among formatted samples: 180/2123 = 0.085 [0.074, 0.097]  (composition-biased: the base formats mostly its short, easy samples)
+  step10   accuracy among formatted samples: 177/2206 = 0.080 [0.070, 0.092]  (composition-biased: the base formats mostly its short, easy samples)
+
+## Other checkpoints on TEST (not used for selection)
+  step100  pass@n 55/200 = 0.275 [0.218, 0.341] maj@n 22/200 = 0.110 [0.074, 0.161] mean_acc 0.065  format 0.743  trunc 0.363  sw-lang 0.002
+
+  base pass@n on all 250 items (DEV+TEST): 29.2 (COPSD paper, Qwen3-1.7B Swahili, pass@12 at 4096 tokens: 14.8)
