@@ -61,6 +61,14 @@ def latest_ckpt(ckpt_dir):
     return steps[-1] if steps else None
 
 
+def prune_old_states(ckpt_dir, step):
+    """Only the latest optimizer/RNG state is needed to resume; adapters of every step are kept (disk: a Qwen3-4B
+    state.pt is ~1 GB per checkpoint). Called after step's COMPLETE marker is written."""
+    for p in Path(ckpt_dir).glob("step-*/state.pt"):
+        if int(p.parent.name.split("-")[1]) < step:
+            p.unlink()
+
+
 LAYOUTS = {
     "official": "teacher/student prompt right-padded to the longest prompt of its micro-batch, completion appended after "
                 "the pads, pad-only attention mask, no position ids (as multilingual_opsd_trainer.py): the completion's "
@@ -265,5 +273,6 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
             torch.save({"optimizer": opt.state_dict(), "scheduler": sch.state_dict(), "rng": _save_rng(), "step": step},
                        d / "state.pt")
             (d / "COMPLETE").write_text(datetime.now().isoformat())
+            prune_old_states(ckpt_dir, step)
             log.info(f"checkpoint saved: {d}")
     log.info(f"train loop exit at step {stop_at}")

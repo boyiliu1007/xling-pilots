@@ -100,7 +100,7 @@ def train_sft(name, data, layout, seed, rep_pen=1.0):
     from safetensors.torch import load_file
     from transformers import AutoModelForCausalLM, get_linear_schedule_with_warmup
     from ..copsd.config import GA, MICRO_BS
-    from ..copsd.train import LOSS_CSV_HEADER, _load_rng, _save_rng, latest_ckpt
+    from ..copsd.train import LOSS_CSV_HEADER, _load_rng, _save_rng, latest_ckpt, prune_old_states
     from .runs import SFT_STEPS, paths
     if layout != "exact":
         raise SystemExit("self-SFT is defined for the exact layout only")
@@ -192,3 +192,4 @@ def train_sft(name, data, layout, seed, rep_pen=1.0):
             torch.save({"optimizer": opt.state_dict(), "scheduler": sch.state_dict(), "rng": _save_rng(), "step": step},
                        d / "state.pt")
             (d / "COMPLETE").write_text(datetime.now().isoformat())
+            prune_old_states(ck, step)
