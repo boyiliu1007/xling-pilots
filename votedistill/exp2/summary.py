@@ -132,7 +132,7 @@ def build_summary():
                  f"{np.mean([r['pass_at_n'] for r in R]):8.3f} {np.mean([r['mean_acc'] for r in R]):6.3f} "
                  f"{np.mean([np.mean(r['truncated']) for r in R]):6.3f}   "
                  + " ".join(f"{_fmt(*_gain(base, R, k)):<22}" for k, _ in METRICS)
-                 + f"  rows {cfg.get('data', {}).get('rows', '?')}")
+                 + f"  rows {(cfg.get('data') if isinstance(cfg.get('data'), dict) else {}).get('rows', cfg.get('n_rows', '?'))}")
 
     T += ["", "## Selection-free: TEST at the final checkpoint (step 100)"]
     fres = {}
@@ -156,6 +156,23 @@ def build_summary():
                 if A is None or B is None:
                     continue
                 T.append(f"  {label:<46} {s:<4} " + "  ".join(f"{lab} {_fmt(*_gain(A, B, k))}" for k, lab in METRICS))
+
+    T += ["", "## Decoding x training: trained checkpoint (step 100) sampled with a base-model level's decoding",
+          "  (B - A on TEST; A = same checkpoint with default decoding, or the base model with the same decoding)"]
+    from .runs import DECODE
+    for d in sorted(DECODE.glob("*__*")) if DECODE.exists() else []:
+        R = read_jsonl(d / "eval" / "step100_test.jsonl") if (d / "eval" / "step100_test.jsonl").exists() else None
+        if R is None:
+            continue
+        run, level = d.name.rsplit("__", 1)
+        T.append(f"  {d.name:<52} maj@12 {np.mean([r['maj_correct'] for r in R]):.3f}  pass@12 "
+                 f"{np.mean([r['pass_at_n'] for r in R]):.3f}  mean {np.mean([r['mean_acc'] for r in R]):.3f}  trunc "
+                 f"{np.mean([np.mean(r['truncated']) for r in R]):.3f}")
+        lv = level_dir(level) / "eval" / "base_test.jsonl"
+        for lab, A in (("vs L0", base), ("vs same ckpt, default decoding", fres.get(run)),
+                       (f"vs base model + {level}", read_jsonl(lv) if lv.exists() else None)):
+            if A is not None:
+                T.append(f"    {lab:<44} " + "  ".join(f"{k2} {_fmt(*_gain(A, R, k))}" for k, k2 in METRICS))
 
     T += ["", "## Mechanism: does training stop the looping, or also make finished answers more accurate?",
           f"  {'run':<42} {'trunc':>6} {'loop':>6} {'acc|finished':>13} {'finished/item':>14} {'sw-lang':>8} "

@@ -62,6 +62,11 @@ def main():
     cs.add_argument("--report_only", action="store_true")
     cs.add_argument("--ckpt", nargs=2, metavar=("RUN", "STEP"), help="student = that run's checkpoint (new rollouts)")
     sub.add_parser("summary")
+    de = sub.add_parser("decode-eval", help="TEST-evaluate a trained run's checkpoint under a base-model level's "
+                        "decoding settings (e.g. repetition penalty); writes results/exp2/decode/<run>__<level>/")
+    de.add_argument("--name", required=True)
+    de.add_argument("--step", type=int, default=100)
+    de.add_argument("--level", required=True, choices=list(LEVELS))
     sub.add_parser("translate")
     sub.add_parser("trainsets")
     for c in ("train", "eval-run", "run-report"):
@@ -79,6 +84,10 @@ def main():
     if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report"):
         return run_commands(args)
 
+    if args.cmd == "decode-eval":
+        from .runs import decode_eval
+        print(decode_eval(args.name, args.step, args.level))
+        return
     if args.cmd == "clipstats":
         from .clipstats import ckpt_rollouts, clipstats, clipstats_report
         from .screen import screen_dir

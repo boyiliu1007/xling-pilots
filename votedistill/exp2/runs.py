@@ -202,6 +202,35 @@ def eval_run(name, split, max_steps=MAX_STEPS):
     return sel
 
 
+DECODE = EXP2_RESULTS / "decode"
+
+
+def decode_dir(name, level, step=100):
+    return DECODE / f"{name}__{level}" if step == 100 else DECODE / f"{name}__step{step}__{level}"
+
+
+def decode_eval(name, step, level):
+    """TEST of run `name` at checkpoint `step`, sampled with base-model level `level`'s decoding overrides (prompt
+    style of the run). Separate directory, so the run's own (default-decoding) evaluations are never touched."""
+    import logging, os, platform
+    from ..copsd.config import EVAL
+    from ..copsd.evaluate import evaluate
+    from ..utils import setup_logging
+    from .levels import LEVELS
+    if "sampling" not in LEVELS[level]:
+        raise SystemExit(f"{level} has no decoding overrides")
+    _, ck = paths(name)
+    out = decode_dir(name, level, step)
+    out.mkdir(parents=True, exist_ok=True)
+    setup_logging(out / "logs" / "eval.log")
+    logging.getLogger("votedistill.exp2").info(f"decode-eval {name} step{step} {level} host {platform.node()} "
+                                               f"job {os.environ.get('SLURM_JOB_ID')}")
+    style = style_of(name)
+    cfg = dict(EVAL, **({"prompt_style": style} if style != "copsd" else {}), **LEVELS[level]["sampling"])
+    evaluate(out, [f"step{step}"], "test", cfg, ck)
+    return out
+
+
 def report_run(name):
     from ..copsd.report import build_report
     return build_report(paths(name)[0], SELECT_METRIC)

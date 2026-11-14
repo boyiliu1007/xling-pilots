@@ -32,6 +32,8 @@ LEVELS = {
     "L0-temp1.3": {"trains": False, "sampling": {"temperature": 1.3}, "teacher": "none; sampling temperature 1.3"},
     "L0-temp1.5": {"trains": False, "sampling": {"temperature": 1.5}, "teacher": "none; sampling temperature 1.5"},
     "L0-reppen1.1": {"trains": False, "sampling": {"repetition_penalty": 1.1}, "teacher": "none; repetition penalty 1.1"},
+    "L0-reppen1.05": {"trains": False, "sampling": {"repetition_penalty": 1.05}, "teacher": "none; repetition penalty 1.05"},
+    "L0-reppen1.2": {"trains": False, "sampling": {"repetition_penalty": 1.2}, "teacher": "none; repetition penalty 1.2"},
     "L0-reppen1.3": {"trains": False, "sampling": {"repetition_penalty": 1.3}, "teacher": "none; repetition penalty 1.3"},
     "L1": {"trains": True, "teacher": "Swahili question + English question",
            "include_problem_en": True, "include_reference_solution_en": False},

@@ -147,3 +147,15 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
      is an entropy regularizer, hot-self (and perhaps higher temperature) reaches COPSD's pass@12 gain over L0
      (+7 to +12 at step 100) without any teacher information. Primary comparison: step-100 TEST, each control - L0
      and each control - clipped COPSD L3-gold (contrasts in summary.py).
+- 2026-11-14 ~01:15, decoding x training follow-up. Post hoc: motivated by an observed result, L0-reppen1.1 (base
+  model, repetition penalty 1.1, no training) TEST pass@12 0.285 / mean_acc 0.081 / truncation 0.018, above every
+  COPSD run (best step-100 mean_acc 0.052). Also known at this point: L0-reppen1.3 and L0-temp1.3/1.5 DEV only,
+  L0-selftrans-sw TEST (pass@12 0.24, but answers mostly English), translation ability (EN->SW unusable), self-SFT s42.
+  1. Dose curve: base-model levels L0-reppen1.05, L0-reppen1.2 (with 1.1 and 1.3 already queued).
+  2. Does COPSD stack with the penalty? `exp2 decode-eval`: TEST at step 100 of L3-gold__copsd__exact and
+     L3-vote__copsd__exact (s42/s43) and L3-gold__copsd__official (s42/s43), sampled with repetition penalty 1.1.
+     Comparisons: vs the same checkpoint with default decoding, and vs the base model with penalty 1.1 (L0-reppen1.1).
+     The second is the one that matters: does training add anything once decoding already prevents loops?
+     No prediction committed (post hoc); reported descriptively, all runs listed, no selection.
+  Caveat for every repetition-penalty result: vLLM's penalty also counts prompt tokens, and 1.1 was chosen a priori
+  but the follow-up exists because it worked; the dose curve is the check against a lucky single setting.
