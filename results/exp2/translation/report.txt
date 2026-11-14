@@ -1,0 +1,13 @@
+Translation ability of Qwen3-1.7B (greedy, non-thinking); NLLB-200 3.3B as a yardstick
+
+## A. AfriMGSM questions (250, human references)
+  direction  system chrF++  numbers kept  loops  target lang  len ratio
+  en2sw      qwen      3.0         0.120  0.944        0.844      15.72
+  en2sw      nllb     60.8         0.740  0.000        1.000       1.10
+  sw2en      qwen     22.3         0.568  0.040        0.884       0.91
+  sw2en      nllb     67.6         0.696  0.000        1.000       0.91
+
+## B. the model's own English voted solutions -> Swahili (no reference) -> back to English
+  data         n  numbers kept  boxed kept  loops  cut off  Swahili  len ratio  round-trip chrF
+  gsm8k-mt   150         0.627       0.627  0.367    0.367    0.353       1.00             57.9
+  copsd      100         0.860       0.940  0.070    0.070    0.040       1.00             94.9

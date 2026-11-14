@@ -1,0 +1,45 @@
+COPSD run report: selfsft-vote__copsd__exact__s42
+generated 2026-11-14T00:43:05
+
+## Setup
+  eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True}
+  eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+  checkpoints: /data/user_data/jeffc2/votedistill_ckpt/exp2/selfsft-vote__copsd__exact__s42
+  sw-lang: share of samples whose function words are mostly Swahili (LaTeX removed)
+
+## Training
+  steps logged: 30; seconds/step mean 13.0 (min 11.8, max 17.4); total 0.11 h; peak torch alloc 9535 MiB; peak GPU used (incl. vLLM) 0 MiB
+  step  loss      grad_norm  mean_len  trunc  boxed
+     1  0.26201  0.2118      1136   0.00   1.00
+     2  0.32297  0.2498      1038   0.00   1.00
+     3  0.27024  0.2413       977   0.00   1.00
+     5  0.28081  0.1916      1066   0.00   1.00
+    10  0.28768  0.1826      1040   0.00   1.00
+    15  0.26905  0.1638      1123   0.00   1.00
+    20  0.28361  0.1732      1136   0.00   1.00
+    25  0.28344  0.1786       956   0.00   1.00
+    30  0.29470  0.1696       936   0.00   1.00
+
+## DEV (50 items; used only for checkpoint selection)
+  base     pass@n 8/50 = 0.160 [0.083, 0.285] maj@n 6/50 = 0.120 [0.056, 0.238] mean_acc 0.033  format 0.253  trunc 0.750  sw-lang 0.985
+  step10   pass@n 7/50 = 0.140 [0.070, 0.262] maj@n 4/50 = 0.080 [0.032, 0.188] mean_acc 0.033  format 0.203  trunc 0.808  sw-lang 0.980
+  step20   pass@n 7/50 = 0.140 [0.070, 0.262] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.037  format 0.192  trunc 0.812  sw-lang 0.978
+  step30   pass@n 4/50 = 0.080 [0.032, 0.188] maj@n 4/50 = 0.080 [0.032, 0.188] mean_acc 0.023  format 0.187  trunc 0.812  sw-lang 0.988
+  SELECTED by DEV maj@n (ties -> earlier step): step20
+
+## TEST (200 items): base vs selected checkpoint
+  base     pass@n 30/200 = 0.150 [0.107, 0.206] maj@n 18/200 = 0.090 [0.058, 0.138] mean_acc 0.028  format 0.233  trunc 0.772  sw-lang 0.983
+  step20   pass@n 28/200 = 0.140 [0.099, 0.195] maj@n 17/200 = 0.085 [0.054, 0.132] mean_acc 0.027  format 0.216  trunc 0.794  sw-lang 0.983
+  Δ (selected - base), paired bootstrap over items, 10,000 resamples:
+    pass@n    -1.00 pts  [-5.50, +3.50]
+    maj@n     -0.50 pts  [-4.00, +2.50]
+    mean_acc  -0.08 pts  [-0.83, +0.67]
+    format    -1.75 pts  [-3.79, +0.21]   (do gains track format?)
+  pass@n discordant items: gained 10, lost 12
+  base     accuracy among formatted samples: 67/560 = 0.120 [0.095, 0.149]  (composition-biased: the base formats mostly its short, easy samples)
+  step20   accuracy among formatted samples: 65/518 = 0.125 [0.100, 0.157]  (composition-biased: the base formats mostly its short, easy samples)
+
+## Other checkpoints on TEST (not used for selection)
+  step30   pass@n 29/200 = 0.145 [0.103, 0.200] maj@n 16/200 = 0.080 [0.050, 0.126] mean_acc 0.027  format 0.212  trunc 0.800  sw-lang 0.983
+
+  base pass@n on all 250 items (DEV+TEST): 15.2 (COPSD paper, Qwen3-1.7B Swahili, pass@12 at 4096 tokens: 14.8)
