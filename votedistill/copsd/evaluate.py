@@ -68,9 +68,10 @@ def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
     wait_for_gpu()
     rows = load_afrimgsm(lang)
     ids = load_split()[split]
-    tok = AutoTokenizer.from_pretrained(MODEL)
+    model = cfg.get("model", MODEL)   # base-model level may name a different (bigger) model; no LoRA then
+    tok = AutoTokenizer.from_pretrained(model)
     max_len = cfg["max_new_tokens"] + 2048
-    llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.85, enable_lora=True, max_lora_rank=64,
+    llm = LLM(model=model, dtype="bfloat16", gpu_memory_utilization=0.85, enable_lora=True, max_lora_rank=64,
               max_loras=1, max_cpu_loras=2, max_model_len=max_len, seed=SEED)
     prompts = [EM.build_qwen3_prompt(tok, rows[i]["question"], lang.upper(), enable_thinking=cfg["enable_thinking"]) for i in ids]
     log.info(f"eval {cfg}, max_model_len {max_len}; prompt example:\n{prompts[0]}")

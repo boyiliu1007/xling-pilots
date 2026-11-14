@@ -66,6 +66,15 @@ CONTRASTS = [
     ("decoding: temperature 1.5 - L0", None, "@L0-temp1.5"),
     ("decoding: repetition penalty 1.1 - L0", None, "@L0-reppen1.1"),
     ("decoding: repetition penalty 1.3 - L0", None, "@L0-reppen1.3"),
+    ("decoding: repetition penalty 1.05 - L0", None, "@L0-reppen1.05"),
+    ("decoding: repetition penalty 1.2 - L0", None, "@L0-reppen1.2"),
+    # bigger models of the same family (base, no training): is the Swahili looping specific to 1.7B?
+    ("model size: Qwen3-4B - Qwen3-1.7B", None, "@L0-qwen3-4b"),
+    ("model size: Qwen3-8B - Qwen3-1.7B", None, "@L0-qwen3-8b"),
+    ("Qwen3-4B: repetition penalty 1.1 - default", "@L0-qwen3-4b", "@L0-qwen3-4b-reppen1.1"),
+    ("Qwen3-8B: repetition penalty 1.1 - default", "@L0-qwen3-8b", "@L0-qwen3-8b-reppen1.1"),
+    ("Qwen3-1.7B + penalty 1.1 - Qwen3-4B", "@L0-qwen3-4b", "@L0-reppen1.1"),
+    ("Qwen3-1.7B + penalty 1.1 - Qwen3-8B", "@L0-qwen3-8b", "@L0-reppen1.1"),
 ]
 FINISH_BINS = ((0, 0), (1, 2), (3, 5), (6, 12))
 DEGEN_TTR = 0.3   # calibrated on L0 / gold runs: finished answers median 0.40-0.43, L1 word salad median 0.25

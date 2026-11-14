@@ -159,3 +159,9 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
      No prediction committed (post hoc); reported descriptively, all runs listed, no selection.
   Caveat for every repetition-penalty result: vLLM's penalty also counts prompt tokens, and 1.1 was chosen a priori
   but the follow-up exists because it worked; the dose curve is the check against a lucky single setting.
+- 2026-11-14 ~01:40, bigger models (requested by the user; no result of these runs known). Base models of the same
+  family, no training, same TEST/DEV items, prompt and sampling as L0 (n 12, T 1.0, 4096 tokens): Qwen3-4B and
+  Qwen3-8B at default decoding and with repetition penalty 1.1 (levels L0-qwen3-{4b,8b}[-reppen1.1]). Questions:
+  is the Swahili looping specific to 1.7B, does the penalty still help a bigger model, and how does Qwen3-1.7B
+  with the penalty compare with a 2.4x / 4.7x bigger model. Expectation (not a test): bigger models loop less and
+  gain less from the penalty. Descriptive; no checkpoint selection involved.
