@@ -16,3 +16,5 @@ results/exp2/screen/*/clipstats.npz
 results/exp2/screen/clip_*/rollouts.jsonl
 results/exp2/selfsft/gen_*.jsonl
 results/exp2/selfsft/.lock_*
+results/exp2/screen/*/mechanism.npz
+results/exp2/teachergen/*.jsonl

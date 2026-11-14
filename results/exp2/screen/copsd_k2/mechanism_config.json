@@ -1,0 +1,32 @@
+{
+  "contexts": [
+    "L1",
+    "L3-gold"
+  ],
+  "checkpoints": {
+    "clip": [
+      "L3-gold__copsd__exact__s42",
+      100
+    ],
+    "noclip": [
+      "L3-gold__copsd__exact__noclip__s42",
+      100
+    ],
+    "clip_L1": [
+      "L1__copsd__exact__s42",
+      100
+    ],
+    "noclip_L1": [
+      "L1__copsd__exact__noclip__s42",
+      100
+    ]
+  },
+  "rollouts": 500,
+  "samples": [
+    0
+  ],
+  "clip": 0.05,
+  "temperature": 1.1,
+  "loop_n": 8,
+  "doc": "Why does clipped distillation teach the student to stop, and why does faithful (unclipped) distillation make it\nworse? Token-level diagnostic on the base model's own training-prompt rollouts (screen copsd_k2).\n\nPer completion position t (sampled token y), with student s = base model on the Swahili prompt and teacher c = base\nmodel with a teacher context, both at the loss temperature T = 1.1:\n  loop      the 8-token window ending at t already occurred earlier in the rollout (y continues a verbatim repeat)\n  push(v)   change the loss asks for in the student's logit of token v (= minus the gradient wrt z_v, up to 1/T):\n            full:    p_c(v) - p_s(v)\n            clipped: p_c(v) * keep(v) - m * p_s(v),  keep(v) = [p_c(v) log(p_c(v)/p_s(v)) <= clip],  m = sum p_c * keep\n  evaluated for v = y (continuing the text, i.e. the loop when loop = 1), v = </think> and v = <|im_end|>.\nPositive push = raise that token. Reported as means by position type (loop / non-loop, thinking / after </think>).\nAlso, for trained student checkpoints (student prompt + LoRA), the realised change log p_ckpt(v) - log p_base(v) on the\nsame text, for the same tokens: what the clipped and unclipped runs actually learned.\n"
+}

@@ -1,0 +1,38 @@
+Mechanism diagnostic: copsd_k2, 500 rollouts, 934838 positions; loss T=1.1, clip 0.05. push = change the loss asks for in the student's logit (positive = raise).
+
+  share of positions: loop 0.834; thinking 0.957; student p(y) median 1.000 (loop 1.000, non-loop 0.991); student entropy mean loop 0.023, non-loop 0.659
+
+## teacher L1
+  positions                                   n  p_t(y)  p_s(y) | push y full      clip | p_t(</think>) push </think> full      clip | push <im_end> full      clip |     m
+  loop (verbatim repeat), thinking       753618   0.991   0.992 |    -0.00053  -0.00027 |       0.00000          -0.000000 +0.000000 |          +0.000000 +0.000000 | 0.996
+  non-loop, thinking                     140673   0.725   0.750 |    -0.01046  -0.00712 |       0.00000          -0.000000 -0.000000 |          -0.000001 -0.000000 | 0.924
+  after </think>                          40547   0.928   0.937 |    -0.00447  -0.00166 |       0.00219          -0.000045 -0.000007 |          -0.000074 +0.000003 | 0.969
+  entropy (T=1): loop (verbatim repeat): student 0.022 teacher 0.024; non-loop: student 0.694 teacher 0.718; after </think>: student 0.150 teacher 0.159
+  totals over positions (sum of pushes): loop (verbatim repeat): y -396.2/-203.3, </think> -0.00/+0.00; non-loop: y -1471.2/-1001.2, </think> -0.00/-0.00; after </think>: y -181.1/-67.2, </think> -1.83/-0.29   (full/clip)
+
+## teacher L3-gold
+  positions                                   n  p_t(y)  p_s(y) | push y full      clip | p_t(</think>) push </think> full      clip | push <im_end> full      clip |     m
+  loop (verbatim repeat), thinking       753618   0.991   0.992 |    -0.00014  -0.00023 |       0.00000          -0.000000 -0.000000 |          -0.000000 -0.000000 | 0.991
+  non-loop, thinking                     140673   0.718   0.750 |    -0.01754  -0.01012 |       0.00000          -0.000000 -0.000000 |          -0.000000 +0.000000 | 0.853
+  after </think>                          40547   0.923   0.937 |    -0.00969  -0.00156 |       0.00216          -0.000074 -0.000010 |          -0.000115 -0.000020 | 0.933
+  entropy (T=1): loop (verbatim repeat): student 0.022 teacher 0.021; non-loop: student 0.694 teacher 0.705; after </think>: student 0.150 teacher 0.154
+  totals over positions (sum of pushes): loop (verbatim repeat): y -101.9/-175.4, </think> -0.00/-0.00; non-loop: y -2468.0/-1423.9, </think> -0.01/-0.00; after </think>: y -392.8/-63.2, </think> -3.02/-0.43   (full/clip)
+
+## what trained checkpoints learned: mean change in log p vs the base student on the same text
+  checkpoint       loop (verbatim repeat) y  </think>  <im_end>       non-loop, thinking y  </think>  <im_end>           after </think> y  </think>  <im_end>
+  clip                               -0.031    +4.600    +4.394                     -0.315    +4.276    +4.187                     -0.093    +4.390    +4.228
+  clip_L1                            -0.040    +5.071    +4.884                     -0.338    +4.236    +4.142                     -0.119    +4.575    +4.422
+  noclip                             -0.000    +2.187    +2.124                     -0.043    +2.622    +2.545                     -0.013    +3.393    +3.252
+  noclip_L1                          -0.000    +1.590    +1.575                     -0.013    +1.683    +1.641                     -0.006    +2.132    +2.075
+
+  confidence: Δ entropy (nats) and loop escape Δlog(1 - p(y)) (loop positions; > 0 = more likely to leave the loop)
+  clip           loop (verbatim repeat): Δent +0.085  non-loop, thinking: Δent +0.704  after </think>: Δent +0.220   loop escape +2.481 (median +2.251)
+  clip_L1        loop (verbatim repeat): Δent +0.106  non-loop, thinking: Δent +0.725  after </think>: Δent +0.250   loop escape +2.765 (median +2.565)
+  noclip         loop (verbatim repeat): Δent +0.001  non-loop, thinking: Δent +0.060  after </think>: Δent +0.027   loop escape +0.573 (median +0.123)
+  noclip_L1      loop (verbatim repeat): Δent +0.002  non-loop, thinking: Δent +0.043  after </think>: Δent +0.021   loop escape +0.422 (median +0.065)
+
+  by relative position (deciles), thinking positions only: mean Δlog p(</think>)
+  clip            +5.17  +5.74  +5.58  +5.17  +4.80  +4.30  +3.95  +3.67  +3.42  +3.40
+  clip_L1         +5.12  +6.11  +6.08  +5.70  +5.31  +4.76  +4.38  +4.08  +3.81  +3.77
+  noclip          +2.36  +2.11  +2.12  +2.20  +2.30  +2.27  +2.30  +2.31  +2.30  +2.29
+  noclip_L1       +1.56  +1.56  +1.57  +1.63  +1.68  +1.61  +1.62  +1.61  +1.58  +1.63

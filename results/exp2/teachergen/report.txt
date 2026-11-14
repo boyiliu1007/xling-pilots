@@ -1,0 +1,13 @@
+Teacher generation: base model sampled from each context's prompt; 100 COPSD training problems x 4 samples; correct = math-verify vs gold Answer
+
+## budget train: {'temperature': 1.1, 'top_p': 0.95, 'top_k': 20, 'max_tokens': 2048}
+  context               acc  pass@4  finished  closed   loop  acc|fin    sw    en  median chars
+  L0-same             0.025   0.070     0.165   0.170  0.905    0.152  0.98  0.02          4578
+  L1                  0.018   0.050     0.070   0.087  0.930    0.250  0.96  0.04          4682
+  L2-gold             0.098   0.270     0.113   0.155  0.935    0.844  0.97  0.02          4708
+  L3-gold             0.318   0.730     0.357   0.390  0.765    0.867  0.95  0.05          4554
+  L3-shuffled-gold    0.043   0.160     0.240   0.275  0.873    0.177  0.94  0.06          4644
+
+## budget eval: {'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_tokens': 4096}
+  context               acc  pass@4  finished  closed   loop  acc|fin    sw    en  median chars
+
