@@ -252,14 +252,24 @@ def decode_eval(name, step, level):
 def eval_final(name, decode_level="L0-reppen1.1"):
     """Selection-free evaluation (Qwen3-4B runs and the penalty-rollout runs; PREREGISTRATION 2026-11-14): TEST of the
     final checkpoint only, with default decoding and with `decode_level`'s decoding. No DEV sweep."""
+    # Each evaluation in its own process: a vLLM engine is not released within a process, so a second one would wait
+    # for the GPU forever (copsd/gpu.wait_for_gpu sees the first engine as another process).
+    import subprocess, sys
+    copy_base(name)
+    step = final_step(name)
+    exp2 = [sys.executable, "-m", "votedistill.exp2"]
+    subprocess.run(exp2 + ["eval-run-final", "--name", name], check=True)
+    subprocess.run(exp2 + ["decode-eval", "--name", name, "--step", str(step), "--level", decode_level], check=True)
+    return decode_dir(name, decode_level)
+
+
+def eval_run_final(name):
+    """TEST of the final checkpoint with default decoding (one vLLM engine; called by eval_final in a subprocess)."""
     from ..copsd.config import EVAL
     from ..copsd.evaluate import evaluate
     rd, ck = paths(name)
     style = style_of(name)
-    copy_base(name)
-    step = final_step(name)
-    evaluate(rd, [f"step{step}"], "test", dict(EVAL, **({"prompt_style": style} if style != "copsd" else {})), ck)
-    return decode_eval(name, step, decode_level)
+    evaluate(rd, [f"step{final_step(name)}"], "test", dict(EVAL, **({"prompt_style": style} if style != "copsd" else {})), ck)
 
 
 def report_run(name):
