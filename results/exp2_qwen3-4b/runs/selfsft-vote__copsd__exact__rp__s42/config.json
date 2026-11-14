@@ -1,0 +1,29 @@
+{
+  "model": "Qwen/Qwen3-4B",
+  "method": "vote-filtered self-SFT (selfsft.py)",
+  "doc": "Vote-filtered self-SFT: a deliberate, label-free alternative to the clipped COPSD stage 1 (arm D).\n\nData (generated once, shared by all seeds): for every vote-accepted training question of the dataset (trainsets.py,\nL3-vote rows), the base model samples GEN_N answers to the *student's* Swahili prompt with the COPSD training sampling\n(T 1.1, top-p 0.95, top-k 20, 2048 tokens). An answer is kept when it finished, has a final answer after </think>,\nand that answer is equivalent to the English majority vote (no gold). At most PER_Q answers per question are kept.\n\nTraining: the COPSD student LoRA, optimizer, LR schedule (100-step horizon), gradient clip, batch (32 = 4 x 8) and\ntoken-normalised loss of the COPSD trainer, with the distillation loss replaced by next-token NLL on the kept answers.\nSFT_STEPS optimizer steps; checkpoints every 10 in the trainer's format, so a stage-2 run can continue from step 30\nexactly like from a clipped COPSD stage 1 (runs.INITS[\"s1sft30\"]).\n",
+  "examples": 308,
+  "questions": 181,
+  "data": "/home/jeffc2/ANLP_final/xling-pilots/results/exp2_qwen3-4b/selfsft/gen_copsd_rp1.1.jsonl",
+  "generation_repetition_penalty": 1.1,
+  "steps": 30,
+  "seed": 42,
+  "layout": "exact",
+  "official_optimizer": {
+    "learning_rate": 5e-06,
+    "max_grad_norm": 0.1,
+    "lora_r": 64,
+    "lora_alpha": 128,
+    "max_steps": 100
+  },
+  "batch": "4 x 8",
+  "versions": {
+    "python": "3.11.16",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  }
+}

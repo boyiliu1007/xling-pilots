@@ -1,4 +1,4 @@
-Experiment 2 summary, generated 2026-11-14T06:14:47
+Experiment 2 summary, generated 2026-11-14T17:37:13
 TEST 200 items; checkpoint selected by DEV maj@12 among steps 10..100; gains in points with 95% paired-bootstrap CI
 
 run                                            sel  maj@12  pass@12   mean  trunc   Δmaj@12 vs L0          Δpass@12 vs L0         Δmean_acc vs L0       
@@ -15,6 +15,8 @@ L1__copsd__exact__enthink__s42              step90   0.110    0.235  0.062  0.33
 L1__copsd__exact__enthink__s43              step10   0.120    0.245  0.074  0.100    +3.0 [ -1.5,  +7.5]    +9.5 [ +3.5, +15.5]    +4.6 [ +2.8,  +6.6]    rows 500
 L1__copsd__exact__noclip__s42               step60   0.085    0.100  0.012  0.915    -0.5 [ -5.0,  +4.0]    -5.0 [ -9.0,  -1.0]    -1.6 [ -2.5,  -0.8]    rows 500
 L1__copsd__exact__noclip__s43               step10   0.075    0.115  0.023  0.826    -1.5 [ -5.5,  +2.5]    -3.5 [ -8.0,  +0.5]    -0.5 [ -1.2,  +0.2]    rows 500
+L1__copsd__exact__rp__s42                        -   (no TEST yet)
+L1__copsd__exact__rp__s43                        -   (no TEST yet)
 L1__copsd__exact__s1vote30-noclip__s42      step90   0.075    0.110  0.021  0.804    -1.5 [ -5.5,  +2.0]    -4.0 [ -9.0,  +0.5]    -0.7 [ -1.5,  +0.0]    rows 500
 L1__copsd__exact__s1vote30-noclip__s43      step30   0.095    0.265  0.062  0.048    +0.5 [ -3.5,  +4.5]   +11.5 [ +6.0, +17.0]    +3.4 [ +1.9,  +5.0]    rows 500
 L1__copsd__exact__s42                       step50   0.105    0.300  0.067  0.244    +1.5 [ -2.5,  +5.5]   +15.0 [ +8.5, +21.5]    +3.9 [ +2.3,  +5.5]    rows 500
@@ -47,6 +49,10 @@ L3-vote__copsd__exact__enthink__s42         step10   0.095    0.290  0.077  0.08
 L3-vote__copsd__exact__enthink__s43         step20   0.080    0.220  0.058  0.031    -1.0 [ -5.0,  +3.0]    +7.0 [ +1.5, +12.5]    +3.0 [ +1.5,  +4.6]    rows 442
 L3-vote__copsd__exact__noclip__s42          step30   0.060    0.105  0.014  0.811    -3.0 [ -7.0,  +0.5]    -4.5 [ -9.5,  +0.5]    -1.4 [ -2.3,  -0.5]    rows 442
 L3-vote__copsd__exact__noclip__s43          step10   0.075    0.105  0.025  0.743    -1.5 [ -5.5,  +2.5]    -4.5 [ -9.0,  +0.0]    -0.3 [ -1.1,  +0.5]    rows 442
+L3-vote__copsd__exact__rp-noclip__s42            -   (no TEST yet)
+L3-vote__copsd__exact__rp-noclip__s43            -   (no TEST yet)
+L3-vote__copsd__exact__rp__s42                   -   (no TEST yet)
+L3-vote__copsd__exact__rp__s43                   -   (no TEST yet)
 L3-vote__copsd__exact__s1vote30-noclip__s42 step100   0.050    0.125  0.015  0.757    -4.0 [ -8.5,  +0.0]    -2.5 [ -7.5,  +2.5]    -1.2 [ -2.2,  -0.3]    rows 442
 L3-vote__copsd__exact__s1vote30-noclip__s43  step90   0.080    0.140  0.020  0.720    -1.0 [ -5.0,  +3.0]    -1.0 [ -6.5,  +4.0]    -0.8 [ -1.7,  +0.0]    rows 442
 L3-vote__copsd__exact__s42                  step30   0.075    0.285  0.061  0.065    -1.5 [ -5.0,  +1.5]   +13.5 [ +7.5, +19.5]    +3.3 [ +1.9,  +4.8]    rows 442
@@ -55,6 +61,8 @@ L3-vote__gsm8k-mt__exact__s42               step20   0.080    0.245  0.053  0.24
 L3-vote__gsm8k-mt__exact__s43               step10   0.085    0.165  0.035  0.622    -0.5 [ -4.0,  +3.0]    +1.5 [ -3.0,  +6.0]    +0.8 [ -0.2,  +1.7]    rows 442
 L3-vote__mix__exact__s42                    step10   0.130    0.175  0.042  0.613    +4.0 [ +0.5,  +7.5]    +2.5 [ -1.5,  +6.5]    +1.4 [ +0.5,  +2.3]    rows 442
 L3-vote__mix__exact__s43                    step70   0.065    0.205  0.040  0.177    -2.5 [ -6.0,  +1.0]    +5.5 [ -0.5, +11.5]    +1.2 [ -0.1,  +2.4]    rows 442
+selfsft-vote__copsd__exact__rp__s42              -   (no TEST yet)
+selfsft-vote__copsd__exact__rp__s43              -   (no TEST yet)
 selfsft-vote__copsd__exact__s42             step20   0.085    0.140  0.027  0.794    -0.5 [ -4.0,  +2.5]    -1.0 [ -5.5,  +3.5]    -0.1 [ -0.8,  +0.7]    rows ?
 selfsft-vote__copsd__exact__s43             step10   0.090    0.150  0.032  0.791    +0.0 [ -3.5,  +3.5]    +0.0 [ -4.5,  +4.5]    +0.4 [ -0.4,  +1.2]    rows ?
 
@@ -71,6 +79,8 @@ L1__copsd__exact__enthink__s42             step100   0.120    0.250  0.065  0.34
 L1__copsd__exact__enthink__s43             step100   0.110    0.275  0.065  0.363    +2.0 [ -2.5,  +6.5]   +12.5 [ +6.5, +18.5]    +3.8 [ +2.2,  +5.4]  
 L1__copsd__exact__noclip__s42              step100   0.050    0.080  0.010  0.903    -4.0 [ -8.0,  +0.0]    -7.0 [-12.0,  -2.0]    -1.8 [ -2.8,  -0.8]  
 L1__copsd__exact__noclip__s43              step100   0.055    0.090  0.010  0.906    -3.5 [ -7.0,  -0.5]    -6.0 [-10.0,  -2.0]    -1.8 [ -2.7,  -1.0]  
+L1__copsd__exact__rp__s42                  step100   0.070    0.220  0.036  0.322    -2.0 [ -6.0,  +2.0]    +7.0 [ +1.5, +12.5]    +0.8 [ -0.3,  +2.0]  
+L1__copsd__exact__rp__s43                  step100   0.100    0.230  0.038  0.321    +1.0 [ -3.0,  +5.0]    +8.0 [ +2.5, +14.0]    +1.0 [ -0.1,  +2.2]  
 L1__copsd__exact__s1vote30-noclip__s42     step100   0.055    0.100  0.018  0.826    -3.5 [ -7.0,  +0.0]    -5.0 [ -9.0,  -1.0]    -1.0 [ -1.6,  -0.3]  
 L1__copsd__exact__s1vote30-noclip__s43     step100   0.065    0.140  0.022  0.783    -2.5 [ -6.5,  +1.0]    -1.0 [ -6.0,  +3.5]    -0.6 [ -1.4,  +0.1]  
 L1__copsd__exact__s42                      step100   0.080    0.200  0.045  0.450    -1.0 [ -5.0,  +3.0]    +5.0 [ -0.5, +10.5]    +1.8 [ +0.4,  +3.2]  
@@ -103,6 +113,10 @@ L3-vote__copsd__exact__enthink__s42        step100   0.105    0.285  0.062  0.02
 L3-vote__copsd__exact__enthink__s43        step100   0.070    0.250  0.052  0.033    -2.0 [ -6.5,  +2.5]   +10.0 [ +4.0, +16.0]    +2.4 [ +1.0,  +3.8]  
 L3-vote__copsd__exact__noclip__s42         step100   0.055    0.100  0.013  0.756    -3.5 [ -8.0,  +1.0]    -5.0 [-10.5,  +0.5]    -1.5 [ -2.6,  -0.6]  
 L3-vote__copsd__exact__noclip__s43         step100   0.050    0.105  0.013  0.744    -4.0 [ -8.0,  -0.5]    -4.5 [ -9.5,  +0.5]    -1.5 [ -2.5,  -0.6]  
+L3-vote__copsd__exact__rp-noclip__s42      step100   0.025    0.060  0.007  0.829    -6.5 [-10.5,  -2.5]    -9.0 [-14.0,  -4.0]    -2.1 [ -3.2,  -1.2]  
+L3-vote__copsd__exact__rp-noclip__s43      step100   0.040    0.080  0.010  0.843    -5.0 [ -9.0,  -1.0]    -7.0 [-12.5,  -1.5]    -1.8 [ -2.8,  -0.8]  
+L3-vote__copsd__exact__rp__s42             step100   0.065    0.195  0.026  0.151    -2.5 [ -7.0,  +2.0]    +4.5 [ -1.5, +10.5]    -0.2 [ -1.2,  +0.9]  
+L3-vote__copsd__exact__rp__s43             step100   0.055    0.165  0.024  0.192    -3.5 [ -7.5,  +0.5]    +1.5 [ -4.5,  +7.5]    -0.4 [ -1.4,  +0.6]  
 L3-vote__copsd__exact__s1vote30-noclip__s42 step100   0.050    0.125  0.015  0.757    -4.0 [ -8.5,  +0.0]    -2.5 [ -7.5,  +2.5]    -1.2 [ -2.2,  -0.3]  
 L3-vote__copsd__exact__s1vote30-noclip__s43 step100   0.060    0.095  0.014  0.757    -3.0 [ -7.5,  +1.0]    -5.5 [-10.5,  -1.0]    -1.4 [ -2.3,  -0.5]  
 L3-vote__copsd__exact__s42                 step100   0.065    0.210  0.037  0.183    -2.5 [ -7.0,  +2.0]    +6.0 [ +0.0, +12.0]    +0.9 [ -0.4,  +2.2]  
@@ -111,6 +125,8 @@ L3-vote__gsm8k-mt__exact__s42              step100   0.060    0.220  0.034  0.27
 L3-vote__gsm8k-mt__exact__s43              step100   0.070    0.205  0.030  0.258    -2.0 [ -6.5,  +2.5]    +5.5 [ -1.0, +12.0]    +0.2 [ -0.9,  +1.4]  
 L3-vote__mix__exact__s42                   step100   0.070    0.190  0.031  0.222    -2.0 [ -6.0,  +2.0]    +4.0 [ -2.0, +10.0]    +0.3 [ -0.8,  +1.3]  
 L3-vote__mix__exact__s43                   step100   0.075    0.205  0.035  0.242    -1.5 [ -6.0,  +3.0]    +5.5 [ -0.5, +11.5]    +0.8 [ -0.6,  +2.0]  
+selfsft-vote__copsd__exact__rp__s42        step100   0.105    0.235  0.061  0.293    +1.5 [ -2.0,  +5.0]    +8.5 [ +3.0, +14.0]    +3.3 [ +1.9,  +4.8]  
+selfsft-vote__copsd__exact__rp__s43        step100   0.110    0.235  0.060  0.295    +2.0 [ -1.5,  +5.5]    +8.5 [ +3.0, +14.0]    +3.2 [ +1.8,  +4.7]  
 selfsft-vote__copsd__exact__s42            step100   0.080    0.145  0.027  0.800    -1.0 [ -4.0,  +2.0]    -0.5 [ -5.0,  +3.5]    -0.1 [ -0.7,  +0.5]  
 selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.790    -0.5 [ -4.0,  +3.0]    -1.5 [ -6.0,  +3.0]    +0.1 [ -0.9,  +1.1]  
 
@@ -208,6 +224,10 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   loop unlikelihood - base+penalty1.1            s43  maj@12  -1.0 [ -5.5,  +3.5]  pass@12  +1.0 [ -5.5,  +7.5]  mean_acc  -3.0 [ -5.1,  -1.2]
   enthink COPSD (L3-vote) - base+penalty1.1      s42  maj@12  -1.0 [ -5.0,  +3.0]  pass@12  +0.5 [ -5.0,  +6.5]  mean_acc  -0.4 [ -2.1,  +1.3]
   enthink COPSD (L3-vote) - base+penalty1.1      s43  maj@12  -2.5 [ -6.5,  +1.5]  pass@12  -6.5 [-13.0,  -0.5]  mean_acc  -2.3 [ -3.9,  -0.8]
+  COPSD L3-vote - base+penalty1.1                s42  maj@12  -3.0 [ -6.0,  +0.0]  pass@12  +0.0 [ -5.5,  +5.5]  mean_acc  -2.0 [ -3.4,  -0.8]
+  COPSD L3-vote - base+penalty1.1                s43  maj@12  +1.5 [ -1.5,  +5.0]  pass@12 -10.5 [-15.5,  -5.5]  mean_acc  -3.5 [ -5.1,  -2.1]
+  COPSD L1 - base+penalty1.1                     s42  maj@12  +0.0 [ -3.5,  +3.5]  pass@12  +1.5 [ -4.0,  +7.5]  mean_acc  -1.4 [ -3.0,  +0.1]
+  COPSD L1 - base+penalty1.1                     s43  maj@12  -2.0 [ -5.0,  +1.0]  pass@12  +2.0 [ -4.0,  +7.5]  mean_acc  -1.5 [ -2.7,  -0.3]
   decoding: temperature 1.3 - L0                 s42  maj@12  +3.5 [ -0.5,  +7.5]  pass@12 +12.0 [ +6.5, +17.5]  mean_acc  +4.5 [ +2.9,  +6.1]
   decoding: temperature 1.3 - L0                 s43  maj@12  +3.5 [ -0.5,  +7.5]  pass@12 +12.0 [ +6.5, +17.5]  mean_acc  +4.5 [ +2.9,  +6.1]
   decoding: temperature 1.5 - L0                 s42  maj@12  -1.5 [ -5.5,  +2.5]  pass@12  +0.5 [ -5.0,  +5.5]  mean_acc  -0.3 [ -1.3,  +0.7]
@@ -325,6 +345,28 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   loop unlikelihood - base+penalty1.1            s43  maj@12  -4.0 [ -8.0,  +0.0]  pass@12  -5.5 [-12.5,  +1.0]  mean_acc  -4.3 [ -6.4,  -2.5]
   enthink COPSD (L3-vote) - base+penalty1.1      s42  maj@12  +0.0 [ -5.0,  +5.0]  pass@12  +0.0 [ -7.0,  +6.5]  mean_acc  -1.8 [ -3.9,  +0.1]
   enthink COPSD (L3-vote) - base+penalty1.1      s43  maj@12  -3.5 [ -8.0,  +1.0]  pass@12  -3.5 [-10.0,  +3.0]  mean_acc  -2.9 [ -4.9,  -1.1]
+  rp: L3-vote - base+penalty1.1                  s42  maj@12  -4.0 [ -8.5,  +0.5]  pass@12  -9.0 [-16.0,  -2.5]  mean_acc  -5.5 [ -7.8,  -3.3]
+  rp: L3-vote - base+penalty1.1                  s43  maj@12  -5.0 [ -9.0,  -1.5]  pass@12 -12.0 [-19.0,  -5.5]  mean_acc  -5.7 [ -8.0,  -3.6]
+  rp: L3-vote - L1 (transfer, coherent rollouts) s42  maj@12  -0.5 [ -4.5,  +3.5]  pass@12  -2.5 [ -9.0,  +4.0]  mean_acc  -1.0 [ -2.1,  +0.0]
+  rp: L3-vote - L1 (transfer, coherent rollouts) s43  maj@12  -4.5 [ -9.0,  -0.5]  pass@12  -6.5 [-13.0,  +0.0]  mean_acc  -1.4 [ -2.4,  -0.5]
+  rp: no clip - clip (L3-vote)                   s42  maj@12  -4.0 [ -7.5,  -1.0]  pass@12 -13.5 [-19.0,  -8.0]  mean_acc  -2.0 [ -2.8,  -1.2]
+  rp: no clip - clip (L3-vote)                   s43  maj@12  -1.5 [ -4.5,  +1.5]  pass@12  -8.5 [-14.0,  -3.0]  mean_acc  -1.4 [ -2.2,  -0.6]
+  rp vs default rollouts (L3-vote)               s42  maj@12  +0.0 [ -4.0,  +4.0]  pass@12  -1.5 [ -7.0,  +4.0]  mean_acc  -1.0 [ -2.0,  -0.1]
+  rp vs default rollouts (L3-vote)               s43  maj@12  +0.0 [ -3.0,  +3.0]  pass@12  -4.0 [-10.0,  +2.0]  mean_acc  -1.5 [ -2.5,  -0.5]
+  rp vs default rollouts (L1)                    s42  maj@12  -1.0 [ -4.5,  +2.5]  pass@12  +2.0 [ -3.5,  +8.0]  mean_acc  -0.9 [ -2.0,  +0.1]
+  rp vs default rollouts (L1)                    s43  maj@12  +3.0 [ -0.5,  +6.5]  pass@12  +2.0 [ -4.5,  +8.5]  mean_acc  -0.6 [ -1.9,  +0.5]
+  rp: L1 - base+penalty1.1                       s42  maj@12  -3.5 [ -7.0,  +0.0]  pass@12  -6.5 [-12.5,  -0.5]  mean_acc  -4.5 [ -6.4,  -2.7]
+  rp: L1 - base+penalty1.1                       s43  maj@12  -0.5 [ -4.5,  +3.5]  pass@12  -5.5 [-12.0,  +1.0]  mean_acc  -4.2 [ -6.3,  -2.4]
+  rp: L3-vote no clip - base+penalty1.1          s42  maj@12  -8.0 [-12.0,  -4.0]  pass@12 -22.5 [-28.5, -16.5]  mean_acc  -7.4 [-10.0,  -5.1]
+  rp: L3-vote no clip - base+penalty1.1          s43  maj@12  -6.5 [-11.0,  -2.5]  pass@12 -20.5 [-27.0, -14.5]  mean_acc  -7.0 [ -9.5,  -4.8]
+  penalty-decoded self-SFT - base+penalty1.1     s42  maj@12  +0.0 [ -3.0,  +3.0]  pass@12  -5.0 [-11.0,  +1.0]  mean_acc  -2.0 [ -3.4,  -0.7]
+  penalty-decoded self-SFT - base+penalty1.1     s43  maj@12  +0.5 [ -2.5,  +4.0]  pass@12  -5.0 [-10.0,  +0.0]  mean_acc  -2.1 [ -3.4,  -1.0]
+  penalty-decoded self-SFT - rp COPSD (L3-vote)  s42  maj@12  +4.0 [ +0.0,  +8.5]  pass@12  +4.0 [ -3.5, +11.5]  mean_acc  +3.5 [ +1.8,  +5.4]
+  penalty-decoded self-SFT - rp COPSD (L3-vote)  s43  maj@12  +5.5 [ +1.5,  +9.5]  pass@12  +7.0 [ +0.5, +13.5]  mean_acc  +3.5 [ +2.0,  +5.2]
+  COPSD L3-vote - base+penalty1.1                s42  maj@12  -4.0 [ -8.0,  -0.5]  pass@12  -7.5 [-14.0,  -1.0]  mean_acc  -4.4 [ -6.5,  -2.6]
+  COPSD L3-vote - base+penalty1.1                s43  maj@12  -5.0 [ -8.5,  -1.5]  pass@12  -8.0 [-14.0,  -2.5]  mean_acc  -4.2 [ -5.9,  -2.7]
+  COPSD L1 - base+penalty1.1                     s42  maj@12  -2.5 [ -6.0,  +1.0]  pass@12  -8.5 [-15.0,  -2.0]  mean_acc  -3.5 [ -5.4,  -1.9]
+  COPSD L1 - base+penalty1.1                     s43  maj@12  -3.5 [ -7.0,  +0.0]  pass@12  -7.5 [-14.0,  -1.0]  mean_acc  -3.6 [ -5.5,  -2.0]
   decoding: temperature 1.3 - L0                 s42  maj@12  +3.5 [ -0.5,  +7.5]  pass@12 +12.0 [ +6.5, +17.5]  mean_acc  +4.5 [ +2.9,  +6.1]
   decoding: temperature 1.3 - L0                 s43  maj@12  +3.5 [ -0.5,  +7.5]  pass@12 +12.0 [ +6.5, +17.5]  mean_acc  +4.5 [ +2.9,  +6.1]
   decoding: temperature 1.5 - L0                 s42  maj@12  -1.5 [ -5.5,  +2.5]  pass@12  +0.5 [ -5.0,  +5.5]  mean_acc  -0.3 [ -1.3,  +0.7]
@@ -352,30 +394,86 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
 
 ## Decoding x training: trained checkpoint (step 100) sampled with a base-model level's decoding
   (B - A on TEST; A = same checkpoint with default decoding, or the base model with the same decoding)
-  L3-gold__copsd__exact__s42__L0-reppen1.1             maj@12 0.095  pass@12 0.270  mean 0.038  trunc 0.035
+  L0-same__copsd__exact__hot1.5__s42__L0-reppen1.1 step100     maj@12 0.080  pass@12 0.245  mean 0.045  trunc 0.078  sw-lang 0.326
+    vs L0                                        maj@12  -1.0 [ -5.5,  +3.5]  pass@12  +9.5 [ +3.5, +15.5]  mean_acc  +1.8 [ +0.5,  +3.0]
+    vs same ckpt, default decoding               maj@12  -2.5 [ -7.0,  +2.0]  pass@12  +0.5 [ -5.5,  +6.5]  mean_acc  -1.6 [ -3.0,  -0.4]
+    vs base model + L0-reppen1.1                 maj@12  -2.5 [ -6.5,  +1.0]  pass@12  -4.0 [-10.0,  +2.0]  mean_acc  -3.5 [ -5.4,  -1.9]
+  L0-same__copsd__exact__hot1.5__s43__L0-reppen1.1 step100     maj@12 0.120  pass@12 0.260  mean 0.048  trunc 0.068  sw-lang 0.322
+    vs L0                                        maj@12  +3.0 [ -1.5,  +7.5]  pass@12 +11.0 [ +5.5, +16.5]  mean_acc  +2.0 [ +1.0,  +3.2]
+    vs same ckpt, default decoding               maj@12  +2.0 [ -1.5,  +5.5]  pass@12  -3.5 [-10.0,  +2.5]  mean_acc  -2.8 [ -4.5,  -1.3]
+    vs base model + L0-reppen1.1                 maj@12  +1.5 [ -2.5,  +5.5]  pass@12  -2.5 [ -8.5,  +3.5]  mean_acc  -3.2 [ -5.0,  -1.6]
+  L1__copsd__exact__rp__s42__L0-reppen1.1 step100              maj@12 0.080  pass@12 0.210  mean 0.030  trunc 0.228  sw-lang 0.230
+    vs L0                                        maj@12  -1.0 [ -5.0,  +3.0]  pass@12  +6.0 [ +0.0, +12.0]  mean_acc  +0.2 [ -0.8,  +1.3]
+    vs same ckpt, default decoding               maj@12  +1.0 [ -2.5,  +4.5]  pass@12  -1.0 [ -7.0,  +5.5]  mean_acc  -0.6 [ -1.7,  +0.5]
+    vs base model + L0-reppen1.1                 maj@12  -2.5 [ -7.0,  +1.5]  pass@12  -7.5 [-14.5,  -0.5]  mean_acc  -5.0 [ -7.2,  -3.0]
+  L1__copsd__exact__rp__s43__L0-reppen1.1 step100              maj@12 0.040  pass@12 0.160  mean 0.020  trunc 0.227  sw-lang 0.228
+    vs L0                                        maj@12  -5.0 [ -9.5,  -0.5]  pass@12  +1.0 [ -5.0,  +6.5]  mean_acc  -0.8 [ -1.9,  +0.3]
+    vs same ckpt, default decoding               maj@12  -6.0 [-10.5,  -2.0]  pass@12  -7.0 [-14.0,  +0.0]  mean_acc  -1.8 [ -3.0,  -0.8]
+    vs base model + L0-reppen1.1                 maj@12  -6.5 [-11.0,  -2.0]  pass@12 -12.5 [-19.5,  -5.5]  mean_acc  -6.1 [ -8.5,  -3.8]
+  L1__copsd__exact__s42__L0-reppen1.1 step100                  maj@12 0.105  pass@12 0.295  mean 0.065  trunc 0.184  sw-lang 0.338
+    vs L0                                        maj@12  +1.5 [ -2.5,  +5.5]  pass@12 +14.5 [ +8.0, +21.0]  mean_acc  +3.8 [ +2.2,  +5.4]
+    vs same ckpt, default decoding               maj@12  +2.5 [ -1.0,  +6.0]  pass@12  +9.5 [ +3.0, +16.0]  mean_acc  +2.0 [ +0.6,  +3.5]
+    vs base model + L0-reppen1.1                 maj@12  +0.0 [ -4.0,  +4.0]  pass@12  +1.0 [ -5.5,  +8.0]  mean_acc  -1.5 [ -3.5,  +0.2]
+  L1__copsd__exact__s43__L0-reppen1.1 step100                  maj@12 0.110  pass@12 0.270  mean 0.065  trunc 0.214  sw-lang 0.329
+    vs L0                                        maj@12  +2.0 [ -2.0,  +6.0]  pass@12 +12.0 [ +5.5, +18.5]  mean_acc  +3.8 [ +2.1,  +5.5]
+    vs same ckpt, default decoding               maj@12  +4.0 [ +0.0,  +8.5]  pass@12  +6.0 [ -0.5, +12.5]  mean_acc  +2.1 [ +0.8,  +3.4]
+    vs base model + L0-reppen1.1                 maj@12  +0.5 [ -3.0,  +4.0]  pass@12  -1.5 [ -8.0,  +4.5]  mean_acc  -1.5 [ -3.2,  +0.0]
+  L3-gold__copsd__exact__s42__L0-reppen1.1 step100             maj@12 0.095  pass@12 0.270  mean 0.038  trunc 0.035  sw-lang 0.809
     vs L0                                        maj@12  +0.5 [ -4.0,  +5.0]  pass@12 +12.0 [ +5.5, +18.5]  mean_acc  +1.0 [ -0.1,  +2.2]
     vs same ckpt, default decoding               maj@12  +1.5 [ -2.5,  +5.5]  pass@12  +4.5 [ -2.0, +10.5]  mean_acc  -0.6 [ -1.9,  +0.5]
     vs base model + L0-reppen1.1                 maj@12  -1.0 [ -5.0,  +3.0]  pass@12  -1.5 [ -8.0,  +5.0]  mean_acc  -4.2 [ -6.4,  -2.3]
-  L3-gold__copsd__exact__s43__L0-reppen1.1             maj@12 0.050  pass@12 0.210  mean 0.028  trunc 0.034
+  L3-gold__copsd__exact__s43__L0-reppen1.1 step100             maj@12 0.050  pass@12 0.210  mean 0.028  trunc 0.034  sw-lang 0.810
     vs L0                                        maj@12  -4.0 [ -8.5,  +0.0]  pass@12  +6.0 [ +1.0, +11.5]  mean_acc  +0.0 [ -0.9,  +1.0]
     vs same ckpt, default decoding               maj@12  -1.0 [ -4.0,  +2.0]  pass@12  -2.5 [ -9.0,  +3.5]  mean_acc  -1.1 [ -2.0,  -0.2]
     vs base model + L0-reppen1.1                 maj@12  -5.5 [ -9.5,  -1.5]  pass@12  -7.5 [-14.0,  -1.5]  mean_acc  -5.2 [ -7.5,  -3.3]
-  L3-gold__copsd__official__s42__L0-reppen1.1          maj@12 0.040  pass@12 0.170  mean 0.022  trunc 0.033
+  L3-gold__copsd__official__s42__L0-reppen1.1 step100          maj@12 0.040  pass@12 0.170  mean 0.022  trunc 0.033  sw-lang 0.778
     vs L0                                        maj@12  -5.0 [ -9.5,  -1.0]  pass@12  +2.0 [ -4.0,  +7.5]  mean_acc  -0.5 [ -1.6,  +0.5]
     vs same ckpt, default decoding               maj@12  -4.0 [ -8.5,  +0.5]  pass@12  -9.0 [-15.5,  -3.0]  mean_acc  -2.2 [ -3.6,  -0.9]
     vs base model + L0-reppen1.1                 maj@12  -6.5 [-11.0,  -2.0]  pass@12 -11.5 [-18.0,  -5.0]  mean_acc  -5.8 [ -8.2,  -3.7]
-  L3-gold__copsd__official__s43__L0-reppen1.1          maj@12 0.035  pass@12 0.170  mean 0.022  trunc 0.031
+  L3-gold__copsd__official__s43__L0-reppen1.1 step100          maj@12 0.035  pass@12 0.170  mean 0.022  trunc 0.031  sw-lang 0.783
     vs L0                                        maj@12  -5.5 [-10.0,  -1.5]  pass@12  +2.0 [ -3.5,  +7.5]  mean_acc  -0.6 [ -1.6,  +0.4]
     vs same ckpt, default decoding               maj@12  -4.0 [ -8.0,  -0.5]  pass@12 -10.0 [-16.5,  -3.5]  mean_acc  -2.3 [ -3.6,  -1.2]
     vs base model + L0-reppen1.1                 maj@12  -7.0 [-11.0,  -3.5]  pass@12 -11.5 [-18.5,  -5.0]  mean_acc  -5.9 [ -8.3,  -3.7]
-  L3-vote__copsd__exact__s42__L0-reppen1.1             maj@12 0.050  pass@12 0.205  mean 0.033  trunc 0.045
+  L3-vote__copsd__exact__noclip__s42__L0-reppen1.1 step100     maj@12 0.080  pass@12 0.225  mean 0.034  trunc 0.002  sw-lang 0.789
+    vs L0                                        maj@12  -1.0 [ -5.0,  +3.0]  pass@12  +7.5 [ +1.5, +14.0]  mean_acc  +0.6 [ -0.5,  +1.8]
+    vs same ckpt, default decoding               maj@12  +2.5 [ -1.0,  +6.0]  pass@12 +12.5 [ +6.5, +19.0]  mean_acc  +2.2 [ +1.2,  +3.2]
+    vs base model + L0-reppen1.1                 maj@12  -2.5 [ -6.0,  +0.5]  pass@12  -6.0 [-13.0,  +1.0]  mean_acc  -4.7 [ -7.0,  -2.6]
+  L3-vote__copsd__exact__noclip__s43__L0-reppen1.1 step100     maj@12 0.040  pass@12 0.205  mean 0.030  trunc 0.003  sw-lang 0.779
+    vs L0                                        maj@12  -5.0 [ -9.0,  -1.0]  pass@12  +5.5 [ -0.5, +12.0]  mean_acc  +0.2 [ -0.9,  +1.2]
+    vs same ckpt, default decoding               maj@12  -1.0 [ -4.0,  +2.0]  pass@12 +10.0 [ +5.0, +15.5]  mean_acc  +1.7 [ +0.9,  +2.5]
+    vs base model + L0-reppen1.1                 maj@12  -6.5 [-11.0,  -2.5]  pass@12  -8.0 [-14.5,  -1.5]  mean_acc  -5.1 [ -7.5,  -3.0]
+  L3-vote__copsd__exact__rp-noclip__s42__L0-reppen1.1 step100  maj@12 0.080  pass@12 0.210  mean 0.032  trunc 0.005  sw-lang 0.728
+    vs L0                                        maj@12  -1.0 [ -5.5,  +3.5]  pass@12  +6.0 [ -0.5, +12.0]  mean_acc  +0.4 [ -0.8,  +1.5]
+    vs same ckpt, default decoding               maj@12  +5.5 [ +2.5,  +9.0]  pass@12 +15.0 [+10.0, +20.5]  mean_acc  +2.5 [ +1.6,  +3.5]
+    vs base model + L0-reppen1.1                 maj@12  -2.5 [ -7.0,  +1.5]  pass@12  -7.5 [-14.5,  -0.5]  mean_acc  -4.9 [ -7.2,  -2.9]
+  L3-vote__copsd__exact__rp-noclip__s43__L0-reppen1.1 step100  maj@12 0.055  pass@12 0.200  mean 0.027  trunc 0.005  sw-lang 0.699
+    vs L0                                        maj@12  -3.5 [ -7.5,  +0.5]  pass@12  +5.0 [ -1.0, +11.0]  mean_acc  -0.1 [ -1.2,  +1.0]
+    vs same ckpt, default decoding               maj@12  +1.5 [ -1.5,  +5.0]  pass@12 +12.0 [ +6.5, +17.5]  mean_acc  +1.7 [ +0.8,  +2.6]
+    vs base model + L0-reppen1.1                 maj@12  -5.0 [ -9.0,  -1.0]  pass@12  -8.5 [-15.5,  -1.5]  mean_acc  -5.4 [ -7.6,  -3.3]
+  L3-vote__copsd__exact__rp__s42__L0-reppen1.1 step100         maj@12 0.050  pass@12 0.190  mean 0.020  trunc 0.163  sw-lang 0.590
+    vs L0                                        maj@12  -4.0 [ -8.0,  +0.0]  pass@12  +4.0 [ -2.0, +10.0]  mean_acc  -0.8 [ -1.9,  +0.2]
+    vs same ckpt, default decoding               maj@12  -1.5 [ -5.5,  +2.5]  pass@12  -0.5 [ -7.0,  +6.0]  mean_acc  -0.6 [ -1.6,  +0.3]
+    vs base model + L0-reppen1.1                 maj@12  -5.5 [-10.0,  -1.0]  pass@12  -9.5 [-16.5,  -2.5]  mean_acc  -6.1 [ -8.7,  -3.8]
+  L3-vote__copsd__exact__rp__s43__L0-reppen1.1 step100         maj@12 0.050  pass@12 0.195  mean 0.020  trunc 0.182  sw-lang 0.579
+    vs L0                                        maj@12  -4.0 [ -8.5,  +0.0]  pass@12  +4.5 [ -2.0, +11.0]  mean_acc  -0.8 [ -1.9,  +0.2]
+    vs same ckpt, default decoding               maj@12  -0.5 [ -4.5,  +3.5]  pass@12  +3.0 [ -3.5,  +9.0]  mean_acc  -0.4 [ -1.3,  +0.5]
+    vs base model + L0-reppen1.1                 maj@12  -5.5 [-10.0,  -1.0]  pass@12  -9.0 [-16.0,  -2.0]  mean_acc  -6.1 [ -8.7,  -3.8]
+  L3-vote__copsd__exact__s42__L0-reppen1.1 step100             maj@12 0.050  pass@12 0.205  mean 0.033  trunc 0.045  sw-lang 0.751
     vs L0                                        maj@12  -4.0 [ -8.0,  -0.5]  pass@12  +5.5 [ -0.5, +11.5]  mean_acc  +0.5 [ -0.5,  +1.5]
     vs same ckpt, default decoding               maj@12  -1.5 [ -5.0,  +1.5]  pass@12  -0.5 [ -7.0,  +6.0]  mean_acc  -0.4 [ -1.5,  +0.7]
     vs base model + L0-reppen1.1                 maj@12  -5.5 [ -9.5,  -2.0]  pass@12  -8.0 [-14.5,  -1.5]  mean_acc  -4.8 [ -6.8,  -3.0]
-  L3-vote__copsd__exact__s43__L0-reppen1.1             maj@12 0.060  pass@12 0.245  mean 0.032  trunc 0.046
+  L3-vote__copsd__exact__s43__L0-reppen1.1 step100             maj@12 0.060  pass@12 0.245  mean 0.032  trunc 0.046  sw-lang 0.743
     vs L0                                        maj@12  -3.0 [ -7.0,  +1.0]  pass@12  +9.5 [ +3.5, +15.5]  mean_acc  +0.4 [ -0.7,  +1.5]
     vs same ckpt, default decoding               maj@12  +0.5 [ -3.0,  +4.0]  pass@12  +4.0 [ -2.0, +10.0]  mean_acc  -0.7 [ -1.7,  +0.2]
     vs base model + L0-reppen1.1                 maj@12  -4.5 [ -8.5,  -0.5]  pass@12  -4.0 [-10.5,  +2.5]  mean_acc  -4.9 [ -7.2,  -2.9]
+  selfsft-vote__copsd__exact__rp__s42__L0-reppen1.1 step30     maj@12 0.105  pass@12 0.290  mean 0.081  trunc 0.013  sw-lang 0.805
+    vs L0                                        maj@12  +1.5 [ -2.5,  +5.5]  pass@12 +14.0 [ +8.0, +20.0]  mean_acc  +5.3 [ +3.5,  +7.2]
+    vs same ckpt, default decoding               maj@12  +0.0 [ -3.5,  +3.5]  pass@12  +5.5 [ +0.0, +11.0]  mean_acc  +2.0 [ +0.8,  +3.3]
+    vs base model + L0-reppen1.1                 maj@12  +0.0 [ -3.5,  +3.5]  pass@12  +0.5 [ -5.0,  +6.0]  mean_acc  -0.0 [ -1.1,  +1.1]
+  selfsft-vote__copsd__exact__rp__s43__L0-reppen1.1 step30     maj@12 0.110  pass@12 0.270  mean 0.078  trunc 0.011  sw-lang 0.818
+    vs L0                                        maj@12  +2.0 [ -1.5,  +5.5]  pass@12 +12.0 [ +6.0, +18.0]  mean_acc  +5.0 [ +3.2,  +7.0]
+    vs same ckpt, default decoding               maj@12  +0.0 [ -3.0,  +3.0]  pass@12  +3.5 [ -2.5,  +9.5]  mean_acc  +1.8 [ +0.6,  +3.1]
+    vs base model + L0-reppen1.1                 maj@12  +0.5 [ -2.5,  +4.0]  pass@12  -1.5 [ -7.0,  +4.5]  mean_acc  -0.3 [ -1.5,  +0.8]
 
 ## Mechanism: does training stop the looping, or also make finished answers more accurate?
   run                                         trunc   loop  acc|finished  finished/item  sw-lang    ttr  degen
@@ -447,6 +545,8 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   L1__copsd__exact__enthink__s43 (step100)    0.363  0.489         0.093           7.64    0.002  0.496  0.292
   L1__copsd__exact__noclip__s42 (step100)     0.903  0.934         0.103           1.16    0.985  0.063  0.900
   L1__copsd__exact__noclip__s43 (step100)     0.906  0.936         0.107           1.12    0.984  0.063  0.905
+  L1__copsd__exact__rp__s42 (step100)         0.322  0.108         0.049           8.14    0.857  0.455  0.162
+  L1__copsd__exact__rp__s43 (step100)         0.321  0.110         0.050           8.14    0.861  0.462  0.138
   L1__copsd__exact__s1vote30-noclip__s42 (step100)  0.826  0.885         0.103           2.09    0.993  0.081  0.825
   L1__copsd__exact__s1vote30-noclip__s43 (step100)  0.783  0.849         0.098           2.60    0.993  0.092  0.781
   L1__copsd__exact__s42 (step100)             0.450  0.078         0.080           6.60    0.917  0.361  0.352
@@ -479,6 +579,10 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   L3-vote__copsd__exact__enthink__s43 (step100)  0.033  0.054         0.053          11.60    0.005  0.530  0.019
   L3-vote__copsd__exact__noclip__s42 (step100)  0.756  0.848         0.049           2.93    0.993  0.104  0.755
   L3-vote__copsd__exact__noclip__s43 (step100)  0.744  0.848         0.050           3.07    0.993  0.106  0.744
+  L3-vote__copsd__exact__rp-noclip__s42 (step100)  0.829  0.916         0.037           2.05    0.991  0.075  0.828
+  L3-vote__copsd__exact__rp-noclip__s43 (step100)  0.843  0.917         0.066           1.89    0.988  0.078  0.842
+  L3-vote__copsd__exact__rp__s42 (step100)    0.151  0.077         0.031          10.19    0.977  0.422  0.128
+  L3-vote__copsd__exact__rp__s43 (step100)    0.192  0.092         0.029           9.70    0.974  0.399  0.165
   L3-vote__copsd__exact__s1vote30-noclip__s42 (step100)  0.757  0.838         0.062           2.92    0.997  0.106  0.755
   L3-vote__copsd__exact__s1vote30-noclip__s43 (step100)  0.757  0.826         0.055           2.91    0.995  0.106  0.755
   L3-vote__copsd__exact__s42 (step100)        0.183  0.094         0.045           9.80    0.981  0.340  0.179
@@ -487,6 +591,8 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   L3-vote__gsm8k-mt__exact__s43 (step100)     0.258  0.187         0.041           8.90    0.970  0.294  0.250
   L3-vote__mix__exact__s42 (step100)          0.222  0.151         0.040           9.34    0.980  0.305  0.217
   L3-vote__mix__exact__s43 (step100)          0.242  0.154         0.046           9.10    0.978  0.312  0.235
+  selfsft-vote__copsd__exact__rp__s42 (step100)  0.293  0.480         0.085           8.48    0.973  0.237  0.293
+  selfsft-vote__copsd__exact__rp__s43 (step100)  0.295  0.474         0.083           8.46    0.971  0.238  0.294
   selfsft-vote__copsd__exact__s42 (step100)   0.800  0.872         0.131           2.41    0.983  0.087  0.798
   selfsft-vote__copsd__exact__s43 (step100)   0.790  0.862         0.133           2.52    0.985  0.088  0.789
 
