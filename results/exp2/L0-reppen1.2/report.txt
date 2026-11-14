@@ -1,0 +1,18 @@
+Experiment 2 report: L0-reppen1.2
+generated 2026-11-14T01:18:40
+teacher context: none; repetition penalty 1.2
+eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True, 'repetition_penalty': 1.2}
+eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+environment: {'model': 'Qwen/Qwen3-1.7B', 'copsd_commit': '4f4410730e9b', 'versions': {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}, 'gpu': 'NVIDIA RTX A6000', 'git_commit': 'df7d728397fcff30b2e76a41135d73bf0e1962e1', 'git_dirty': False}
+
+## DEV (50 items)
+  base     pass@n 17/50 = 0.340 [0.224, 0.478] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.065  format 0.933  trunc 0.018  sw-lang 0.542
+  samples 600: truncated 0.018; formatted 0.933; finished without \boxed 0.057
+  repetitive (an 8-word window repeated >= 5 times): 0.013 of all samples, 0.091 of truncated ones
+  output length (characters): median 3268, p10 1137, p90 9641
+
+## TEST (200 items)
+  base     pass@n 51/200 = 0.255 [0.200, 0.320] maj@n 16/200 = 0.080 [0.050, 0.126] mean_acc 0.049  format 0.936  trunc 0.020  sw-lang 0.484
+  samples 2400: truncated 0.020; formatted 0.936; finished without \boxed 0.052
+  repetitive (an 8-word window repeated >= 5 times): 0.018 of all samples, 0.271 of truncated ones
+  output length (characters): median 3651, p10 1199, p90 10266

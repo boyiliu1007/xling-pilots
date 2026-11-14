@@ -1,0 +1,18 @@
+Experiment 2 report: L0-enthink-sw
+generated 2026-11-14T01:19:23
+teacher context: none; base model thinks in English, answers in Swahili
+eval sampling: {'val_n': 12, 'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_new_tokens': 4096, 'enable_thinking': True, 'prompt_style': 'en-think-sw'}
+eval protocol: COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers
+environment: {'model': 'Qwen/Qwen3-1.7B', 'copsd_commit': '4f4410730e9b', 'versions': {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}, 'gpu': 'NVIDIA RTX A6000', 'git_commit': '70de976ab1641e50d4441b06f9701866e0e5513a', 'git_dirty': False}
+
+## DEV (50 items)
+  base     pass@n 20/50 = 0.400 [0.276, 0.538] maj@n 5/50 = 0.100 [0.043, 0.214] mean_acc 0.078  format 0.905  trunc 0.112  sw-lang 0.018
+  samples 600: truncated 0.112; formatted 0.905; finished without \boxed 0.000
+  repetitive (an 8-word window repeated >= 5 times): 0.620 of all samples, 1.000 of truncated ones
+  output length (characters): median 5832, p10 1371, p90 12720
+
+## TEST (200 items)
+  base     pass@n 53/200 = 0.265 [0.209, 0.330] maj@n 21/200 = 0.105 [0.070, 0.155] mean_acc 0.075  format 0.885  trunc 0.129  sw-lang 0.013
+  samples 2400: truncated 0.129; formatted 0.885; finished without \boxed 0.001
+  repetitive (an 8-word window repeated >= 5 times): 0.636 of all samples, 0.994 of truncated ones
+  output length (characters): median 6076, p10 1509, p90 13015
