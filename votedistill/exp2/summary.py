@@ -62,6 +62,13 @@ CONTRASTS = [
     ("hot-self τ1.5 - L0", None, "L0-same__copsd__exact__hot1.5"),
     ("hot-self τ2.5 - L0", None, "L0-same__copsd__exact__hot2.5"),
     ("loop unlikelihood - L0", None, "L0-same__copsd__exact__ul"),
+    # the stronger, training-free baseline (post hoc, PREREGISTRATION 2026-11-14): base model + repetition penalty 1.1
+    ("COPSD (L3-gold) - base+penalty1.1", "@L0-reppen1.1", "L3-gold__copsd__exact"),
+    ("COPSD official (L3-gold) - base+penalty1.1", "@L0-reppen1.1", "L3-gold__copsd__official"),
+    ("hot-self τ1.5 - base+penalty1.1", "@L0-reppen1.1", "L0-same__copsd__exact__hot1.5"),
+    ("hot-self τ2.5 - base+penalty1.1", "@L0-reppen1.1", "L0-same__copsd__exact__hot2.5"),
+    ("loop unlikelihood - base+penalty1.1", "@L0-reppen1.1", "L0-same__copsd__exact__ul"),
+    ("enthink COPSD (L3-vote) - base+penalty1.1", "@L0-reppen1.1", "L3-vote__copsd__exact__enthink"),
     ("decoding: temperature 1.3 - L0", None, "@L0-temp1.3"),
     ("decoding: temperature 1.5 - L0", None, "@L0-temp1.5"),
     ("decoding: repetition penalty 1.1 - L0", None, "@L0-reppen1.1"),
