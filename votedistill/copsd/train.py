@@ -80,14 +80,14 @@ def unpad(ids, pad):
 
 def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
                        seed=SEED, layout="official", data_desc=None, reference_desc=None,
-                       clip=OFFICIAL["jsd_token_clip"]):
+                       clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None):
     write_json(run_dir / "config.json", {
         "model": MODEL, "language": lang, "official": OFFICIAL,
         "ours": {"gpus": 1, "micro_batch": MICRO_BS, "grad_accum": GA, "effective_batch": MICRO_BS * GA,
                  "train_steps": max_steps, "lr_schedule_horizon": OFFICIAL["max_steps"], "save_every": SAVE_EVERY,
                  "attn": "sdpa", "checkpoint_dir": str(ckpt_dir), "seed": seed,
                  "layout": {"name": layout, "description": LAYOUTS[layout]},
-                 "loss_token_clip": clip},
+                 "loss_token_clip": clip, "objective": objective, "teacher_temperature": teacher_temp},
         "data": data_desc or "COPSD released training set (500 rows)",
         "teacher_context": {"include_problem_en": include_problem_en, "reference_solution": (
             (reference_desc or "gold COPSD `solution`") if include_reference_solution_en else "none")},
@@ -96,8 +96,11 @@ def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, i
 
 def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_after=0, no_save=False,
           include_problem_en=True, include_reference_solution_en=True, seed=SEED, layout="official", rows=None,
-          data_desc=None, reference_desc=None, clip=OFFICIAL["jsd_token_clip"]):
-    """clip: the per-(token, vocab) loss clamp (official 0.05; None = no clip). rows: prepared training rows (copsd.collator.prepare_rows format, `solution` = the teacher's reference);
+          data_desc=None, reference_desc=None, clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None):
+    """objective: "copsd" (distillation from the teacher prompt; teacher_temp, if set, replaces the loss temperature
+    for the teacher's logits only, e.g. a hotter copy of the base model = an entropy-raising target), or
+    "unlikelihood" (no teacher: -log(1 - p_student(y)) at positions whose token continues a verbatim 8-token repeat
+    of the student's own rollout; Welleck et al. 2019). clip: the per-(token, vocab) loss clamp (official 0.05; None = no clip). rows: prepared training rows (copsd.collator.prepare_rows format, `solution` = the teacher's reference);
     default the released COPSD set. layout: see LAYOUTS. seed: data order, LoRA init, generation and RNG state."""
     import torch
     from peft import LoraConfig, get_peft_model, set_peft_model_state_dict
@@ -116,7 +119,7 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
         raise ValueError(f"layout {layout}; known: {list(LAYOUTS)}")
     if not no_save:
         write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
-                           seed, layout, data_desc, reference_desc, clip)
+                           seed, layout, data_desc, reference_desc, clip, objective, teacher_temp)
     wait_for_gpu()
     torch.manual_seed(seed)
     random.seed(seed)
@@ -214,10 +217,20 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
                 L = len(mc[i])
                 with torch.autocast("cuda", dtype=torch.bfloat16):
                     s_logits = model(input_ids=s_ids, attention_mask=(s_ids != pad).long(), logits_to_keep=L + 1).logits[:, :-1, :]
-                    with torch.no_grad(), model.disable_adapter():
-                        t_logits = model(input_ids=t_ids, attention_mask=(t_ids != pad).long(), logits_to_keep=L + 1).logits[:, :-1, :]
-                    per = generalized_jsd_loss(s_logits, t_logits, labels=lab, beta=OFFICIAL["beta"], temperature=temp,
-                                               reduction="sum", token_clip=clip)
+                    if objective == "unlikelihood":
+                        from ..exp2.mechanism import loop_flags
+                        lp = torch.log_softmax(s_logits.float() / temp, -1)
+                        py = lp.gather(-1, lab.clamp(min=0).unsqueeze(-1))[..., 0].exp()
+                        m = torch.tensor(loop_flags(mc[i]), device=py.device).unsqueeze(0) & (lab != -100)
+                        per = -(torch.log1p(-py.clamp(max=1 - 1e-6)) * m).sum()
+                        t_logits = lp
+                    else:
+                        with torch.no_grad(), model.disable_adapter():
+                            t_logits = model(input_ids=t_ids, attention_mask=(t_ids != pad).long(), logits_to_keep=L + 1).logits[:, :-1, :]
+                        if teacher_temp:   # the loss divides both by temp: teacher effectively at teacher_temp
+                            t_logits = t_logits.float() * (temp / teacher_temp)
+                        per = generalized_jsd_loss(s_logits, t_logits, labels=lab, beta=OFFICIAL["beta"], temperature=temp,
+                                                   reduction="sum", token_clip=clip)
                 loss_i = per / max(n_tokens, 1)
                 (loss_i / len(batches)).backward()   # HF Trainer divides each micro-batch loss by the GA steps in this step
                 mb_loss += float(loss_i.detach())

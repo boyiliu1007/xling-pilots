@@ -28,6 +28,11 @@ LEVELS = {
     "L0-enthink-en": {"trains": False, "style": "en-think-en", "teacher": "none; base model thinks and answers in English"},
     "L0-selftrans-sw": {"trains": False, "style": "selftrans-sw",
                         "teacher": "none; base model translates the question to English, thinks in English, answers in Swahili"},
+    # Decoding-only controls on the official Swahili prompt (no training): more randomness / repetition penalty.
+    "L0-temp1.3": {"trains": False, "sampling": {"temperature": 1.3}, "teacher": "none; sampling temperature 1.3"},
+    "L0-temp1.5": {"trains": False, "sampling": {"temperature": 1.5}, "teacher": "none; sampling temperature 1.5"},
+    "L0-reppen1.1": {"trains": False, "sampling": {"repetition_penalty": 1.1}, "teacher": "none; repetition penalty 1.1"},
+    "L0-reppen1.3": {"trains": False, "sampling": {"repetition_penalty": 1.3}, "teacher": "none; repetition penalty 1.3"},
     "L1": {"trains": True, "teacher": "Swahili question + English question",
            "include_problem_en": True, "include_reference_solution_en": False},
 }

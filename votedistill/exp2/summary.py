@@ -55,6 +55,17 @@ CONTRASTS = [
     ("enthink COPSD: L3-vote - L1", "L1__copsd__exact__enthink", "L3-vote__copsd__exact__enthink"),
     ("enthink COPSD: no clip - clip (L3-vote)", "L3-vote__copsd__exact__enthink", "L3-vote__copsd__exact__enthink-noclip"),
     ("enthink COPSD (L3-vote) - Swahili-thinking COPSD (L3-vote)", "L3-vote__copsd__exact", "L3-vote__copsd__exact__enthink"),
+    # teacher-free controls for "the clip is an entropy regularizer": do they match clipped COPSD (L3-gold)?
+    ("hot-self τ1.5 - COPSD (L3-gold)", "L3-gold__copsd__exact", "L0-same__copsd__exact__hot1.5"),
+    ("hot-self τ2.5 - COPSD (L3-gold)", "L3-gold__copsd__exact", "L0-same__copsd__exact__hot2.5"),
+    ("loop unlikelihood - COPSD (L3-gold)", "L3-gold__copsd__exact", "L0-same__copsd__exact__ul"),
+    ("hot-self τ1.5 - L0", None, "L0-same__copsd__exact__hot1.5"),
+    ("hot-self τ2.5 - L0", None, "L0-same__copsd__exact__hot2.5"),
+    ("loop unlikelihood - L0", None, "L0-same__copsd__exact__ul"),
+    ("decoding: temperature 1.3 - L0", None, "@L0-temp1.3"),
+    ("decoding: temperature 1.5 - L0", None, "@L0-temp1.5"),
+    ("decoding: repetition penalty 1.1 - L0", None, "@L0-reppen1.1"),
+    ("decoding: repetition penalty 1.3 - L0", None, "@L0-reppen1.3"),
 ]
 FINISH_BINS = ((0, 0), (1, 2), (3, 5), (6, 12))
 DEGEN_TTR = 0.3   # calibrated on L0 / gold runs: finished answers median 0.40-0.43, L1 word salad median 0.25

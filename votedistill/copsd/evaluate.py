@@ -78,7 +78,8 @@ def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
     for li, name in enumerate(todo):
         lora = None if name == "base" else LoRARequest(name, li + 1, str(Path(ckpt_dir) / f"step-{int(name[4:])}" / "adapter"))
         sp = SamplingParams(n=cfg["val_n"], temperature=cfg["temperature"], top_p=cfg["top_p"], top_k=cfg["top_k"],
-                            max_tokens=cfg["max_new_tokens"], seed=SEED)
+                            max_tokens=cfg["max_new_tokens"], seed=SEED,
+                            repetition_penalty=cfg.get("repetition_penalty", 1.0))
         t0 = time.time()
         res = llm.generate(prompts, sp, lora_request=lora, use_tqdm=False)
         dt = time.time() - t0

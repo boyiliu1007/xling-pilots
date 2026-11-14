@@ -126,6 +126,7 @@ def main():
     cfg = dict(EVAL)
     if LEVELS[args.level].get("style"):
         cfg["prompt_style"] = LEVELS[args.level]["style"]
+    cfg.update(LEVELS[args.level].get("sampling", {}))
     for split in args.split:
         evaluate(rd, ["base"], split, cfg, ckpt_dir=None, lang=lang)
 

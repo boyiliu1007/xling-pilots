@@ -31,7 +31,18 @@ SFT_CONTEXT = "selfsft-vote"   # stage-1 alternative: SFT on the model's own vot
 SFT_STEPS = 30
 
 
-STYLE_VARIANTS = {"enthink": "en-think-sw"}   # prompt style (copsd/styles.py) for student, teacher and evaluation
+STYLE_VARIANTS = {"enthink": "en-think-sw"}
+# Teacher-free controls (context L0-same: the teacher prompt is the student's): "hot<τ>" = distil towards the base
+# model's own distribution at temperature τ (entropy-raising, no clip); "ul" = unlikelihood on verbatim loops.
+OBJECTIVE_VARIANTS = {"hot1.5": ("copsd", 1.5), "hot2.5": ("copsd", 2.5), "ul": ("unlikelihood", None)}
+
+
+def objective_of(name):
+    """(objective, teacher_temp) for the trainer."""
+    parts = name.split("__")
+    if len(parts) == 5 and parts[3] in OBJECTIVE_VARIANTS:
+        return OBJECTIVE_VARIANTS[parts[3]]
+    return "copsd", None   # prompt style (copsd/styles.py) for student, teacher and evaluation
 
 
 def style_of(name):
@@ -46,6 +57,8 @@ def style_of(name):
 def parse_variant(v):
     """-> (init (source context, step) or None, clip). A leading style token (e.g. "enthink", "enthink-noclip")
     selects the prompt style; it is stripped here and read by style_of."""
+    if v in OBJECTIVE_VARIANTS:
+        return None, None
     head, _, rest = v.partition("-")
     if head in STYLE_VARIANTS:
         return (None, OFFICIAL_CLIP) if not rest else parse_variant(rest)
@@ -140,6 +153,7 @@ def train_run(name, max_steps=MAX_STEPS):
     apply_style(style_of(name))
     rows, desc = training_rows(data, context)
     desc = {**desc, "prompt_style": style_of(name)}
+    objective, teacher_temp = objective_of(name)
     if init_of(name):
         desc = _warm_start(name, rd, ck, desc)
     trows, flags = teacher_rows(rows, context)
@@ -148,7 +162,8 @@ def train_run(name, max_steps=MAX_STEPS):
     log.info(f"{name}: {len(trows)} rows {desc}; collator flags {flags}")
     train(rd, ck, "swa", max_steps, include_problem_en=flags["include_problem_en"],
           include_reference_solution_en=flags["include_reference_solution_en"], seed=seed, layout=layout, rows=trows,
-          data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}", clip=clip)
+          data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}", clip=clip,
+          objective=objective, teacher_temp=teacher_temp)
 
 
 STYLE_BASE_LEVEL = {"copsd": "L0", "en-think-sw": "L0-enthink-sw"}
