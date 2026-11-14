@@ -124,3 +124,9 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   - Degeneration measure added to the mechanism table (calibrated on existing step-100 outputs before these runs):
     truncated and (verbatim loop or distinct-word share of the last 300 words < 0.3); the verbatim loop detector alone
     misses the word salad of L1 runs.
+- 2026-11-13 ~21:00, deviation (decided with the user after seeing the step-100 TEST results of arm A, A-oracle and
+  part of the clip ablation): arm D stage 2 (`L3-vote__copsd__exact__s1sft30-noclip__s{42,43}`) cancelled before it
+  started. Reason: unclipped training was harmful in every completed run (no clip vs clip, L3-gold: pass@12 -17.2;
+  two-stage vs plain COPSD: -9.8), and arm A's stage 2 undid stage 1, so the arm could not answer its question and
+  the compute was better spent elsewhere. D-alone (self-SFT, step 30) is kept. Contrast "stage 1: self-SFT - clipped
+  COPSD (then no clip)" is therefore not reported.
