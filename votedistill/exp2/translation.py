@@ -6,8 +6,7 @@ Tasks (greedy, non-thinking chat mode, one instruction prompt; NLLB-200 3.3B as 
   B  the model's own English majority-vote solutions (gold-free references, trainsets.voted_references), EN->SW:
      no reference, so: numbers preserved, \\boxed answer preserved, loops, output language, length ratio, and
      round trip (the model translates its Swahili back to English; chrF against the original English).
-chrF: character n-grams n = 1..6 without whitespace, corpus-level precision/recall averaged over n, beta = 2
-(Popovic 2015; own implementation, numbers comparable within this table, not exactly to sacreBLEU).
+chrF++: sacreBLEU's CHRF(word_order=2), corpus level (character 6-grams + word bigrams, beta = 2).
 Outputs results/exp2/translation/*.jsonl and report.txt.
 """
 import logging
@@ -29,19 +28,10 @@ N_SOLUTIONS = {"gsm8k-mt": 150, "copsd": 100}
 MAX_TOKENS = 1536
 
 
-def chrf(hyps, refs, n=6, beta=2.0):
-    match, hyp_tot, ref_tot = np.zeros(n), np.zeros(n), np.zeros(n)
-    for h, r in zip(hyps, refs):
-        h, r = re.sub(r"\s+", "", h or ""), re.sub(r"\s+", "", r or "")
-        for k in range(1, n + 1):
-            hc = Counter(h[i:i + k] for i in range(len(h) - k + 1))
-            rc = Counter(r[i:i + k] for i in range(len(r) - k + 1))
-            match[k - 1] += sum((hc & rc).values())
-            hyp_tot[k - 1] += sum(hc.values())
-            ref_tot[k - 1] += sum(rc.values())
-    p = np.mean(np.where(hyp_tot > 0, match / np.maximum(hyp_tot, 1), 0))
-    r = np.mean(np.where(ref_tot > 0, match / np.maximum(ref_tot, 1), 0))
-    return 100 * (1 + beta ** 2) * p * r / (beta ** 2 * p + r) if p + r > 0 else 0.0
+def chrf(hyps, refs):
+    """Corpus-level chrF++ (sacreBLEU)."""
+    from sacrebleu.metrics import CHRF
+    return CHRF(word_order=2).corpus_score([h or "" for h in hyps], [[r or "" for r in refs]]).score
 
 
 def prompt(tok, text, src, tgt):
@@ -132,7 +122,7 @@ def report():
     from ..copsd.evaluate import language_of
     T = ["Translation ability of Qwen3-1.7B (greedy, non-thinking); NLLB-200 3.3B as a yardstick", "",
          "## A. AfriMGSM questions (250, human references)",
-         f"  {'direction':<10} {'system':<6} {'chrF':>6} {'numbers kept':>13} {'loops':>6} {'target lang':>12} {'len ratio':>10}"]
+         f"  {'direction':<10} {'system':<6} {'chrF++':>6} {'numbers kept':>13} {'loops':>6} {'target lang':>12} {'len ratio':>10}"]
     for d in ("en2sw", "sw2en"):
         tgt = "sw" if d.endswith("sw") else "en"
         for sysname in ("qwen", "nllb"):
