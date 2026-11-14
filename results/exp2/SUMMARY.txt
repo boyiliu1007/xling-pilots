@@ -1,10 +1,10 @@
-Experiment 2 summary, generated 2026-11-14T04:06:31
+Experiment 2 summary, generated 2026-11-14T04:32:38
 TEST 200 items; checkpoint selected by DEV maj@12 among steps 10..100; gains in points with 95% paired-bootstrap CI
 
 run                                            sel  maj@12  pass@12   mean  trunc   Δmaj@12 vs L0          Δpass@12 vs L0         Δmean_acc vs L0       
 L0 (base)                                        -   0.090    0.150  0.028  0.772
-L0-same__copsd__exact__hot1.5__s42               -   (no TEST yet)
-L0-same__copsd__exact__hot1.5__s43               -   (no TEST yet)
+L0-same__copsd__exact__hot1.5__s42          step10   (no TEST yet)
+L0-same__copsd__exact__hot1.5__s43          step20   (no TEST yet)
 L0-same__copsd__exact__hot2.5__s42               -   (no TEST yet)
 L0-same__copsd__exact__hot2.5__s43               -   (no TEST yet)
 L0-same__copsd__exact__ul__s42                   -   (no TEST yet)
@@ -198,10 +198,16 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   decoding: repetition penalty 1.2 - L0          s43  maj@12  -1.0 [ -4.5,  +2.5]  pass@12 +10.5 [ +4.0, +16.5]  mean_acc  +2.1 [ +0.9,  +3.3]
   model size: Qwen3-4B - Qwen3-1.7B              s42  maj@12 +17.5 [+11.5, +23.5]  pass@12 +33.5 [+26.5, +40.5]  mean_acc +11.6 [ +9.0, +14.5]
   model size: Qwen3-4B - Qwen3-1.7B              s43  maj@12 +17.5 [+11.5, +23.5]  pass@12 +33.5 [+26.5, +40.5]  mean_acc +11.6 [ +9.0, +14.5]
+  model size: Qwen3-8B - Qwen3-1.7B              s42  maj@12 +42.0 [+34.5, +50.0]  pass@12 +54.0 [+46.5, +61.5]  mean_acc +25.7 [+21.8, +29.7]
+  model size: Qwen3-8B - Qwen3-1.7B              s43  maj@12 +42.0 [+34.5, +50.0]  pass@12 +54.0 [+46.5, +61.5]  mean_acc +25.7 [+21.8, +29.7]
   Qwen3-4B: repetition penalty 1.1 - default     s42  maj@12  +7.5 [ +2.5, +13.0]  pass@12  +5.5 [ -1.0, +12.0]  mean_acc  +8.8 [ +6.5, +11.2]
   Qwen3-4B: repetition penalty 1.1 - default     s43  maj@12  +7.5 [ +2.5, +13.0]  pass@12  +5.5 [ -1.0, +12.0]  mean_acc  +8.8 [ +6.5, +11.2]
+  Qwen3-8B: repetition penalty 1.1 - default     s42  maj@12  +8.5 [ +3.0, +14.0]  pass@12 +11.0 [ +4.5, +17.5]  mean_acc +16.0 [+13.0, +19.2]
+  Qwen3-8B: repetition penalty 1.1 - default     s43  maj@12  +8.5 [ +3.0, +14.0]  pass@12 +11.0 [ +4.5, +17.5]  mean_acc +16.0 [+13.0, +19.2]
   Qwen3-1.7B + penalty 1.1 - Qwen3-4B            s42  maj@12 -16.0 [-21.5, -10.5]  pass@12 -20.0 [-28.0, -12.0]  mean_acc  -6.3 [ -9.1,  -3.6]
   Qwen3-1.7B + penalty 1.1 - Qwen3-4B            s43  maj@12 -16.0 [-21.5, -10.5]  pass@12 -20.0 [-28.0, -12.0]  mean_acc  -6.3 [ -9.1,  -3.6]
+  Qwen3-1.7B + penalty 1.1 - Qwen3-8B            s42  maj@12 -40.5 [-48.0, -33.0]  pass@12 -40.5 [-48.5, -32.0]  mean_acc -20.4 [-24.5, -16.5]
+  Qwen3-1.7B + penalty 1.1 - Qwen3-8B            s43  maj@12 -40.5 [-48.0, -33.0]  pass@12 -40.5 [-48.5, -32.0]  mean_acc -20.4 [-24.5, -16.5]
   [step100]
   layout: exact - official (gold COPSD)          s42  maj@12  +0.0 [ -4.0,  +4.0]  pass@12  -3.5 [ -9.0,  +1.5]  mean_acc  +0.0 [ -1.1,  +1.2]
   layout: exact - official (gold COPSD)          s43  maj@12  -1.5 [ -5.0,  +1.5]  pass@12  -3.5 [-10.0,  +3.0]  mean_acc  -0.6 [ -1.7,  +0.4]
@@ -291,10 +297,16 @@ selfsft-vote__copsd__exact__s43            step100   0.085    0.135  0.029  0.79
   decoding: repetition penalty 1.2 - L0          s43  maj@12  -1.0 [ -4.5,  +2.5]  pass@12 +10.5 [ +4.0, +16.5]  mean_acc  +2.1 [ +0.9,  +3.3]
   model size: Qwen3-4B - Qwen3-1.7B              s42  maj@12 +17.5 [+11.5, +23.5]  pass@12 +33.5 [+26.5, +40.5]  mean_acc +11.6 [ +9.0, +14.5]
   model size: Qwen3-4B - Qwen3-1.7B              s43  maj@12 +17.5 [+11.5, +23.5]  pass@12 +33.5 [+26.5, +40.5]  mean_acc +11.6 [ +9.0, +14.5]
+  model size: Qwen3-8B - Qwen3-1.7B              s42  maj@12 +42.0 [+34.5, +50.0]  pass@12 +54.0 [+46.5, +61.5]  mean_acc +25.7 [+21.8, +29.7]
+  model size: Qwen3-8B - Qwen3-1.7B              s43  maj@12 +42.0 [+34.5, +50.0]  pass@12 +54.0 [+46.5, +61.5]  mean_acc +25.7 [+21.8, +29.7]
   Qwen3-4B: repetition penalty 1.1 - default     s42  maj@12  +7.5 [ +2.5, +13.0]  pass@12  +5.5 [ -1.0, +12.0]  mean_acc  +8.8 [ +6.5, +11.2]
   Qwen3-4B: repetition penalty 1.1 - default     s43  maj@12  +7.5 [ +2.5, +13.0]  pass@12  +5.5 [ -1.0, +12.0]  mean_acc  +8.8 [ +6.5, +11.2]
+  Qwen3-8B: repetition penalty 1.1 - default     s42  maj@12  +8.5 [ +3.0, +14.0]  pass@12 +11.0 [ +4.5, +17.5]  mean_acc +16.0 [+13.0, +19.2]
+  Qwen3-8B: repetition penalty 1.1 - default     s43  maj@12  +8.5 [ +3.0, +14.0]  pass@12 +11.0 [ +4.5, +17.5]  mean_acc +16.0 [+13.0, +19.2]
   Qwen3-1.7B + penalty 1.1 - Qwen3-4B            s42  maj@12 -16.0 [-21.5, -10.5]  pass@12 -20.0 [-28.0, -12.0]  mean_acc  -6.3 [ -9.1,  -3.6]
   Qwen3-1.7B + penalty 1.1 - Qwen3-4B            s43  maj@12 -16.0 [-21.5, -10.5]  pass@12 -20.0 [-28.0, -12.0]  mean_acc  -6.3 [ -9.1,  -3.6]
+  Qwen3-1.7B + penalty 1.1 - Qwen3-8B            s42  maj@12 -40.5 [-48.0, -33.0]  pass@12 -40.5 [-48.5, -32.0]  mean_acc -20.4 [-24.5, -16.5]
+  Qwen3-1.7B + penalty 1.1 - Qwen3-8B            s43  maj@12 -40.5 [-48.0, -33.0]  pass@12 -40.5 [-48.5, -32.0]  mean_acc -20.4 [-24.5, -16.5]
 
 ## Decoding x training: trained checkpoint (step 100) sampled with a base-model level's decoding
   (B - A on TEST; A = same checkpoint with default decoding, or the base model with the same decoding)
