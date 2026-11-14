@@ -22,10 +22,11 @@ from ..consensus import eligible
 from ..data import load_copsd_train
 from ..utils import read_jsonl
 from ..copsd.collator import prepare_rows
+from ..paths import RESULTS
 from .levels import EXP2_RESULTS, TEACHER_CONTEXTS
 
 DATASETS = ("copsd", "gsm8k-mt", "mix")
-MT_FILE = EXP2_RESULTS / "data" / "gsm8k_swa_mt.jsonl"
+MT_FILE = RESULTS / "exp2" / "data" / "gsm8k_swa_mt.jsonl"   # NLLB translation: shared by every model
 CONSENSUS = EXP2_RESULTS / "consensus"
 CONSENSUS_FILE = {"copsd": "copsd_en_thinking.jsonl", "gsm8k-mt": "gsm8k_en_thinking.jsonl"}
 VOTE_THRESHOLD = 5 / 8
@@ -106,7 +107,9 @@ def training_rows(dataset, context, threshold=VOTE_THRESHOLD):
     ref = TEACHER_CONTEXTS[context]["reference"] or ""
     uses_vote = "vote" in ref
     if uses_vote:   # equal-size datasets for every vote context
-        pools = {d: source_rows(d, True, threshold) for d in ("copsd", "gsm8k-mt")}
+        # datasets with a consensus run (Qwen3-1.7B: both; Qwen3-4B: COPSD only, so no equalisation there)
+        have = [d for d in ("copsd", "gsm8k-mt") if (CONSENSUS / CONSENSUS_FILE[d]).exists()]
+        pools = {d: source_rows(d, True, threshold) for d in have or [dataset]}
         n = min(len(v) for v in pools.values())
         sizes = {d: len(v) for d, v in pools.items()}
     else:

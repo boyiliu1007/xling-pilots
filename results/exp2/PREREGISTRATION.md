@@ -192,3 +192,7 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   Predictions: P3 > 0 on Qwen3-4B (and smaller or none on 1.7B); P1 >= 0; P4 smaller than with default rollouts
   (with coherent rollouts the clip's entropy effect matters less). A method "works" only if P1 > 0 on mean_acc or
   maj@12 with the CI excluding zero in both seeds and P2 holds.
+- 2026-11-14 ~15:10, implementation note (before any Qwen3-4B voted run started): Qwen3-4B has only a COPSD
+  consensus (no GSM8K one), so its vote contexts are not size-equalised with GSM8K: 487 voted COPSD rows (vote share
+  >= 5/8; the 1.7B voted runs had 442 after equalisation). Qwen3-1.7B rows unchanged (verified identical qids).
+  4B consensus: maj@8 0.882 vs gold, coverage at 5/8 0.974, precision 0.893 (1.7B thinking-mode: 0.889 precision).
