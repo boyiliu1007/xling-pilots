@@ -23,6 +23,11 @@ LEVELS = {
     "L0": {"trains": False, "teacher": "none (frozen base model, no training)"},
     # Base model on the row-aligned ENGLISH AfriMGSM questions: the label-free English side of the capability groups.
     "L0-eng": {"trains": False, "lang": "eng", "teacher": "none (frozen base model on English AfriMGSM; capability signal)"},
+    # Prompt-only baselines on the Swahili questions (copsd/styles.py): think in English instead of Swahili.
+    "L0-enthink-sw": {"trains": False, "style": "en-think-sw", "teacher": "none; base model thinks in English, answers in Swahili"},
+    "L0-enthink-en": {"trains": False, "style": "en-think-en", "teacher": "none; base model thinks and answers in English"},
+    "L0-selftrans-sw": {"trains": False, "style": "selftrans-sw",
+                        "teacher": "none; base model translates the question to English, thinks in English, answers in Swahili"},
     "L1": {"trains": True, "teacher": "Swahili question + English question",
            "include_problem_en": True, "include_reference_solution_en": False},
 }

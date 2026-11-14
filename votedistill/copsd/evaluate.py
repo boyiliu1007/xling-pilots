@@ -60,6 +60,8 @@ def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
     if any(n != "base" for n in todo) and ckpt_dir is None:
         raise SystemExit("--ckpt_dir is required to evaluate checkpoints")
     EM = import_copsd_eval()
+    from .styles import apply_style
+    apply_style(cfg.get("prompt_style", "copsd"))
     from transformers import AutoTokenizer
     from vllm import LLM, SamplingParams
     from vllm.lora.request import LoRARequest
@@ -91,7 +93,10 @@ def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
             maj = EM.grade_answer(Counter(fp).most_common(1)[0][0], gt) if fp else False   # COPSD majority vote
             recs.append({"model": name, "split": split, "item": i, "gold": gt, "outputs": texts, "preds": preds,
                          "correct": corr, "formatted": fmt_, "truncated": [c.finish_reason == "length" for c in o.outputs],
-                         "language": [language_of(t) for t in texts], "pass_at_n": any(corr), "maj_correct": maj,
+                         "language": [language_of(t) for t in texts],
+                         "answer_language": [language_of(t.split("</think>", 1)[1]) if "</think>" in t else None
+                                             for t in texts],
+                         "pass_at_n": any(corr), "maj_correct": maj,
                          "mean_acc": sum(corr) / len(corr)})
         write_jsonl(run_dir / "eval" / f"{name}_{split}.jsonl", recs)
         log.info(f"EVAL {name} {split}: {summarize(recs)} ({dt:.0f}s)")

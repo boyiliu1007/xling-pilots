@@ -46,6 +46,15 @@ CONTRASTS = [
     ("2-stage: vote - gold oracle", "L3-gold__copsd__exact__s1gold30-noclip", "L3-vote__copsd__exact__s1vote30-noclip"),
     ("stage 1: self-SFT - clipped COPSD (then no clip)", "L3-vote__copsd__exact__s1vote30-noclip", "L3-vote__copsd__exact__s1sft30-noclip"),
     ("self-SFT only (step 30) - plain COPSD (L3-vote)", "L3-vote__copsd__exact", "selfsft-vote__copsd__exact"),
+    # think in English (prompt style en-think-sw for student, teacher and evaluation); "@<level>" = a base-model level
+    ("English thinking, no training: L0-enthink-sw - L0", None, "@L0-enthink-sw"),
+    ("English thinking: L0-enthink-en - L0-enthink-sw", "@L0-enthink-sw", "@L0-enthink-en"),
+    ("English thinking: self-translate - L0-enthink-sw", "@L0-enthink-sw", "@L0-selftrans-sw"),
+    ("enthink COPSD: L1 - L0-enthink-sw", "@L0-enthink-sw", "L1__copsd__exact__enthink"),
+    ("enthink COPSD: L3-vote - L0-enthink-sw", "@L0-enthink-sw", "L3-vote__copsd__exact__enthink"),
+    ("enthink COPSD: L3-vote - L1", "L1__copsd__exact__enthink", "L3-vote__copsd__exact__enthink"),
+    ("enthink COPSD: no clip - clip (L3-vote)", "L3-vote__copsd__exact__enthink", "L3-vote__copsd__exact__enthink-noclip"),
+    ("enthink COPSD (L3-vote) - Swahili-thinking COPSD (L3-vote)", "L3-vote__copsd__exact", "L3-vote__copsd__exact__enthink"),
 ]
 FINISH_BINS = ((0, 0), (1, 2), (3, 5), (6, 12))
 DEGEN_TTR = 0.3   # calibrated on L0 / gold runs: finished answers median 0.40-0.43, L1 word salad median 0.25
@@ -72,6 +81,14 @@ def selected_test(name):
     sel = select_checkpoint(rd, SELECT_METRIC, eval_steps(name)) if (rd / "eval").exists() else None
     p = rd / "eval" / f"{sel}_test.jsonl"
     return (sel, read_jsonl(p)) if sel and p.exists() else (sel, None)
+
+
+def _level_or(pool, name, seed):
+    """'@<level>': a base-model evaluation level (same for every seed); else the run <name>__<seed> from pool."""
+    if name.startswith("@"):
+        p = level_dir(name[1:]) / "eval" / "base_test.jsonl"
+        return read_jsonl(p) if p.exists() else None
+    return pool.get(f"{name}__{seed}")
 
 
 def _gain(A, B, key):
@@ -123,8 +140,8 @@ def build_summary():
         seeds = sorted({n.rsplit("__", 1)[1] for n in pool})
         for label, a, b in CONTRASTS:
             for s in seeds:
-                A = base if a is None else pool.get(f"{a}__{s}")
-                B = pool.get(f"{b}__{s}")
+                A = base if a is None else _level_or(pool, a, s)
+                B = _level_or(pool, b, s)
                 if A is None or B is None:
                     continue
                 T.append(f"  {label:<46} {s:<4} " + "  ".join(f"{lab} {_fmt(*_gain(A, B, k))}" for k, lab in METRICS))

@@ -123,8 +123,11 @@ def main():
         lines = []
         check_alignment(afrimgsm_items("en", lines), afrimgsm_items("swa", lines), "swa", lines)
         (rd / "alignment.txt").write_text("\n".join(lines) + "\n")
+    cfg = dict(EVAL)
+    if LEVELS[args.level].get("style"):
+        cfg["prompt_style"] = LEVELS[args.level]["style"]
     for split in args.split:
-        evaluate(rd, ["base"], split, dict(EVAL), ckpt_dir=None, lang=lang)
+        evaluate(rd, ["base"], split, cfg, ckpt_dir=None, lang=lang)
 
 
 def run_commands(args):

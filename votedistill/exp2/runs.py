@@ -31,8 +31,24 @@ SFT_CONTEXT = "selfsft-vote"   # stage-1 alternative: SFT on the model's own vot
 SFT_STEPS = 30
 
 
+STYLE_VARIANTS = {"enthink": "en-think-sw"}   # prompt style (copsd/styles.py) for student, teacher and evaluation
+
+
+def style_of(name):
+    parts = name.split("__")
+    if len(parts) == 5:
+        head = parts[3].split("-")[0]
+        if head in STYLE_VARIANTS:
+            return STYLE_VARIANTS[head]
+    return "copsd"
+
+
 def parse_variant(v):
-    """-> (init (source context, step) or None, clip)."""
+    """-> (init (source context, step) or None, clip). A leading style token (e.g. "enthink", "enthink-noclip")
+    selects the prompt style; it is stripped here and read by style_of."""
+    head, _, rest = v.partition("-")
+    if head in STYLE_VARIANTS:
+        return (None, OFFICIAL_CLIP) if not rest else parse_variant(rest)
     if v in CLIP_VARIANTS:
         return None, CLIP_VARIANTS[v]
     init, _, clip = v.partition("-")
@@ -120,7 +136,10 @@ def train_run(name, max_steps=MAX_STEPS):
     if context == SFT_CONTEXT:
         from .selfsft import train_sft
         return train_sft(name, data, layout, seed)
+    from ..copsd.styles import apply_style
+    apply_style(style_of(name))
     rows, desc = training_rows(data, context)
+    desc = {**desc, "prompt_style": style_of(name)}
     if init_of(name):
         desc = _warm_start(name, rd, ck, desc)
     trows, flags = teacher_rows(rows, context)
@@ -132,11 +151,17 @@ def train_run(name, max_steps=MAX_STEPS):
           data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}", clip=clip)
 
 
+STYLE_BASE_LEVEL = {"copsd": "L0", "en-think-sw": "L0-enthink-sw"}
+
+
 def copy_base(name):
+    """The base model's evaluation under the run's prompt style (if it exists yet), for the run's own report."""
     rd, _ = paths(name)
     (rd / "eval").mkdir(parents=True, exist_ok=True)
     for split in ("dev", "test"):
-        src = level_dir("L0") / "eval" / f"base_{split}.jsonl"
+        src = level_dir(STYLE_BASE_LEVEL[style_of(name)]) / "eval" / f"base_{split}.jsonl"
+        if not src.exists():
+            continue
         if not (rd / "eval" / src.name).exists():
             shutil.copy(src, rd / "eval" / src.name)
 
@@ -146,17 +171,19 @@ def eval_run(name, split, max_steps=MAX_STEPS):
     from ..copsd.config import EVAL, SAVE_EVERY
     from ..copsd.evaluate import evaluate, select_checkpoint
     rd, ck = paths(name)
+    style = style_of(name)
     copy_base(name)
     max_steps = final_step(name, max_steps)
     steps = eval_steps(name, max_steps)
+    cfg = dict(EVAL, **({"prompt_style": style} if style != "copsd" else {}))
     if split == "dev":
-        evaluate(rd, steps, "dev", dict(EVAL), ck)
+        evaluate(rd, steps, "dev", cfg, ck)
         return select_checkpoint(rd, SELECT_METRIC, steps)
     sel = select_checkpoint(rd, SELECT_METRIC, steps)
     if sel is None:
         raise SystemExit(f"{name}: DEV evaluations incomplete, cannot select")
     final = f"step{max_steps}"
-    evaluate(rd, list(dict.fromkeys([sel, final])), "test", dict(EVAL), ck)   # DEV pick + the final checkpoint
+    evaluate(rd, list(dict.fromkeys([sel, final])), "test", cfg, ck)   # DEV pick + the final checkpoint
     return sel
 
 
