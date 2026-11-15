@@ -1,0 +1,24 @@
+{
+  "round1_run": "selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s42",
+  "adapter": "/data/user_data/jeffc2/votedistill_ckpt/exp2_qwen3-8b/selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s42/step-100/adapter",
+  "filter": "nofilter",
+  "samples": 22440,
+  "finished": 20011,
+  "eligible": 13627,
+  "kept_before_subsample": 5433,
+  "target_size": 3166,
+  "kept": 3166,
+  "questions": 2285,
+  "round1_pool_eligible": 15361,
+  "generation_s": 6191,
+  "versions": {
+    "python": "3.11.16",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  },
+  "created": "2026-11-15T08:31:21"
+}

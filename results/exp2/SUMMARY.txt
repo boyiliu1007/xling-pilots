@@ -1,4 +1,4 @@
-Experiment 2 summary, generated 2026-11-15T06:35:28
+Experiment 2 summary, generated 2026-11-15T11:05:32
 TEST 200 items; checkpoint selected by DEV maj@12 among steps 10..100; gains in points with 95% paired-bootstrap CI
 
 run                                            sel  maj@12  pass@12   mean  trunc   Δmaj@12 vs L0          Δpass@12 vs L0         Δmean_acc vs L0       
