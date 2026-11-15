@@ -1,4 +1,4 @@
-Experiment 2 summary, generated 2026-11-14T20:45:51
+Experiment 2 summary, generated 2026-11-14T21:42:57
 TEST 200 items; checkpoint selected by DEV maj@12 among steps 10..100; gains in points with 95% paired-bootstrap CI
 
 run                                            sel  maj@12  pass@12   mean  trunc   Δmaj@12 vs L0          Δpass@12 vs L0         Δmean_acc vs L0       
@@ -172,6 +172,10 @@ selfsft-vote__copsd__exact__rp__s43        step100   0.260    0.515  0.200  0.06
     vs L0                                        maj@12  +6.5 [ +0.5, +12.5]  pass@12  +6.0 [ -0.5, +12.5]  mean_acc  +9.1 [ +6.8, +11.5]
     vs same ckpt, default decoding               maj@12  +4.0 [ -0.5,  +9.0]  pass@12  +5.0 [ -0.5, +10.5]  mean_acc  +2.6 [ +0.7,  +4.5]
     vs base model + L0-reppen1.1                 maj@12  -1.0 [ -6.0,  +3.5]  pass@12  +0.5 [ -5.5,  +6.5]  mean_acc  +0.3 [ -1.4,  +2.0]
+  selfsft-vote__copsd__exact__rp-nofilter__s43__L0-reppen1.1 step30 maj@12 0.345  pass@12 0.560  mean 0.240  trunc 0.050  sw-lang 0.748
+    vs L0                                        maj@12  +8.0 [ +2.0, +13.5]  pass@12  +7.5 [ +2.0, +13.0]  mean_acc  +9.6 [ +7.2, +12.1]
+    vs same ckpt, default decoding               maj@12  +9.0 [ +4.5, +13.5]  pass@12  +6.5 [ +1.0, +12.0]  mean_acc  +3.9 [ +2.0,  +5.8]
+    vs base model + L0-reppen1.1                 maj@12  +0.5 [ -3.5,  +4.0]  pass@12  +2.0 [ -3.5,  +7.5]  mean_acc  +0.8 [ -0.8,  +2.3]
   selfsft-vote__copsd__exact__rp-swvote__s42__L0-reppen1.1 step30 maj@12 0.280  pass@12 0.555  mean 0.237  trunc 0.051  sw-lang 0.734
     vs L0                                        maj@12  +1.5 [ -3.5,  +6.5]  pass@12  +7.0 [ +1.0, +13.0]  mean_acc  +9.2 [ +6.8, +11.8]
     vs same ckpt, default decoding               maj@12  +2.5 [ -2.0,  +7.0]  pass@12  +6.5 [ +0.5, +12.5]  mean_acc  +3.4 [ +1.5,  +5.4]

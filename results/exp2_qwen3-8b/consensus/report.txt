@@ -1,0 +1,281 @@
+Self-consensus report: consensus
+generated 2026-11-15T00:15:45
+Every rate: k/N = estimate [95% Wilson]. Gold answers are used only to score the vote.
+
+## Config
+  model: Qwen/Qwen3-8B
+  prompt_template: {question}
+Please reason step by step, and put your final answer within \boxed{{}}.
+  versions: {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}
+  run gsm8k3k_en_thinking: {'items': 3000, 'n': 8, 'sampling': {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, 'max_tokens': 16384, 'thinking': True, 'answer_mode': 'numeric', 'seed': 42, 'generation_s': 45889.2, 'generated_tokens': 51952017, 'peak_gpu_mem_used_MiB': 45264, 'finished': '2026-11-14T23:01:39', 'host': ['babel-u9-28', 'babel-t9-24', 'babel-v9-32', 'babel-v9-24', 'babel-s9-20', 'babel-s9-20', 'babel-s9-24', 'babel-s9-20', 'babel-s9-20', 'babel-s9-20', 'babel-u9-28', 'babel-u9-16'], 'slurm_job_id': ['11155851', '11155853', '11155855', '11155857', '11155859', '11155861', '11155863', '11155864', '11155865', '11155866', '11155867', '11155868'], 'shard': 'merged from 12 shards'}
+
+## Per-run metrics
+ gsm8k3k_en_thinking  (N=3000, n=8)
+   maj@8 (ties wrong):     2894/3000 = 0.965 [0.957, 0.971]
+   pass@1 (samples):         23114/24000 = 0.963 [0.961, 0.965]  (Wilson treats samples as independent)
+   pass@8:                  2936/3000 = 0.979 [0.973, 0.983]
+   tie rate:                 15/3000 = 0.005 [0.003, 0.008]
+   no-answer (samples):      26/24000 = 0.001 [0.001, 0.002]
+   no-answer (all 8 unparseable): 3/3000 = 0.001 [0.000, 0.003]
+   truncated (samples):      27/24000 = 0.001 [0.001, 0.002]
+   mean vote share:          0.987
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 2973/3000 = 0.991 [0.987, 0.994]   precision 2889/2973 = 0.972 [0.965, 0.977]
+     t=0.750: coverage 2951/3000 = 0.984 [0.978, 0.988]   precision 2877/2951 = 0.975 [0.969, 0.980]
+     t=0.875: coverage 2920/3000 = 0.973 [0.967, 0.979]   precision 2853/2920 = 0.977 [0.971, 0.982]
+     t=1.000: coverage 2866/3000 = 0.955 [0.947, 0.962]   precision 2813/2866 = 0.982 [0.976, 0.986]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/3 = 0.000 [0.000, 0.561]
+     1/8: 0/1 = 0.000 [0.000, 0.793]
+     3/8: 0/1 = 0.000 [0.000, 0.793]
+     4/8: 5/22 = 0.227 [0.101, 0.434]
+     5/8: 12/22 = 0.545 [0.347, 0.731]
+     6/8: 24/31 = 0.774 [0.602, 0.886]
+     7/8: 40/54 = 0.741 [0.611, 0.839]
+     8/8: 2813/2866 = 0.982 [0.976, 0.986]
+ gsm8k3k_en_thinking.shard0of12  (N=250, n=8)
+   maj@8 (ties wrong):     246/250 = 0.984 [0.960, 0.994]
+   pass@1 (samples):         1965/2000 = 0.983 [0.976, 0.987]  (Wilson treats samples as independent)
+   pass@8:                  247/250 = 0.988 [0.965, 0.996]
+   tie rate:                 0/250 = 0.000 [0.000, 0.015]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      0/2000 = 0.000 [0.000, 0.002]
+   mean vote share:          0.997
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 249/250 = 0.996 [0.978, 0.999]   precision 245/249 = 0.984 [0.959, 0.994]
+     t=0.750: coverage 249/250 = 0.996 [0.978, 0.999]   precision 245/249 = 0.984 [0.959, 0.994]
+     t=0.875: coverage 249/250 = 0.996 [0.978, 0.999]   precision 245/249 = 0.984 [0.959, 0.994]
+     t=1.000: coverage 247/250 = 0.988 [0.965, 0.996]   precision 245/247 = 0.992 [0.971, 0.998]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 1/1 = 1.000 [0.207, 1.000]
+     7/8: 0/2 = 0.000 [0.000, 0.658]
+     8/8: 245/247 = 0.992 [0.971, 0.998]
+ gsm8k3k_en_thinking.shard10of12  (N=250, n=8)
+   maj@8 (ties wrong):     238/250 = 0.952 [0.918, 0.972]
+   pass@1 (samples):         1902/2000 = 0.951 [0.941, 0.960]  (Wilson treats samples as independent)
+   pass@8:                  244/250 = 0.976 [0.949, 0.989]
+   tie rate:                 2/250 = 0.008 [0.002, 0.029]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      2/2000 = 0.001 [0.000, 0.004]
+   mean vote share:          0.980
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 245/250 = 0.980 [0.954, 0.991]   precision 236/245 = 0.963 [0.932, 0.981]
+     t=0.750: coverage 242/250 = 0.968 [0.938, 0.984]   precision 235/242 = 0.971 [0.942, 0.986]
+     t=0.875: coverage 239/250 = 0.956 [0.923, 0.975]   precision 233/239 = 0.975 [0.946, 0.988]
+     t=1.000: coverage 233/250 = 0.932 [0.894, 0.957]   precision 227/233 = 0.974 [0.945, 0.988]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 2/5 = 0.400 [0.118, 0.769]
+     5/8: 1/3 = 0.333 [0.061, 0.792]
+     6/8: 2/3 = 0.667 [0.208, 0.939]
+     7/8: 6/6 = 1.000 [0.610, 1.000]
+     8/8: 227/233 = 0.974 [0.945, 0.988]
+ gsm8k3k_en_thinking.shard11of12  (N=250, n=8)
+   maj@8 (ties wrong):     245/250 = 0.980 [0.954, 0.991]
+   pass@1 (samples):         1959/2000 = 0.980 [0.972, 0.985]  (Wilson treats samples as independent)
+   pass@8:                  248/250 = 0.992 [0.971, 0.998]
+   tie rate:                 2/250 = 0.008 [0.002, 0.029]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      3/2000 = 0.002 [0.001, 0.004]
+   mean vote share:          0.990
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 248/250 = 0.992 [0.971, 0.998]   precision 245/248 = 0.988 [0.965, 0.996]
+     t=0.750: coverage 247/250 = 0.988 [0.965, 0.996]   precision 244/247 = 0.988 [0.965, 0.996]
+     t=0.875: coverage 244/250 = 0.976 [0.949, 0.989]   precision 242/244 = 0.992 [0.971, 0.998]
+     t=1.000: coverage 243/250 = 0.972 [0.943, 0.986]   precision 241/243 = 0.992 [0.970, 0.998]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     1/8: 0/1 = 0.000 [0.000, 0.793]
+     4/8: 0/1 = 0.000 [0.000, 0.793]
+     5/8: 1/1 = 1.000 [0.207, 1.000]
+     6/8: 2/3 = 0.667 [0.208, 0.939]
+     7/8: 1/1 = 1.000 [0.207, 1.000]
+     8/8: 241/243 = 0.992 [0.970, 0.998]
+ gsm8k3k_en_thinking.shard1of12  (N=250, n=8)
+   maj@8 (ties wrong):     236/250 = 0.944 [0.908, 0.966]
+   pass@1 (samples):         1895/2000 = 0.948 [0.937, 0.956]  (Wilson treats samples as independent)
+   pass@8:                  244/250 = 0.976 [0.949, 0.989]
+   tie rate:                 4/250 = 0.016 [0.006, 0.040]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      3/2000 = 0.002 [0.001, 0.004]
+   mean vote share:          0.982
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 246/250 = 0.984 [0.960, 0.994]   precision 236/246 = 0.959 [0.927, 0.978]
+     t=0.750: coverage 242/250 = 0.968 [0.938, 0.984]   precision 233/242 = 0.963 [0.931, 0.980]
+     t=0.875: coverage 240/250 = 0.960 [0.928, 0.978]   precision 231/240 = 0.963 [0.930, 0.980]
+     t=1.000: coverage 235/250 = 0.940 [0.903, 0.963]   precision 229/235 = 0.974 [0.945, 0.988]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 0/4 = 0.000 [0.000, 0.490]
+     5/8: 3/4 = 0.750 [0.301, 0.954]
+     6/8: 2/2 = 1.000 [0.342, 1.000]
+     7/8: 2/5 = 0.400 [0.118, 0.769]
+     8/8: 229/235 = 0.974 [0.945, 0.988]
+ gsm8k3k_en_thinking.shard2of12  (N=250, n=8)
+   maj@8 (ties wrong):     241/250 = 0.964 [0.933, 0.981]
+   pass@1 (samples):         1923/2000 = 0.962 [0.952, 0.969]  (Wilson treats samples as independent)
+   pass@8:                  243/250 = 0.972 [0.943, 0.986]
+   tie rate:                 0/250 = 0.000 [0.000, 0.015]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      0/2000 = 0.000 [0.000, 0.002]
+   mean vote share:          0.991
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 249/250 = 0.996 [0.978, 0.999]   precision 241/249 = 0.968 [0.938, 0.984]
+     t=0.750: coverage 247/250 = 0.988 [0.965, 0.996]   precision 240/247 = 0.972 [0.943, 0.986]
+     t=0.875: coverage 246/250 = 0.984 [0.960, 0.994]   precision 239/246 = 0.972 [0.942, 0.986]
+     t=1.000: coverage 240/250 = 0.960 [0.928, 0.978]   precision 233/240 = 0.971 [0.941, 0.986]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 0/1 = 0.000 [0.000, 0.793]
+     5/8: 1/2 = 0.500 [0.095, 0.905]
+     6/8: 1/1 = 1.000 [0.207, 1.000]
+     7/8: 6/6 = 1.000 [0.610, 1.000]
+     8/8: 233/240 = 0.971 [0.941, 0.986]
+ gsm8k3k_en_thinking.shard3of12  (N=250, n=8)
+   maj@8 (ties wrong):     244/250 = 0.976 [0.949, 0.989]
+   pass@1 (samples):         1947/2000 = 0.974 [0.966, 0.980]  (Wilson treats samples as independent)
+   pass@8:                  246/250 = 0.984 [0.960, 0.994]
+   tie rate:                 0/250 = 0.000 [0.000, 0.015]
+   no-answer (samples):      8/2000 = 0.004 [0.002, 0.008]
+   no-answer (all 8 unparseable): 1/250 = 0.004 [0.001, 0.022]
+   truncated (samples):      1/2000 = 0.001 [0.000, 0.003]
+   mean vote share:          0.990
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 249/250 = 0.996 [0.978, 0.999]   precision 244/249 = 0.980 [0.954, 0.991]
+     t=0.750: coverage 248/250 = 0.992 [0.971, 0.998]   precision 244/248 = 0.984 [0.959, 0.994]
+     t=0.875: coverage 245/250 = 0.980 [0.954, 0.991]   precision 242/245 = 0.988 [0.965, 0.996]
+     t=1.000: coverage 241/250 = 0.964 [0.933, 0.981]   precision 238/241 = 0.988 [0.964, 0.996]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/1 = 0.000 [0.000, 0.793]
+     5/8: 0/1 = 0.000 [0.000, 0.793]
+     6/8: 2/3 = 0.667 [0.208, 0.939]
+     7/8: 4/4 = 1.000 [0.510, 1.000]
+     8/8: 238/241 = 0.988 [0.964, 0.996]
+ gsm8k3k_en_thinking.shard4of12  (N=250, n=8)
+   maj@8 (ties wrong):     239/250 = 0.956 [0.923, 0.975]
+   pass@1 (samples):         1907/2000 = 0.954 [0.943, 0.962]  (Wilson treats samples as independent)
+   pass@8:                  241/250 = 0.964 [0.933, 0.981]
+   tie rate:                 0/250 = 0.000 [0.000, 0.015]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      1/2000 = 0.001 [0.000, 0.003]
+   mean vote share:          0.995
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 250/250 = 1.000 [0.985, 1.000]   precision 239/250 = 0.956 [0.923, 0.975]
+     t=0.750: coverage 248/250 = 0.992 [0.971, 0.998]   precision 237/248 = 0.956 [0.922, 0.975]
+     t=0.875: coverage 247/250 = 0.988 [0.965, 0.996]   precision 237/247 = 0.960 [0.927, 0.978]
+     t=1.000: coverage 244/250 = 0.976 [0.949, 0.989]   precision 236/244 = 0.967 [0.937, 0.983]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     5/8: 2/2 = 1.000 [0.342, 1.000]
+     6/8: 0/1 = 0.000 [0.000, 0.793]
+     7/8: 1/3 = 0.333 [0.061, 0.792]
+     8/8: 236/244 = 0.967 [0.937, 0.983]
+ gsm8k3k_en_thinking.shard5of12  (N=250, n=8)
+   maj@8 (ties wrong):     240/250 = 0.960 [0.928, 0.978]
+   pass@1 (samples):         1907/2000 = 0.954 [0.943, 0.962]  (Wilson treats samples as independent)
+   pass@8:                  242/250 = 0.968 [0.938, 0.984]
+   tie rate:                 0/250 = 0.000 [0.000, 0.015]
+   no-answer (samples):      18/2000 = 0.009 [0.006, 0.014]
+   no-answer (all 8 unparseable): 2/250 = 0.008 [0.002, 0.029]
+   truncated (samples):      5/2000 = 0.003 [0.001, 0.006]
+   mean vote share:          0.980
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 247/250 = 0.988 [0.965, 0.996]   precision 239/247 = 0.968 [0.937, 0.983]
+     t=0.750: coverage 245/250 = 0.980 [0.954, 0.991]   precision 239/245 = 0.976 [0.948, 0.989]
+     t=0.875: coverage 240/250 = 0.960 [0.928, 0.978]   precision 234/240 = 0.975 [0.947, 0.988]
+     t=1.000: coverage 236/250 = 0.944 [0.908, 0.966]   precision 231/236 = 0.979 [0.951, 0.991]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/2 = 0.000 [0.000, 0.658]
+     4/8: 1/1 = 1.000 [0.207, 1.000]
+     5/8: 0/2 = 0.000 [0.000, 0.658]
+     6/8: 5/5 = 1.000 [0.566, 1.000]
+     7/8: 3/4 = 0.750 [0.301, 0.954]
+     8/8: 231/236 = 0.979 [0.951, 0.991]
+ gsm8k3k_en_thinking.shard6of12  (N=250, n=8)
+   maj@8 (ties wrong):     237/250 = 0.948 [0.913, 0.969]
+   pass@1 (samples):         1898/2000 = 0.949 [0.938, 0.958]  (Wilson treats samples as independent)
+   pass@8:                  243/250 = 0.972 [0.943, 0.986]
+   tie rate:                 3/250 = 0.012 [0.004, 0.035]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      4/2000 = 0.002 [0.001, 0.005]
+   mean vote share:          0.985
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 247/250 = 0.988 [0.965, 0.996]   precision 237/247 = 0.960 [0.927, 0.978]
+     t=0.750: coverage 246/250 = 0.984 [0.960, 0.994]   precision 236/246 = 0.959 [0.927, 0.978]
+     t=0.875: coverage 242/250 = 0.968 [0.938, 0.984]   precision 233/242 = 0.963 [0.931, 0.980]
+     t=1.000: coverage 236/250 = 0.944 [0.908, 0.966]   precision 229/236 = 0.970 [0.940, 0.986]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     3/8: 0/1 = 0.000 [0.000, 0.793]
+     4/8: 0/2 = 0.000 [0.000, 0.658]
+     5/8: 1/1 = 1.000 [0.207, 1.000]
+     6/8: 3/4 = 0.750 [0.301, 0.954]
+     7/8: 4/6 = 0.667 [0.300, 0.903]
+     8/8: 229/236 = 0.970 [0.940, 0.986]
+ gsm8k3k_en_thinking.shard7of12  (N=250, n=8)
+   maj@8 (ties wrong):     243/250 = 0.972 [0.943, 0.986]
+   pass@1 (samples):         1939/2000 = 0.970 [0.961, 0.976]  (Wilson treats samples as independent)
+   pass@8:                  246/250 = 0.984 [0.960, 0.994]
+   tie rate:                 2/250 = 0.008 [0.002, 0.029]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      1/2000 = 0.001 [0.000, 0.003]
+   mean vote share:          0.987
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 247/250 = 0.988 [0.965, 0.996]   precision 242/247 = 0.980 [0.953, 0.991]
+     t=0.750: coverage 245/250 = 0.980 [0.954, 0.991]   precision 241/245 = 0.984 [0.959, 0.994]
+     t=0.875: coverage 244/250 = 0.976 [0.949, 0.989]   precision 240/244 = 0.984 [0.959, 0.994]
+     t=1.000: coverage 238/250 = 0.952 [0.918, 0.972]   precision 235/238 = 0.987 [0.964, 0.996]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 1/3 = 0.333 [0.061, 0.792]
+     5/8: 1/2 = 0.500 [0.095, 0.905]
+     6/8: 1/1 = 1.000 [0.207, 1.000]
+     7/8: 5/6 = 0.833 [0.436, 0.970]
+     8/8: 235/238 = 0.987 [0.964, 0.996]
+ gsm8k3k_en_thinking.shard8of12  (N=250, n=8)
+   maj@8 (ties wrong):     246/250 = 0.984 [0.960, 0.994]
+   pass@1 (samples):         1958/2000 = 0.979 [0.972, 0.984]  (Wilson treats samples as independent)
+   pass@8:                  247/250 = 0.988 [0.965, 0.996]
+   tie rate:                 0/250 = 0.000 [0.000, 0.015]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      5/2000 = 0.003 [0.001, 0.006]
+   mean vote share:          0.990
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 249/250 = 0.996 [0.978, 0.999]   precision 246/249 = 0.988 [0.965, 0.996]
+     t=0.750: coverage 247/250 = 0.988 [0.965, 0.996]   precision 245/247 = 0.992 [0.971, 0.998]
+     t=0.875: coverage 244/250 = 0.976 [0.949, 0.989]   precision 242/244 = 0.992 [0.971, 0.998]
+     t=1.000: coverage 240/250 = 0.960 [0.928, 0.978]   precision 238/240 = 0.992 [0.970, 0.998]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 0/1 = 0.000 [0.000, 0.793]
+     5/8: 1/2 = 0.500 [0.095, 0.905]
+     6/8: 3/3 = 1.000 [0.439, 1.000]
+     7/8: 4/4 = 1.000 [0.510, 1.000]
+     8/8: 238/240 = 0.992 [0.970, 0.998]
+ gsm8k3k_en_thinking.shard9of12  (N=250, n=8)
+   maj@8 (ties wrong):     239/250 = 0.956 [0.923, 0.975]
+   pass@1 (samples):         1914/2000 = 0.957 [0.947, 0.965]  (Wilson treats samples as independent)
+   pass@8:                  245/250 = 0.980 [0.954, 0.991]
+   tie rate:                 2/250 = 0.008 [0.002, 0.029]
+   no-answer (samples):      0/2000 = 0.000 [0.000, 0.002]
+   no-answer (all 8 unparseable): 0/250 = 0.000 [0.000, 0.015]
+   truncated (samples):      2/2000 = 0.001 [0.000, 0.004]
+   mean vote share:          0.983
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 247/250 = 0.988 [0.965, 0.996]   precision 239/247 = 0.968 [0.937, 0.983]
+     t=0.750: coverage 245/250 = 0.980 [0.954, 0.991]   precision 238/245 = 0.971 [0.942, 0.986]
+     t=0.875: coverage 240/250 = 0.960 [0.928, 0.978]   precision 235/240 = 0.979 [0.952, 0.991]
+     t=1.000: coverage 233/250 = 0.932 [0.894, 0.957]   precision 231/233 = 0.991 [0.969, 0.998]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     4/8: 0/3 = 0.000 [0.000, 0.561]
+     5/8: 1/2 = 0.500 [0.095, 0.905]
+     6/8: 3/5 = 0.600 [0.231, 0.882]
+     7/8: 4/7 = 0.571 [0.250, 0.842]
+     8/8: 231/233 = 0.991 [0.969, 0.998]
+
+## Caveats
+  - One model, one prompt, one seed per run; intervals on conditional rates use small subsets.
+  - Precision is about the voted final answer only, not the quality of the reasoning trace a teacher would see.
+  - Non-thinking answers come from the last \boxed{}; thinking answers (math mode) only from text after </think>.
+  - AfriMGSM English is human-parallel (an upper bound); COPSD target-language questions are machine translations.

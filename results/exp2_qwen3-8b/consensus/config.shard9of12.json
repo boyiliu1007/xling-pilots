@@ -1,0 +1,35 @@
+{
+  "model": "Qwen/Qwen3-8B",
+  "prompt_template": "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}.",
+  "versions": {
+    "python": "3.11.16",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  },
+  "runs": {
+    "gsm8k3k_en_thinking": {
+      "items": 250,
+      "n": 8,
+      "sampling": {
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "max_tokens": 16384,
+      "thinking": true,
+      "answer_mode": "numeric",
+      "seed": 42,
+      "generation_s": 4163.1,
+      "generated_tokens": 4472096,
+      "peak_gpu_mem_used_MiB": 46034,
+      "finished": "2026-11-14T23:44:08",
+      "host": "babel-s9-20",
+      "slurm_job_id": "11155866",
+      "shard": "9/12"
+    }
+  }
+}

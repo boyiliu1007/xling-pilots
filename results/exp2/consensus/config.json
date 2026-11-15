@@ -48,6 +48,40 @@
       "finished": "2026-11-13T09:10:32",
       "host": "babel-w9-16",
       "slurm_job_id": "11129721"
+    },
+    "gsm8k3k_en_thinking": {
+      "items": 3000,
+      "n": 8,
+      "sampling": {
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "max_tokens": 16384,
+      "thinking": true,
+      "answer_mode": "numeric",
+      "seed": 42,
+      "generation_s": 21076.2,
+      "generated_tokens": 49524899,
+      "peak_gpu_mem_used_MiB": 44424,
+      "finished": "2026-11-14T23:06:03",
+      "host": [
+        "babel-s9-28",
+        "babel-u9-16",
+        "babel-v9-32",
+        "babel-w9-22",
+        "babel-s9-20",
+        "babel-s9-20"
+      ],
+      "slurm_job_id": [
+        "11155852",
+        "11155854",
+        "11155856",
+        "11155858",
+        "11155860",
+        "11155862"
+      ],
+      "shard": "merged from 6 shards"
     }
   }
 }

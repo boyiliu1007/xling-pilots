@@ -1,5 +1,5 @@
 Self-consensus report: consensus
-generated 2026-11-13T09:11:36
+generated 2026-11-14T23:25:42
 Every rate: k/N = estimate [95% Wilson]. Gold answers are used only to score the vote.
 
 ## Config
@@ -9,6 +9,7 @@ Please reason step by step, and put your final answer within \boxed{{}}.
   versions: {'python': '3.11.16', 'torch': '2.14.0', 'vllm': '0.33.0', 'transformers': '5.20.2', 'datasets': '5.1.0', 'peft': '0.21.2', 'math-verify': '0.9.0'}
   run gsm8k_en_thinking: {'items': 500, 'n': 8, 'sampling': {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, 'max_tokens': 16384, 'thinking': True, 'answer_mode': 'numeric', 'seed': 42, 'generation_s': 3734.5, 'generated_tokens': 8456967, 'peak_gpu_mem_used_MiB': 44968, 'finished': '2026-11-13T01:36:50', 'host': 'babel-w9-16', 'slurm_job_id': '11129721'}
   run copsd_en_thinking: {'items': 500, 'n': 8, 'sampling': {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, 'max_tokens': 16384, 'thinking': True, 'answer_mode': 'math', 'seed': 42, 'generation_s': 27188.0, 'generated_tokens': 27544742, 'peak_gpu_mem_used_MiB': 44968, 'finished': '2026-11-13T09:10:32', 'host': 'babel-w9-16', 'slurm_job_id': '11129721'}
+  run gsm8k3k_en_thinking: {'items': 3000, 'n': 8, 'sampling': {'temperature': 0.6, 'top_p': 0.95, 'top_k': 20}, 'max_tokens': 16384, 'thinking': True, 'answer_mode': 'numeric', 'seed': 42, 'generation_s': 21076.2, 'generated_tokens': 49524899, 'peak_gpu_mem_used_MiB': 44424, 'finished': '2026-11-14T23:06:03', 'host': ['babel-s9-28', 'babel-u9-16', 'babel-v9-32', 'babel-w9-22', 'babel-s9-20', 'babel-s9-20'], 'slurm_job_id': ['11155852', '11155854', '11155856', '11155858', '11155860', '11155862'], 'shard': 'merged from 6 shards'}
 
 ## Per-run metrics
  copsd_en_thinking  (N=500, n=8)
@@ -36,6 +37,161 @@ Please reason step by step, and put your final answer within \boxed{{}}.
      7/8: 56/64 = 0.875 [0.772, 0.935]
      8/8: 287/316 = 0.908 [0.871, 0.935]
    gold-consistent subset (478 items) at t=0.625: coverage 424/478 = 0.887 [0.856, 0.912]  precision 393/424 = 0.927 [0.898, 0.948]
+ gsm8k3k_en_thinking  (N=3000, n=8)
+   maj@8 (ties wrong):     2806/3000 = 0.935 [0.926, 0.944]
+   pass@1 (samples):         22261/24000 = 0.928 [0.924, 0.931]  (Wilson treats samples as independent)
+   pass@8:                  2905/3000 = 0.968 [0.961, 0.974]
+   tie rate:                 23/3000 = 0.008 [0.005, 0.011]
+   no-answer (samples):      31/24000 = 0.001 [0.001, 0.002]
+   no-answer (all 8 unparseable): 3/3000 = 0.001 [0.000, 0.003]
+   truncated (samples):      25/24000 = 0.001 [0.001, 0.002]
+   mean vote share:          0.967
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 2937/3000 = 0.979 [0.973, 0.984]   precision 2792/2937 = 0.951 [0.942, 0.958]
+     t=0.750: coverage 2874/3000 = 0.958 [0.950, 0.965]   precision 2753/2874 = 0.958 [0.950, 0.965]
+     t=0.875: coverage 2779/3000 = 0.926 [0.916, 0.935]   precision 2690/2779 = 0.968 [0.961, 0.974]
+     t=1.000: coverage 2646/3000 = 0.882 [0.870, 0.893]   precision 2585/2646 = 0.977 [0.970, 0.982]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/3 = 0.000 [0.000, 0.561]
+     2/8: 0/6 = 0.000 [0.000, 0.390]
+     3/8: 3/11 = 0.273 [0.097, 0.566]
+     4/8: 11/43 = 0.256 [0.149, 0.402]
+     5/8: 39/63 = 0.619 [0.496, 0.729]
+     6/8: 63/95 = 0.663 [0.563, 0.750]
+     7/8: 105/133 = 0.789 [0.713, 0.850]
+     8/8: 2585/2646 = 0.977 [0.970, 0.982]
+ gsm8k3k_en_thinking.shard0of6  (N=500, n=8)
+   maj@8 (ties wrong):     475/500 = 0.950 [0.927, 0.966]
+   pass@1 (samples):         3757/4000 = 0.939 [0.931, 0.946]  (Wilson treats samples as independent)
+   pass@8:                  489/500 = 0.978 [0.961, 0.988]
+   tie rate:                 3/500 = 0.006 [0.002, 0.017]
+   no-answer (samples):      0/4000 = 0.000 [0.000, 0.001]
+   no-answer (all 8 unparseable): 0/500 = 0.000 [0.000, 0.008]
+   truncated (samples):      6/4000 = 0.002 [0.001, 0.003]
+   mean vote share:          0.968
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 490/500 = 0.980 [0.964, 0.989]   precision 472/490 = 0.963 [0.943, 0.977]
+     t=0.750: coverage 476/500 = 0.952 [0.930, 0.968]   precision 463/476 = 0.973 [0.954, 0.984]
+     t=0.875: coverage 466/500 = 0.932 [0.906, 0.951]   precision 455/466 = 0.976 [0.958, 0.987]
+     t=1.000: coverage 446/500 = 0.892 [0.862, 0.916]   precision 438/446 = 0.982 [0.965, 0.991]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     2/8: 0/1 = 0.000 [0.000, 0.793]
+     3/8: 1/4 = 0.250 [0.046, 0.699]
+     4/8: 2/5 = 0.400 [0.118, 0.769]
+     5/8: 9/14 = 0.643 [0.388, 0.837]
+     6/8: 8/10 = 0.800 [0.490, 0.943]
+     7/8: 17/20 = 0.850 [0.640, 0.948]
+     8/8: 438/446 = 0.982 [0.965, 0.991]
+ gsm8k3k_en_thinking.shard1of6  (N=500, n=8)
+   maj@8 (ties wrong):     465/500 = 0.930 [0.904, 0.949]
+   pass@1 (samples):         3700/4000 = 0.925 [0.916, 0.933]  (Wilson treats samples as independent)
+   pass@8:                  482/500 = 0.964 [0.944, 0.977]
+   tie rate:                 5/500 = 0.010 [0.004, 0.023]
+   no-answer (samples):      0/4000 = 0.000 [0.000, 0.001]
+   no-answer (all 8 unparseable): 0/500 = 0.000 [0.000, 0.008]
+   truncated (samples):      1/4000 = 0.000 [0.000, 0.001]
+   mean vote share:          0.969
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 489/500 = 0.978 [0.961, 0.988]   precision 463/489 = 0.947 [0.923, 0.963]
+     t=0.750: coverage 482/500 = 0.964 [0.944, 0.977]   precision 458/482 = 0.950 [0.927, 0.966]
+     t=0.875: coverage 465/500 = 0.930 [0.904, 0.949]   precision 450/465 = 0.968 [0.947, 0.980]
+     t=1.000: coverage 442/500 = 0.884 [0.853, 0.909]   precision 430/442 = 0.973 [0.953, 0.984]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     2/8: 0/1 = 0.000 [0.000, 0.793]
+     4/8: 2/10 = 0.200 [0.057, 0.510]
+     5/8: 5/7 = 0.714 [0.359, 0.918]
+     6/8: 8/17 = 0.471 [0.262, 0.690]
+     7/8: 20/23 = 0.870 [0.679, 0.955]
+     8/8: 430/442 = 0.973 [0.953, 0.984]
+ gsm8k3k_en_thinking.shard2of6  (N=500, n=8)
+   maj@8 (ties wrong):     464/500 = 0.928 [0.902, 0.948]
+   pass@1 (samples):         3686/4000 = 0.921 [0.913, 0.929]  (Wilson treats samples as independent)
+   pass@8:                  482/500 = 0.964 [0.944, 0.977]
+   tie rate:                 5/500 = 0.010 [0.004, 0.023]
+   no-answer (samples):      0/4000 = 0.000 [0.000, 0.001]
+   no-answer (all 8 unparseable): 0/500 = 0.000 [0.000, 0.008]
+   truncated (samples):      0/4000 = 0.000 [0.000, 0.001]
+   mean vote share:          0.966
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 490/500 = 0.980 [0.964, 0.989]   precision 461/490 = 0.941 [0.916, 0.958]
+     t=0.750: coverage 476/500 = 0.952 [0.930, 0.968]   precision 454/476 = 0.954 [0.931, 0.969]
+     t=0.875: coverage 461/500 = 0.922 [0.895, 0.942]   precision 444/461 = 0.963 [0.942, 0.977]
+     t=1.000: coverage 440/500 = 0.880 [0.849, 0.906]   precision 429/440 = 0.975 [0.956, 0.986]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     3/8: 1/3 = 0.333 [0.061, 0.792]
+     4/8: 2/7 = 0.286 [0.082, 0.641]
+     5/8: 7/14 = 0.500 [0.268, 0.732]
+     6/8: 10/15 = 0.667 [0.417, 0.848]
+     7/8: 15/21 = 0.714 [0.500, 0.862]
+     8/8: 429/440 = 0.975 [0.956, 0.986]
+ gsm8k3k_en_thinking.shard3of6  (N=500, n=8)
+   maj@8 (ties wrong):     468/500 = 0.936 [0.911, 0.954]
+   pass@1 (samples):         3709/4000 = 0.927 [0.919, 0.935]  (Wilson treats samples as independent)
+   pass@8:                  485/500 = 0.970 [0.951, 0.982]
+   tie rate:                 3/500 = 0.006 [0.002, 0.017]
+   no-answer (samples):      9/4000 = 0.002 [0.001, 0.004]
+   no-answer (all 8 unparseable): 1/500 = 0.002 [0.000, 0.011]
+   truncated (samples):      3/4000 = 0.001 [0.000, 0.002]
+   mean vote share:          0.967
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 491/500 = 0.982 [0.966, 0.991]   precision 466/491 = 0.949 [0.926, 0.965]
+     t=0.750: coverage 481/500 = 0.962 [0.941, 0.976]   precision 459/481 = 0.954 [0.932, 0.970]
+     t=0.875: coverage 467/500 = 0.934 [0.909, 0.953]   precision 451/467 = 0.966 [0.945, 0.979]
+     t=1.000: coverage 437/500 = 0.874 [0.842, 0.900]   precision 428/437 = 0.979 [0.961, 0.989]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/1 = 0.000 [0.000, 0.793]
+     2/8: 0/2 = 0.000 [0.000, 0.658]
+     3/8: 0/1 = 0.000 [0.000, 0.793]
+     4/8: 2/5 = 0.400 [0.118, 0.769]
+     5/8: 7/10 = 0.700 [0.397, 0.892]
+     6/8: 8/14 = 0.571 [0.326, 0.786]
+     7/8: 23/30 = 0.767 [0.591, 0.882]
+     8/8: 428/437 = 0.979 [0.961, 0.989]
+ gsm8k3k_en_thinking.shard4of6  (N=500, n=8)
+   maj@8 (ties wrong):     459/500 = 0.918 [0.891, 0.939]
+   pass@1 (samples):         3658/4000 = 0.914 [0.905, 0.923]  (Wilson treats samples as independent)
+   pass@8:                  480/500 = 0.960 [0.939, 0.974]
+   tie rate:                 4/500 = 0.008 [0.003, 0.020]
+   no-answer (samples):      0/4000 = 0.000 [0.000, 0.001]
+   no-answer (all 8 unparseable): 0/500 = 0.000 [0.000, 0.008]
+   truncated (samples):      6/4000 = 0.002 [0.001, 0.003]
+   mean vote share:          0.964
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 488/500 = 0.976 [0.959, 0.986]   precision 458/488 = 0.939 [0.914, 0.957]
+     t=0.750: coverage 478/500 = 0.956 [0.934, 0.971]   precision 452/478 = 0.946 [0.921, 0.963]
+     t=0.875: coverage 453/500 = 0.906 [0.877, 0.929]   precision 435/453 = 0.960 [0.938, 0.975]
+     t=1.000: coverage 440/500 = 0.880 [0.849, 0.906]   precision 428/440 = 0.973 [0.953, 0.984]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     2/8: 0/1 = 0.000 [0.000, 0.793]
+     3/8: 1/1 = 1.000 [0.207, 1.000]
+     4/8: 0/10 = 0.000 [0.000, 0.278]
+     5/8: 6/10 = 0.600 [0.313, 0.832]
+     6/8: 17/25 = 0.680 [0.484, 0.828]
+     7/8: 7/13 = 0.538 [0.291, 0.768]
+     8/8: 428/440 = 0.973 [0.953, 0.984]
+ gsm8k3k_en_thinking.shard5of6  (N=500, n=8)
+   maj@8 (ties wrong):     475/500 = 0.950 [0.927, 0.966]
+   pass@1 (samples):         3751/4000 = 0.938 [0.930, 0.945]  (Wilson treats samples as independent)
+   pass@8:                  487/500 = 0.974 [0.956, 0.985]
+   tie rate:                 3/500 = 0.006 [0.002, 0.017]
+   no-answer (samples):      22/4000 = 0.005 [0.004, 0.008]
+   no-answer (all 8 unparseable): 2/500 = 0.004 [0.001, 0.014]
+   truncated (samples):      9/4000 = 0.002 [0.001, 0.004]
+   mean vote share:          0.967
+   confidence filtering (coverage = eligible / all items; precision = majority correct among eligible):
+     t=0.625: coverage 489/500 = 0.978 [0.961, 0.988]   precision 472/489 = 0.965 [0.945, 0.978]
+     t=0.750: coverage 481/500 = 0.962 [0.941, 0.976]   precision 467/481 = 0.971 [0.952, 0.983]
+     t=0.875: coverage 467/500 = 0.934 [0.909, 0.953]   precision 455/467 = 0.974 [0.956, 0.985]
+     t=1.000: coverage 441/500 = 0.882 [0.851, 0.907]   precision 432/441 = 0.980 [0.962, 0.989]
+   vote-share calibration (majority accuracy by number of agreeing samples; ties/no-answer count wrong):
+     0/8: 0/2 = 0.000 [0.000, 0.658]
+     2/8: 0/1 = 0.000 [0.000, 0.793]
+     3/8: 0/2 = 0.000 [0.000, 0.658]
+     4/8: 3/6 = 0.500 [0.188, 0.812]
+     5/8: 5/8 = 0.625 [0.306, 0.863]
+     6/8: 12/14 = 0.857 [0.601, 0.960]
+     7/8: 23/26 = 0.885 [0.710, 0.960]
+     8/8: 432/441 = 0.980 [0.962, 0.989]
  gsm8k_en_thinking  (N=500, n=8)
    maj@8 (ties wrong):     464/500 = 0.928 [0.902, 0.948]
    pass@1 (samples):         3704/4000 = 0.926 [0.917, 0.934]  (Wilson treats samples as independent)

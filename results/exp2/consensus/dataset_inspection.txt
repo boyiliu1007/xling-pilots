@@ -6,3 +6,27 @@ GSM8K train: 500 of 7473 rows via random.Random(42).sample, sorted; first 10 ind
 ================================================================================
 COPSD train (yihongLiu/COPSD-AfriMGSM-TrainDataset) en: 500 rows; sources {'olympiads': 500}
 gold 'Answer' parseable and equal to the reference solution's last \boxed{}: 478/500; first 5 disagreements: [(28, '8', '-2'), (35, '26', '51'), (54, '\\sum_{k=0}^{r}\\binom{n}{k}\\binom{m}{r-k} = \\binom{n+m}{r}', '\\sum_{k=0}^{n} \\binom{n}{k}^2 = \\binom{2n}{n}'), (62, '8', '1'), (67, '\\frac{a}{b+c}+\\frac{b}{c+a}+\\frac{c}{a+b} \\geq \\frac{3}{2}', 'a^3 + b^3 + c^3 + \\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} \\geq 2(a+b+c)')]
+Dataset inspection 2026-11-14T21:57:43
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-14T22:00:46
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-14T22:12:45
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-14T22:20:47
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-14T22:21:36
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-14T22:21:36
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
