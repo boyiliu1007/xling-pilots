@@ -38,6 +38,21 @@ def gen_file(data, rep_pen=1.0):
     return SFT_DIR / (f"gen_{data}.jsonl" if rep_pen == 1.0 else f"gen_{data}_rp{rep_pen}.jsonl")
 
 
+ALL_QUESTIONS = ("gsm8k-mt3k",)   # sample every (QC-passing) question, not only the vote-accepted ones
+
+
+def _gen_rows(data):
+    """Questions to sample. copsd: the vote-accepted L3-vote rows (as before). gsm8k-mt3k: every question; the English
+    vote is attached where it accepted the question (vote_answer None otherwise), so the gold / no-filter arms are not
+    restricted to questions the English vote is confident on."""
+    if data not in ALL_QUESTIONS:
+        return training_rows(data, "L3-vote")
+    from .trainsets import source_rows, voted_references
+    refs = voted_references(data)
+    rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None} for r in source_rows(data, False)]
+    return rows, {"dataset": data, "rows": len(rows), "vote_accepted": sum(r["vote_answer"] is not None for r in rows)}
+
+
 def generate(data, rep_pen=1.0):
     """Sample, filter by agreement with the English vote, write gen_<data>.jsonl (all samples, with a `keep` flag).
     rep_pen > 1 (penalty-decoded self-SFT, run variant "rp"): samples drawn with that repetition penalty, and an answer
@@ -50,7 +65,7 @@ def generate(data, rep_pen=1.0):
             return read_jsonl(gen_file(data, rep_pen))
         from transformers import AutoTokenizer
         from vllm import LLM, SamplingParams
-        rows, desc = training_rows(data, "L3-vote")
+        rows, desc = _gen_rows(data)
         tok = AutoTokenizer.from_pretrained(MODEL)
         col = make_collator(tok, OFFICIAL["max_length"], False, False)
         sp_ids = [_prompt_ids(col, r, "student") for r in rows]
@@ -67,7 +82,7 @@ def generate(data, rep_pen=1.0):
             kept = 0
             for j, c in enumerate(o.outputs):
                 s, pp = extract_pred(c.text, thinking=True)
-                ok = c.finish_reason == "stop" and s is not None and equiv(m, parse_answer(m), s, pp)
+                ok = c.finish_reason == "stop" and s is not None and m is not None and equiv(m, parse_answer(m), s, pp)
                 lang = language_of(c.text)
                 ok = ok and (rep_pen == 1.0 or lang == "sw")
                 keep = ok and kept < PER_Q
@@ -138,7 +153,7 @@ def _filter_keep(recs, data, filt, rep_pen):
     gold = {r["qid"]: r["Answer"] for r in (_copsd_rows() if data == "copsd" else _gsm8k_rows())} if filt == "gold" else {}
     out = []
     for q, ss in by_q.items():
-        target = {"vote": ss[0]["vote_answer"], "gold": gold.get(q), "nofilter": None,
+        target = {"vote": ss[0].get("vote_answer"), "gold": gold.get(q), "nofilter": None,
                   "swvote": _sw_majority(ss) if filt == "swvote" else None}[filt]
         if filt != "nofilter" and target is None:
             continue
@@ -175,7 +190,8 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     from transformers import AutoModelForCausalLM, get_linear_schedule_with_warmup
     from ..copsd.config import GA, MICRO_BS
     from ..copsd.train import LOSS_CSV_HEADER, _load_rng, _save_rng, latest_ckpt, prune_old_states
-    from .runs import SFT_STEPS, paths
+    from .runs import paths, sft_steps
+    SFT_STEPS = sft_steps(name)
     if layout != "exact":
         raise SystemExit("self-SFT is defined for the exact layout only")
     rd, ck = paths(name)

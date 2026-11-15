@@ -25,10 +25,13 @@ from ..copsd.collator import prepare_rows
 from ..paths import RESULTS
 from .levels import EXP2_RESULTS, TEACHER_CONTEXTS
 
-DATASETS = ("copsd", "gsm8k-mt", "mix")
+DATASETS = ("copsd", "gsm8k-mt", "mix", "gsm8k-mt3k")
 MT_FILE = RESULTS / "exp2" / "data" / "gsm8k_swa_mt.jsonl"   # NLLB translation: shared by every model
 CONSENSUS = EXP2_RESULTS / "consensus"
-CONSENSUS_FILE = {"copsd": "copsd_en_thinking.jsonl", "gsm8k-mt": "gsm8k_en_thinking.jsonl"}
+# gsm8k-mt3k: a 3000-question GSM8K train sample (same seed, NLLB, same QC), used by the large self-SFT ablation only
+MT_FILES = {"gsm8k-mt": MT_FILE, "gsm8k-mt3k": RESULTS / "exp2" / "data" / "gsm8k_swa_mt3k.jsonl"}
+CONSENSUS_FILE = {"copsd": "copsd_en_thinking.jsonl", "gsm8k-mt": "gsm8k_en_thinking.jsonl",
+                  "gsm8k-mt3k": "gsm8k3k_en_thinking.jsonl"}
 VOTE_THRESHOLD = 5 / 8
 SUBSAMPLE_SEED = 42
 
@@ -45,16 +48,17 @@ def _copsd_rows():
     return [{**r, "qid": i, "dataset": "copsd"} for i, r in enumerate(rows)]
 
 
-def _gsm8k_rows():
-    if not MT_FILE.exists():
-        raise SystemExit(f"{MT_FILE} missing: run `python -m votedistill.exp2 translate` first")
+def _gsm8k_rows(dataset="gsm8k-mt"):
+    f = MT_FILES[dataset]
+    if not f.exists():
+        raise SystemExit(f"{f} missing: run `python -m votedistill.exp2 translate` first")
     out = []
-    for m in read_jsonl(MT_FILE):
+    for m in read_jsonl(f):
         if not m["qc_ok"]:
             continue
         r = {"problem": m["question_en"], "problem_translated": m["question_sw"], "Answer": m["gold"],
              "solution": gsm8k_reference(m["answer_en"]), "source": "gsm8k_train", "language": "swa"}
-        out.append({**prepare_rows([r], "swa")[0], "qid": m["qid"], "dataset": "gsm8k-mt"})
+        out.append({**prepare_rows([r], "swa")[0], "qid": m["qid"], "dataset": dataset})
     return out
 
 
@@ -71,7 +75,7 @@ def voted_references(dataset, threshold=VOTE_THRESHOLD):
     p = CONSENSUS / CONSENSUS_FILE[dataset]
     if not p.exists():
         raise SystemExit(f"{p} missing: run the English thinking-mode consensus first")
-    mode = "numeric" if dataset == "gsm8k-mt" else "math"
+    mode = "numeric" if dataset.startswith("gsm8k") else "math"
     out = {}
     for rec in read_jsonl(p):
         if not eligible(rec, threshold):
@@ -94,7 +98,7 @@ def _subsample(rows, n, seed=SUBSAMPLE_SEED):
 
 def source_rows(dataset, uses_vote, threshold=VOTE_THRESHOLD):
     """Rows of copsd / gsm8k-mt; with uses_vote only accepted questions, carrying vote_solution / vote_answer."""
-    rows = _copsd_rows() if dataset == "copsd" else _gsm8k_rows()
+    rows = _copsd_rows() if dataset == "copsd" else _gsm8k_rows(dataset)
     if not uses_vote:
         return rows
     refs = voted_references(dataset, threshold)

@@ -67,7 +67,10 @@ def main():
     de.add_argument("--name", required=True)
     de.add_argument("--step", type=int, default=100)
     de.add_argument("--level", required=True, choices=list(LEVELS))
-    sub.add_parser("translate")
+    g = sub.add_parser("selfsft-gen")
+    g.add_argument("--data", required=True)
+    g.add_argument("--rep_pen", type=float, default=1.1)
+    sub.add_parser("translate").add_argument("--data", default="gsm8k-mt", choices=["gsm8k-mt", "gsm8k-mt3k"])
     sub.add_parser("trainsets")
     for c in ("train", "eval-run", "run-report", "eval-final", "eval-run-final"):
         x = sub.add_parser(c)
@@ -153,11 +156,17 @@ def run_commands(args):
                 except SystemExit as e:
                     print(ctx, d, "unavailable:", e)
         return
+    if args.cmd == "selfsft-gen":
+        from .selfsft import SFT_DIR, filter_arms, generate
+        setup_logging(SFT_DIR / "logs" / f"gen_{args.data}.log")
+        generate(args.data, args.rep_pen)
+        filter_arms(args.data, args.rep_pen)
+        return
     if args.cmd == "translate":
         from .trainsets import MT_FILE
         setup_logging(MT_FILE.parent / "logs" / "translate.log")
         from .translate import translate
-        translate()
+        translate(dataset=args.data)
         return
     if args.cmd == "run-report":
         print(runs.report_run(args.name))

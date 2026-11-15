@@ -29,6 +29,11 @@ CLIP_VARIANTS = {"noclip": None, "clip0.2": 0.2, "clip0.5": 0.5}   # loss clip a
 INITS = {"s1vote30": ("L3-vote", 30), "s1gold30": ("L3-gold", 30), "s1sft30": ("selfsft-vote", 30)}
 SFT_CONTEXT = "selfsft-vote"   # stage-1 alternative: SFT on the model's own vote-consistent Swahili answers (selfsft.py)
 SFT_STEPS = 30
+SFT_STEPS_DATA = {"gsm8k-mt3k": 100}   # large self-SFT ablation (PREREGISTRATION 2026-11-15)
+
+
+def sft_steps(name):
+    return SFT_STEPS_DATA.get(name.split("__")[1], SFT_STEPS)
 
 
 STYLE_VARIANTS = {"enthink": "en-think-sw"}
@@ -136,14 +141,14 @@ def eval_steps(name, max_steps=MAX_STEPS):
     """Checkpoints this run evaluates: its own (two-stage: from the switch step on; self-SFT: 10..30)."""
     from ..copsd.config import SAVE_EVERY
     if name.split("__")[0] == SFT_CONTEXT:
-        return [f"step{s}" for s in range(SAVE_EVERY, SFT_STEPS + 1, SAVE_EVERY)]
+        return [f"step{s}" for s in range(SAVE_EVERY, sft_steps(name) + 1, SAVE_EVERY)]
     init = init_of(name)
     first = init[1] if init else SAVE_EVERY
     return [f"step{s}" for s in range(first, max_steps + 1, SAVE_EVERY)]
 
 
 def final_step(name, max_steps=MAX_STEPS):
-    return SFT_STEPS if name.split("__")[0] == SFT_CONTEXT else max_steps
+    return sft_steps(name) if name.split("__")[0] == SFT_CONTEXT else max_steps
 
 
 def _warm_start(name, rd, ck, desc):

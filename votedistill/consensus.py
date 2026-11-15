@@ -36,7 +36,8 @@ log = logging.getLogger("votedistill.consensus")
 
 PROMPT = "{question}\nPlease reason step by step, and put your final answer within \\boxed{{}}."
 # Answer checking per dataset: 'numeric' = number extraction (GSM8K-style), 'math' = math-verify (COPSD's grader).
-ANSWER_MODE = {"afrimgsm": "numeric", "gsm8k": "numeric", "copsd": "math"}
+ANSWER_MODE = {"afrimgsm": "numeric", "gsm8k": "numeric", "gsm8k3k": "numeric", "copsd": "math"}
+GSM8K_N = {"gsm8k": 500, "gsm8k3k": 3000}   # GSM8K train sample size (data.gsm8k_items, same seed)
 THRESHOLDS = [0.625, 0.75, 0.875, 1.0]
 
 
@@ -97,7 +98,7 @@ def load_runs(specs, thinking, seed, lines):
         else:
             if lang != "en":
                 raise SystemExit("gsm8k is English only")
-            items = data.gsm8k_items(lines, seed=seed)
+            items = data.gsm8k_items(lines, n=GSM8K_N[dataset], seed=seed)
         runs[run_name(dataset, lang, thinking)] = (dataset, items)
     return runs
 

@@ -13,7 +13,7 @@ from datetime import datetime
 
 from ..data import _question_numbers, gsm8k_items
 from ..utils import versions, write_json, write_jsonl
-from .trainsets import MT_FILE
+from .trainsets import MT_FILE, MT_FILES
 
 log = logging.getLogger("votedistill.exp2.translate")
 MT_MODEL = "facebook/nllb-200-3.3B"
@@ -73,12 +73,14 @@ def requalify():
     return recs
 
 
-def translate(batch_size=32):
+def translate(batch_size=32, dataset="gsm8k-mt"):
+    """dataset gsm8k-mt: 500 questions -> MT_FILE; gsm8k-mt3k: 3000 questions (same seed) -> MT_FILES['gsm8k-mt3k']."""
+    MT_FILE = MT_FILES[dataset]
     import torch
     from datasets import load_dataset
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
     lines = []
-    items = gsm8k_items(lines)
+    items = gsm8k_items(lines, n=3000 if dataset == "gsm8k-mt3k" else 500)
     ds = load_dataset("openai/gsm8k", "main", split="train")
     tok = AutoTokenizer.from_pretrained(MT_MODEL, src_lang=SRC)
     model = AutoModelForSeq2SeqLM.from_pretrained(MT_MODEL, dtype=torch.bfloat16).cuda().eval()

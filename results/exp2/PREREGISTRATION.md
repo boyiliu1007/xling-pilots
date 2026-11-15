@@ -226,3 +226,23 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   The proposal's claim is supported if F1 > 0 with the CI excluding zero in both seeds on at least one model.
   If F1 ~ 0 and F2 ~ 0, the self-SFT gain is loop-breaking from penalty-decoded data, not English knowledge, and is
   reported as such. Next step (iteration / more questions to beat base + penalty) is decided after these results.
+- 2026-11-14 ~22:30, large self-SFT filter ablation (agreed with the user: larger set, more steps, a bigger model;
+  written before any of these runs or their data exist). Known: the small ablation above: F1, F2, F3 all ~0 on
+  both models (gold-correct training answers = 18%-correct ones). Question: is answer correctness irrelevant only
+  because 30 steps on 200-300 examples teach form (finish, no loops) but not reasoning?
+  Data: gsm8k-mt3k = a 3000-question GSM8K *train* sample (data.gsm8k_items n 3000, seed 42; may overlap the
+  500-question gsm8k-mt sample), NLLB-200 3.3B translation with the same QC; English thinking-mode consensus per
+  model on the 3000 English questions (n 8, T 0.6, 16384 tokens, threshold 5/8, as before; sharded and merged).
+  Sample pool per model: 8 Swahili samples per QC-passing question with repetition penalty 1.1 (COPSD training
+  sampling, 2048 tokens), over *all* questions (the gold / no-filter / Swahili-vote arms are not restricted to
+  questions the English vote accepted). Arms as before (vote / swvote / nofilter / gold, at most 2 per question,
+  equalised to the smallest arm, seed 1234). Training: 100 SFT steps (batch 32; LR schedule over 100 steps as
+  before), seeds 42/43. Models: Qwen3-1.7B (A6000) and Qwen3-8B (RTX PRO 6000; results/exp2_qwen3-8b; its base
+  L0 / L0-reppen1.1 evaluations copied from results/exp2/L0-qwen3-8b[-reppen1.1]). Qwen3-4B is not repeated (cost).
+  Run names selfsft-vote__gsm8k-mt3k__exact__rp-<filter>__s{42,43}. Evaluation: TEST at step 100, default decoding
+  and penalty 1.1 (eval-final), as before.
+  Primary outcomes, same as before: F1 vote - swvote, F2 vote - nofilter, F3 gold - vote (mean_acc and maj@12,
+  default decoding, paired bootstrap per seed, each model); plus G = gold - nofilter (does correctness matter at all).
+  Predictions: G > 0 at this scale on at least one model (if correctness ever matters, it should with ~10x the
+  training examples); F1, F2 > 0 if G > 0. If G ~ 0 on both models, the conclusion is that penalty-decoded
+  self-SFT teaches form, not reasoning, at the scale this project can afford, and the write-up says so.
