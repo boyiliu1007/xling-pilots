@@ -322,3 +322,9 @@ Added arm: `grpo__gsm8k-mt3k__exact__goldsw-lr5e-5__s42`, identical except learn
 is not above its steps 1–10 mean (0.180), the lr-1e-5 run is stopped and the remaining arms (gold, s43, votesw,
 goldswv) move to the learning rate that learns; the lr-1e-5 checkpoints that exist are still evaluated and reported.
 Both learning rates are reported; the success criterion is unchanged and is judged on the arm(s) that complete.
+
+### ~19:05 — step-50 rule applied
+`goldsw` lr 1e-5 s42: steps 41–50 mean reward 0.141 vs steps 1–10 0.180 (0.172 / 0.173 / 0.144 in between) →
+stopped at step 51. Its step-50 checkpoint is evaluated (TEST, default and penalty-1.1 decoding) as
+`EXP2_FINAL_STEP=50`. The other lr-1e-5 arms (gold s42, gold s43, goldsw s43) are held, not yet moved: they move to
+lr 5e-5 only if the lr-5e-5 run learns by the same rule (steps 41–50 mean reward above its steps 1–10 mean).

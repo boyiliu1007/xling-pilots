@@ -6,6 +6,7 @@ hyperparameters; only the teacher's rows, the data and the layout change. Evalua
 fixed DEV/TEST split; the checkpoint is selected by DEV maj@12 (PREREGISTRATION.md). The base model's evaluation is
 L0 (results/exp2/L0, same protocol), copied into each run so the run's report is self-contained.
 """
+import os
 import re
 import logging
 import shutil
@@ -180,6 +181,8 @@ def eval_steps(name, max_steps=MAX_STEPS):
 
 
 def final_step(name, max_steps=MAX_STEPS):
+    if os.environ.get("EXP2_FINAL_STEP"):   # a run stopped early by a preregistered rule: evaluate its last checkpoint
+        return int(os.environ["EXP2_FINAL_STEP"])
     if name.split("__")[0] == GRPO_CONTEXT:
         from .grpo import STEPS
         return STEPS
