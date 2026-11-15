@@ -67,6 +67,7 @@ def main():
     de.add_argument("--name", required=True)
     de.add_argument("--step", type=int, default=100)
     de.add_argument("--level", required=True, choices=list(LEVELS))
+    sub.add_parser("selfsft-gen-r2").add_argument("--name", required=True)
     g = sub.add_parser("selfsft-gen")
     g.add_argument("--data", required=True)
     g.add_argument("--rep_pen", type=float, default=1.1)
@@ -84,7 +85,8 @@ def main():
         from .summary import build_summary
         print(build_summary())
         return
-    if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report", "eval-final", "eval-run-final"):
+    if args.cmd in ("translate", "trainsets", "train", "eval-run", "run-report", "eval-final", "eval-run-final",
+                    "selfsft-gen", "selfsft-gen-r2"):
         return run_commands(args)
 
     if args.cmd == "decode-eval":
@@ -155,6 +157,12 @@ def run_commands(args):
                     print(ctx, d, desc)
                 except SystemExit as e:
                     print(ctx, d, "unavailable:", e)
+        return
+    if args.cmd == "selfsft-gen-r2":
+        from .runs import paths
+        from .selfsft import round2_pool
+        setup_logging(paths(args.name)[0] / "logs" / "round2_pool.log")
+        round2_pool(args.name)
         return
     if args.cmd == "selfsft-gen":
         from .selfsft import SFT_DIR, filter_arms, generate

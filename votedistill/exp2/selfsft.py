@@ -11,6 +11,7 @@ SFT_STEPS optimizer steps; checkpoints every 10 in the trainer's format, so a st
 exactly like from a clipped COPSD stage 1 (runs.INITS["s1sft30"]).
 """
 import fcntl
+import json
 import logging
 import random
 import time
@@ -51,6 +52,64 @@ def _gen_rows(data):
     refs = voted_references(data)
     rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None} for r in source_rows(data, False)]
     return rows, {"dataset": data, "rows": len(rows), "vote_accepted": sum(r["vote_answer"] is not None for r in rows)}
+
+
+def round2_pool(name, rep_pen=1.1):
+    """Round 2 (on-policy): sample the round-1 run's final checkpoint exactly as the round-1 pool was sampled (same
+    questions, prompts, sampling and seeds), keep with the same filter (at most PER_Q per question), subsample (seed
+    FILTER_SEED) to the round-1 equalised size. Runs in its own process (exp2 selfsft-gen-r2): a vLLM engine is not
+    freed within a process. Writes <run dir>/round2_pool.jsonl (kept samples) and round2_pool.meta.json."""
+    from transformers import AutoTokenizer
+    from vllm import LLM, SamplingParams
+    from vllm.lora.request import LoRARequest
+    from .runs import filter_of, final_step, parse_name, paths, round1_of
+    _, data, _, _, _ = parse_name(name)
+    rd, _ = paths(name)
+    out = rd / "round2_pool.jsonl"
+    if out.exists():
+        return read_jsonl(out)
+    r1 = round1_of(name)
+    _, ck1 = paths(r1)
+    adapter = ck1 / f"step-{final_step(r1)}" / "adapter"
+    if not (adapter.parent / "COMPLETE").exists():
+        raise SystemExit(f"round-1 checkpoint {adapter} not complete")
+    pool1 = read_jsonl(gen_file(data, rep_pen))
+    n_target = json.loads(gen_file(data, rep_pen).with_suffix(".filters.json").read_text())["size"]
+    rows, _ = _gen_rows(data)
+    tok = AutoTokenizer.from_pretrained(MODEL)
+    col = make_collator(tok, OFFICIAL["max_length"], False, False)
+    sp_ids = [_prompt_ids(col, r, "student") for r in rows]
+    llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.85, max_model_len=8192, seed=GEN_SEED,
+              enable_lora=True, max_lora_rank=64, max_loras=1)
+    sps = [SamplingParams(n=GEN_N, temperature=OFFICIAL["temperature"], top_p=OFFICIAL["top_p"], top_k=OFFICIAL["top_k"],
+                          min_p=0.0, max_tokens=OFFICIAL["max_completion_length"], repetition_penalty=rep_pen,
+                          seed=GEN_SEED * 1_000_003 + i) for i in range(len(rows))]
+    t0 = time.time()
+    outs = llm.generate([{"prompt_token_ids": p} for p in sp_ids], sps, use_tqdm=False,
+                        lora_request=LoRARequest("r1", 1, str(adapter)))
+    from ..copsd.evaluate import language_of
+    recs = []
+    for r, p, o in zip(rows, sp_ids, outs):
+        for j, c in enumerate(o.outputs):
+            s, _ = extract_pred(c.text, thinking=True)
+            recs.append({"dataset": r["dataset"], "qid": r["qid"], "sample": j, "student_prompt_ids": p,
+                         "completion_ids": list(c.token_ids), "text": c.text, "finish_reason": c.finish_reason,
+                         "pred": s, "vote_answer": r.get("vote_answer"), "lang": language_of(c.text)})
+    filt = filter_of(name)
+    kept = _filter_keep(recs, data, filt, rep_pen)
+    n_before = len(kept)
+    idx = sorted(random.Random(FILTER_SEED).sample(range(len(kept)), min(n_target, len(kept))))
+    kept = [kept[i] for i in idx]
+    write_jsonl(out, kept)
+    elig = [r for r in recs if _eligible(r, rep_pen)]
+    write_json(rd / "round2_pool.meta.json", {
+        "round1_run": r1, "adapter": str(adapter), "filter": filt, "samples": len(recs),
+        "finished": sum(r["finish_reason"] == "stop" for r in recs), "eligible": len(elig),
+        "kept_before_subsample": n_before, "target_size": n_target, "kept": len(kept),
+        "questions": len({r["qid"] for r in kept}), "round1_pool_eligible": sum(_eligible(r, rep_pen) for r in pool1),
+        "generation_s": round(time.time() - t0), "versions": versions(), "created": datetime.now().isoformat(timespec="seconds")})
+    log.info(f"round-2 pool {name}: {len(recs)} samples, {len(elig)} eligible, kept {len(kept)} (target {n_target})")
+    return kept
 
 
 def generate(data, rep_pen=1.0):
@@ -190,14 +249,22 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     from transformers import AutoModelForCausalLM, get_linear_schedule_with_warmup
     from ..copsd.config import GA, MICRO_BS
     from ..copsd.train import LOSS_CSV_HEADER, _load_rng, _save_rng, latest_ckpt, prune_old_states
-    from .runs import paths, sft_steps
+    from .runs import final_step, paths, sft_steps
     SFT_STEPS = sft_steps(name)
     if layout != "exact":
         raise SystemExit("self-SFT is defined for the exact layout only")
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     ck.mkdir(parents=True, exist_ok=True)
-    if filt is None:
+    from .runs import round1_of
+    r1 = round1_of(name)
+    if r1:   # round 2: pool sampled from the round-1 checkpoint in a separate process
+        import subprocess
+        import sys
+        if not (rd / "round2_pool.jsonl").exists():
+            subprocess.run([sys.executable, "-m", "votedistill.exp2", "selfsft-gen-r2", "--name", name], check=True)
+        recs = read_jsonl(rd / "round2_pool.jsonl")
+    elif filt is None:
         recs = [r for r in generate(data, rep_pen) if r["keep"]]
     else:
         generate(data, rep_pen)
@@ -210,7 +277,7 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
         return
     write_json(rd / "config.json", {"model": MODEL, "method": "vote-filtered self-SFT (selfsft.py)", "doc": __doc__,
                                     "examples": len(recs), "questions": len({r["qid"] for r in recs}),
-                                    "data": str(gen_file(data, rep_pen)), "filter": filt or "vote (unequalised)",
+                                    "data": str(gen_file(data, rep_pen)), "filter": filt or "vote (unequalised)", "round1_init": r1,
                                     "generation_repetition_penalty": rep_pen, "steps": SFT_STEPS, "seed": seed, "layout": layout,
                                     "official_optimizer": {k: OFFICIAL[k] for k in ("learning_rate", "max_grad_norm",
                                                            "lora_r", "lora_alpha", "max_steps")},
@@ -232,6 +299,10 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     opt = torch.optim.AdamW(params, lr=OFFICIAL["learning_rate"], betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0)
     sch = get_linear_schedule_with_warmup(opt, 0, OFFICIAL["max_steps"])
     loss_csv = rd / "train_loss.csv"
+    if r1 and not start:
+        _, ck1 = paths(r1)
+        set_peft_model_state_dict(model, load_file(str(ck1 / f"step-{final_step(r1)}" / "adapter" / "adapter_model.safetensors")))
+        log.info(f"round 2: LoRA initialised from {r1} step {final_step(r1)}; fresh optimizer and LR schedule")
     if start:
         d = ck / f"step-{start}"
         set_peft_model_state_dict(model, load_file(str(d / "adapter" / "adapter_model.safetensors")))

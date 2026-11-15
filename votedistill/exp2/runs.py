@@ -57,10 +57,23 @@ def _strip_rp(v):
 SFT_FILTERS = ("vote", "swvote", "nofilter", "gold")
 
 
+ROUND2 = "-r2"   # round 2 of self-SFT (PREREGISTRATION 2026-11-14 ~23:45): "rp-<filter>-r2"
+
+
 def filter_of(name):
     parts = name.split("__")
-    if len(parts) == 5 and _strip_rp(parts[3])[1] in SFT_FILTERS:
-        return _strip_rp(parts[3])[1]
+    if len(parts) == 5:
+        v = _strip_rp(parts[3])[1].removesuffix(ROUND2)
+        if v in SFT_FILTERS:
+            return v
+    return None
+
+
+def round1_of(name):
+    """Round-1 run a round-2 self-SFT run starts from (same filter, data, seed), else None."""
+    parts = name.split("__")
+    if len(parts) == 5 and parts[3].endswith(ROUND2) and filter_of(name):
+        return "__".join(parts[:3] + [parts[3].removesuffix(ROUND2), parts[4]])
     return None
 
 
@@ -94,7 +107,7 @@ def parse_variant(v):
         return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
-    if v in SFT_FILTERS:
+    if v.removesuffix(ROUND2) in SFT_FILTERS:
         return None, OFFICIAL_CLIP
     head, _, rest = v.partition("-")
     if head in STYLE_VARIANTS:

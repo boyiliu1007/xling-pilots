@@ -246,3 +246,16 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   Predictions: G > 0 at this scale on at least one model (if correctness ever matters, it should with ~10x the
   training examples); F1, F2 > 0 if G > 0. If G ~ 0 on both models, the conclusion is that penalty-decoded
   self-SFT teaches form, not reasoning, at the scale this project can afford, and the write-up says so.
+- 2026-11-14 ~23:45, round 2 of self-SFT (user asked to keep experimenting overnight; written before any round-1
+  result of the large ablation exists). Question: does on-policy iteration (sample -> filter -> train, again from
+  the improved model) beat base + penalty 1.1 (P1, never met so far), and does the filter start to matter once the
+  model is better (in round 2 the model's own Swahili answers are more often finished and correct)?
+  Method: for each large round-1 run selfsft-vote__gsm8k-mt3k__exact__rp-<f>__sN, run ..rp-<f>-r2__sN: sample
+  its step-100 checkpoint with exactly the round-1 pool's questions, prompts, sampling (penalty 1.1) and seeds;
+  keep with the same filter f (at most 2 per question); subsample (seed 1234) to the round-1 equalised size of
+  that model (fewer if fewer kept, reported); train the round-1 adapter for 100 more SFT steps with a fresh
+  optimizer and LR schedule. Arms: Qwen3-1.7B all four filters; Qwen3-8B vote, nofilter, gold (cost); seeds 42/43.
+  Evaluation as before (TEST, step 100 of round 2, default and penalty-1.1 decoding).
+  Outcomes: R1 = round 2 - round 1 (same filter, seed); P1 = round 2 - base + penalty 1.1 (default decoding and
+  penalty decoding); F1/F2/F3/G as before within round 2. Predictions: R1 > 0 for vote and gold, ~0 for nofilter
+  (iterating on unchecked answers should not keep improving reasoning); P1 still <= 0 with default decoding.
