@@ -93,7 +93,81 @@ def generate(data, rep_pen=1.0):
         return recs
 
 
-def train_sft(name, data, layout, seed, rep_pen=1.0):
+# Filter ablation (PREREGISTRATION 2026-11-14 self-SFT filter entry). Every arm draws from the same samples (one
+# generation file); a sample is eligible when it finished, has an answer after </think> and (rp) is in Swahili.
+# The arms differ only in which answer an eligible sample must match:
+#   vote     the English majority vote (the method; gold-free)
+#   swvote   the majority of the question's own eligible Swahili samples (>= 2 agreeing, strictly more than any other
+#            answer; gold-free, no English)
+#   nofilter no answer check
+#   gold     the gold answer (oracle upper bound, analysis only)
+# then at most PER_Q per question, and the kept set is subsampled (seed FILTER_SEED) to the size of the smallest arm,
+# so arms differ in which answers are kept, not in how many.
+FILTERS = ("vote", "swvote", "nofilter", "gold")
+FILTER_SEED = 1234
+
+
+def _eligible(r, rep_pen):
+    return r["finish_reason"] == "stop" and r["pred"] is not None and (rep_pen == 1.0 or r["lang"] == "sw")
+
+
+def _sw_majority(samples):
+    """Majority answer of a question's eligible samples by equivalence classes, or None."""
+    classes = []          # [representative, count]
+    for r in samples:
+        for c in classes:
+            if equiv(c[0], parse_answer(c[0]), r["pred"], parse_answer(r["pred"])):
+                c[1] += 1
+                break
+        else:
+            classes.append([r["pred"], 1])
+    classes.sort(key=lambda c: -c[1])
+    if not classes or classes[0][1] < 2 or (len(classes) > 1 and classes[1][1] == classes[0][1]):
+        return None
+    return classes[0][0]
+
+
+def _filter_keep(recs, data, filt, rep_pen):
+    """Kept samples of one filter arm, before equalisation (at most PER_Q per question, in sample order)."""
+    from collections import defaultdict
+    from .trainsets import _copsd_rows, _gsm8k_rows
+    by_q = defaultdict(list)
+    for r in recs:
+        if _eligible(r, rep_pen):
+            by_q[r["qid"]].append(r)
+    gold = {r["qid"]: r["Answer"] for r in (_copsd_rows() if data == "copsd" else _gsm8k_rows())} if filt == "gold" else {}
+    out = []
+    for q, ss in by_q.items():
+        target = {"vote": ss[0]["vote_answer"], "gold": gold.get(q), "nofilter": None,
+                  "swvote": _sw_majority(ss) if filt == "swvote" else None}[filt]
+        if filt != "nofilter" and target is None:
+            continue
+        kept = [r for r in ss if filt == "nofilter" or equiv(target, parse_answer(target), r["pred"], parse_answer(r["pred"]))]
+        out += kept[:PER_Q]
+    return out
+
+
+def filter_arms(data, rep_pen):
+    """{filter: kept samples}, equalised to the smallest arm; cached next to the generation file."""
+    import json
+    cache = gen_file(data, rep_pen).with_suffix(".filters.json")
+    recs = read_jsonl(gen_file(data, rep_pen))
+    key = {(r["qid"], r["sample"]): r for r in recs}
+    if not cache.exists():
+        arms = {f: _filter_keep(recs, data, f, rep_pen) for f in FILTERS}
+        n = min(len(v) for v in arms.values())
+        sel = {}
+        for f, v in arms.items():
+            idx = sorted(random.Random(FILTER_SEED).sample(range(len(v)), n))
+            sel[f] = {"before_equalisation": len(v), "questions": len({r["qid"] for r in v}),
+                      "kept": [[v[i]["qid"], v[i]["sample"]] for i in idx]}
+        write_json(cache, {"doc": "self-SFT filter arms (selfsft.FILTERS), equalised size " + str(n), "size": n,
+                           "seed": FILTER_SEED, "arms": sel})
+    sel = json.loads(cache.read_text())["arms"]
+    return {f: [key[tuple(k)] for k in sel[f]["kept"]] for f in FILTERS}
+
+
+def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     import shutil
     import torch
     from peft import LoraConfig, get_peft_model, set_peft_model_state_dict
@@ -107,7 +181,11 @@ def train_sft(name, data, layout, seed, rep_pen=1.0):
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     ck.mkdir(parents=True, exist_ok=True)
-    recs = [r for r in generate(data, rep_pen) if r["keep"]]
+    if filt is None:
+        recs = [r for r in generate(data, rep_pen) if r["keep"]]
+    else:
+        generate(data, rep_pen)
+        recs = filter_arms(data, rep_pen)[filt]
     if len(recs) < MICRO_BS * GA:
         raise SystemExit(f"only {len(recs)} vote-consistent answers: too few for self-SFT")
     start = latest_ckpt(ck) or 0
@@ -116,7 +194,8 @@ def train_sft(name, data, layout, seed, rep_pen=1.0):
         return
     write_json(rd / "config.json", {"model": MODEL, "method": "vote-filtered self-SFT (selfsft.py)", "doc": __doc__,
                                     "examples": len(recs), "questions": len({r["qid"] for r in recs}),
-                                    "data": str(gen_file(data, rep_pen)), "generation_repetition_penalty": rep_pen, "steps": SFT_STEPS, "seed": seed, "layout": layout,
+                                    "data": str(gen_file(data, rep_pen)), "filter": filt or "vote (unequalised)",
+                                    "generation_repetition_penalty": rep_pen, "steps": SFT_STEPS, "seed": seed, "layout": layout,
                                     "official_optimizer": {k: OFFICIAL[k] for k in ("learning_rate", "max_grad_norm",
                                                            "lora_r", "lora_alpha", "max_steps")},
                                     "batch": f"{MICRO_BS} x {GA}", "versions": versions()})

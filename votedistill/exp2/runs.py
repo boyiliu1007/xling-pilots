@@ -47,6 +47,18 @@ def _strip_rp(v):
     return (True, rest) if head == ROLLOUT_PREFIX else (False, v)
 
 
+# Self-SFT filter arms (selfsft.FILTERS; PREREGISTRATION 2026-11-14 self-SFT filter entry): variant "rp-<filter>"
+# on the selfsft-vote context, e.g. selfsft-vote__copsd__exact__rp-swvote__s42 (equal-size kept sets).
+SFT_FILTERS = ("vote", "swvote", "nofilter", "gold")
+
+
+def filter_of(name):
+    parts = name.split("__")
+    if len(parts) == 5 and _strip_rp(parts[3])[1] in SFT_FILTERS:
+        return _strip_rp(parts[3])[1]
+    return None
+
+
 def rollout_pen_of(name):
     parts = name.split("__")
     return ROLLOUT_PEN if len(parts) == 5 and _strip_rp(parts[3])[0] else 1.0
@@ -77,6 +89,8 @@ def parse_variant(v):
         return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
+    if v in SFT_FILTERS:
+        return None, OFFICIAL_CLIP
     head, _, rest = v.partition("-")
     if head in STYLE_VARIANTS:
         return (None, OFFICIAL_CLIP) if not rest else parse_variant(rest)
@@ -166,7 +180,7 @@ def train_run(name, max_steps=MAX_STEPS):
     rd.mkdir(parents=True, exist_ok=True)
     if context == SFT_CONTEXT:
         from .selfsft import train_sft
-        return train_sft(name, data, layout, seed, rollout_pen_of(name))
+        return train_sft(name, data, layout, seed, rollout_pen_of(name), filter_of(name))
     from ..copsd.styles import apply_style
     apply_style(style_of(name))
     rows, desc = training_rows(data, context)

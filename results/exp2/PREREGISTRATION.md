@@ -196,3 +196,33 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   consensus (no GSM8K one), so its vote contexts are not size-equalised with GSM8K: 487 voted COPSD rows (vote share
   >= 5/8; the 1.7B voted runs had 442 after equalisation). Qwen3-1.7B rows unchanged (verified identical qids).
   4B consensus: maj@8 0.882 vs gold, coverage at 5/8 0.974, precision 0.893 (1.7B thinking-mode: 0.889 precision).
+- 2026-11-14 ~20:30, self-SFT filter ablation (agreed with the user; written before any of these runs started).
+  Known: every result above. COPSD with the voted reference does not transfer (P3 failed on both models, by ~18
+  maj@12 points on 4B); penalty-decoded self-SFT is the only method that breaks loops and keeps Swahili, and with
+  penalty decoding it ties base + penalty 1.1. Open question: is the English majority vote what makes self-SFT work,
+  or would any finished Swahili answer do? That decides whether the result supports the proposal (the model's own
+  English understanding teaches its Swahili) or is plain penalty-decoded self-training.
+  Arms (selfsft.FILTERS): one shared sample pool per model (the existing penalty-1.1 generation, 8 samples per
+  question over the vote-accepted COPSD questions); a sample is eligible if it finished, has an answer after
+  </think> and is in Swahili. It is kept if its answer equals:
+    vote      the English majority vote (the method; gold-free)
+    swvote    the majority of the question's own eligible Swahili samples (>= 2 agreeing, strictly more than any
+              other answer; gold-free, no English)
+    nofilter  anything (no answer check)
+    gold      the gold answer (oracle upper bound; analysis only, not a candidate method)
+  at most 2 per question, then subsampled (seed 1234) to the smallest arm (gold on both models): 208 rows on 1.7B,
+  305 on 4B. Run names selfsft-vote__copsd__exact__rp-<filter>__s{42,43}; training and evaluation exactly as the
+  existing penalty-decoded self-SFT (30 SFT steps; TEST at step 30 with default decoding and with penalty 1.1).
+  The vote arm is re-run at the equalised size (the existing runs used 228 / 308 rows).
+  Known before training (descriptive, computed with gold on the kept training answers; not an outcome): share of
+  kept answers that are correct: 1.7B vote 0.865, swvote 0.250, nofilter 0.178; 4B vote 0.902, swvote 0.443,
+  nofilter 0.239. Kept sets cover different questions (1.7B 135 / 158 / 191 / 125; 4B 181 / 204 / 256 / 180).
+  Primary outcomes (TEST, default decoding, mean_acc and maj@12, paired bootstrap per seed, each model):
+    F1 English vote vs Swahili self-vote: vote - swvote      (does English understanding add over self-consistency?)
+    F2 English vote vs no filter:         vote - nofilter    (does any answer filter matter?)
+    F3 gap to the oracle:                 gold - vote        (how much a perfect verifier would add)
+  Secondary: the same with penalty-1.1 decoding; truncation and Swahili share per arm.
+  Predictions: F1 > 0 and F2 > 0 on mean_acc (the filter's precision gap is large); F3 small (|F3| < F2).
+  The proposal's claim is supported if F1 > 0 with the CI excluding zero in both seeds on at least one model.
+  If F1 ~ 0 and F2 ~ 0, the self-SFT gain is loop-breaking from penalty-decoded data, not English knowledge, and is
+  reported as such. Next step (iteration / more questions to beat base + penalty) is decided after these results.
