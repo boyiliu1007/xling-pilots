@@ -33,6 +33,9 @@ SFT_STEPS = 30
 SFT_STEPS_DATA = {"gsm8k-mt3k": 100}   # large self-SFT ablation (PREREGISTRATION 2026-11-15)
 
 
+GRPO_CONTEXT = "grpo"   # RL with verifiable rewards (grpo.py; PREREGISTRATION 2026-11-15 ~17:00): grpo__<data>__exact__<reward>__sN
+
+
 def sft_steps(name):
     return SFT_STEPS_DATA.get(name.split("__")[1], SFT_STEPS)
 
@@ -117,6 +120,9 @@ def parse_variant(v):
         return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
+    from .grpo import REWARDS
+    if v in REWARDS:
+        return None, None
     if _strip_round(v) in SFT_FILTERS:
         return None, OFFICIAL_CLIP
     head, _, rest = v.partition("-")
@@ -144,7 +150,7 @@ def parse_name(name):
         clip = parse_variant(v)[1]
     else:
         raise SystemExit(f"bad run name {name}")
-    if (context not in TEACHER_CONTEXTS and context != SFT_CONTEXT) or data not in DATASETS:
+    if (context not in TEACHER_CONTEXTS and context not in (SFT_CONTEXT, GRPO_CONTEXT)) or data not in DATASETS:
         raise SystemExit(f"bad run name {name}")
     return context, data, layout, int(s[1:]), clip
 
@@ -165,12 +171,18 @@ def eval_steps(name, max_steps=MAX_STEPS):
     from ..copsd.config import SAVE_EVERY
     if name.split("__")[0] == SFT_CONTEXT:
         return [f"step{s}" for s in range(SAVE_EVERY, sft_steps(name) + 1, SAVE_EVERY)]
+    if name.split("__")[0] == GRPO_CONTEXT:
+        from .grpo import SAVE_EVERY as G_EVERY, STEPS
+        return [f"step{s}" for s in range(G_EVERY, STEPS + 1, G_EVERY)]
     init = init_of(name)
     first = init[1] if init else SAVE_EVERY
     return [f"step{s}" for s in range(first, max_steps + 1, SAVE_EVERY)]
 
 
 def final_step(name, max_steps=MAX_STEPS):
+    if name.split("__")[0] == GRPO_CONTEXT:
+        from .grpo import STEPS
+        return STEPS
     return sft_steps(name) if name.split("__")[0] == SFT_CONTEXT else max_steps
 
 
@@ -206,6 +218,11 @@ def train_run(name, max_steps=MAX_STEPS):
     context, data, layout, seed, clip = parse_name(name)
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
+    if context == GRPO_CONTEXT:
+        from .grpo import train_grpo
+        if layout != "exact":
+            raise SystemExit("GRPO runs use the exact layout")
+        return train_grpo(name, data, seed, name.split("__")[3])
     if context == SFT_CONTEXT:
         from .selfsft import train_sft
         return train_sft(name, data, layout, seed, rollout_pen_of(name), filter_of(name))

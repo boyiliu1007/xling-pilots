@@ -284,3 +284,28 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   for vote +3.5 / +2.6 -> +2.4 / +2.3 -> -0.3 / -2.0. Reading: about 40% of the round-2 vote advantage, and all of
   the round-2 iteration gain in fully-Swahili outputs, comes from more English in the output. Round 3 is reported on
   both metrics (any language, and correct with the whole output in Swahili).
+- 2026-11-15 ~17:00, RL with verifiable rewards (user: "find something that works when the model is very bad at
+  the language; gold as privileged information is fine"; start on Qwen3-1.7B, move to 4B if 1.7B is too small).
+  Written before any run of this kind exists. Known: everything above, including the language drift of iterated
+  self-SFT and the Swahili-only re-analysis of the 8B round-2 effect (no significant filter effect remains).
+  Model choice (decided now by a rule computed on existing pools, before training): reward signal on the 3000
+  GSM8K-MT questions, 8 penalty-1.1 samples per question: Qwen3-1.7B 5.3% of samples correct and Swahili, only 17%
+  of questions with mixed outcomes (0 < correct < 8); Qwen3-8B 30.6% / 60%. 1.7B is too sparse for group-relative
+  RL, so the experiment runs on Qwen3-4B (between the two; base TEST mean_acc 0.144).
+  Method (votedistill/exp2/grpo.py): on-policy GRPO, one optimizer step per batch (ratio 1, no clipping, no KL),
+  advantage = reward - group mean (no std division), loss normalised by a constant (rollouts x 2048; Dr. GRPO).
+  8 questions x 8 rollouts per step, 200 steps (1600 questions, one pass), student Swahili prompt (COPSD style,
+  thinking), T 1.0, top-p 1.0, no repetition penalty, 2048 tokens; LoRA r 64 / alpha 128 as before, lr 1e-5
+  constant, AdamW, grad clip 1.0; checkpoints every 25 steps. Run names grpo__gsm8k-mt3k__exact__<reward>__s{42,43}.
+  Rewards: gold (correct answer, any language; ceiling), goldsw (correct AND whole output Swahili by
+  copsd.evaluate.language_of; the main arm), and later, once Qwen3-4B's English consensus on gsm8k-mt3k exists,
+  votesw (answer = own English majority vote AND whole output Swahili; gold-free) and goldswv (goldsw + 0.5 x votesw).
+  Evaluation (selection-free): TEST at step 200, default decoding and penalty 1.1 (eval-final). Both metrics are
+  primary from now on: mean_acc (any language) and Swahili accuracy = share of the 12 samples that are correct AND
+  whose whole output is Swahili; maj@12 and pass@12 secondary.
+  Primary contrasts (paired bootstrap, per seed): goldsw - base + penalty 1.1 (Swahili accuracy; does anything
+  beat the decoding baseline on Swahili?), gold - base + penalty 1.1 (mean_acc), goldsw - gold (Swahili accuracy
+  and mean_acc: cost/benefit of the language reward). Predictions: gold raises mean_acc above base + penalty but
+  drifts toward English (Cross-lingual Collapse, arXiv 2506.05850); goldsw keeps Swahili >= 0.9 and beats base +
+  penalty on Swahili accuracy; goldsw - gold < 0 on mean_acc by a few points. "Something works" = goldsw beats base
+  + penalty 1.1 on Swahili accuracy with the CI excluding 0 in both seeds.
