@@ -6,6 +6,7 @@ hyperparameters; only the teacher's rows, the data and the layout change. Evalua
 fixed DEV/TEST split; the checkpoint is selected by DEV maj@12 (PREREGISTRATION.md). The base model's evaluation is
 L0 (results/exp2/L0, same protocol), copied into each run so the run's report is self-contained.
 """
+import re
 import logging
 import shutil
 
@@ -58,22 +59,31 @@ SFT_FILTERS = ("vote", "swvote", "nofilter", "gold")
 
 
 ROUND2 = "-r2"   # round 2 of self-SFT (PREREGISTRATION 2026-11-14 ~23:45): "rp-<filter>-r2"
+_ROUND = re.compile(r"-r(\d+)$")   # round K >= 2 of self-SFT: "rp-<filter>-rK" (round 3: PREREGISTRATION 2026-11-15)
+
+
+def _strip_round(v):
+    return _ROUND.sub("", v)
 
 
 def filter_of(name):
     parts = name.split("__")
     if len(parts) == 5:
-        v = _strip_rp(parts[3])[1].removesuffix(ROUND2)
+        v = _strip_round(_strip_rp(parts[3])[1])
         if v in SFT_FILTERS:
             return v
     return None
 
 
 def round1_of(name):
-    """Round-1 run a round-2 self-SFT run starts from (same filter, data, seed), else None."""
+    """Previous-round run a round-K (K >= 2) self-SFT run starts from (same filter, data, seed), else None:
+    ..rp-<f>-r2 -> ..rp-<f> (round 1), ..rp-<f>-r3 -> ..rp-<f>-r2."""
     parts = name.split("__")
-    if len(parts) == 5 and parts[3].endswith(ROUND2) and filter_of(name):
-        return "__".join(parts[:3] + [parts[3].removesuffix(ROUND2), parts[4]])
+    m = _ROUND.search(parts[3]) if len(parts) == 5 else None
+    if m and int(m.group(1)) >= 2 and filter_of(name):
+        k = int(m.group(1)) - 1
+        prev = _strip_round(parts[3]) + (f"-r{k}" if k >= 2 else "")
+        return "__".join(parts[:3] + [prev, parts[4]])
     return None
 
 
@@ -107,7 +117,7 @@ def parse_variant(v):
         return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
-    if v.removesuffix(ROUND2) in SFT_FILTERS:
+    if _strip_round(v) in SFT_FILTERS:
         return None, OFFICIAL_CLIP
     head, _, rest = v.partition("-")
     if head in STYLE_VARIANTS:

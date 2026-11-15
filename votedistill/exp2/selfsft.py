@@ -258,7 +258,7 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     ck.mkdir(parents=True, exist_ok=True)
     from .runs import round1_of
     r1 = round1_of(name)
-    if r1:   # round 2: pool sampled from the round-1 checkpoint in a separate process
+    if r1:   # round K >= 2: pool sampled from the previous round's checkpoint in a separate process
         import subprocess
         import sys
         if not (rd / "round2_pool.jsonl").exists():
@@ -302,7 +302,7 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     if r1 and not start:
         _, ck1 = paths(r1)
         set_peft_model_state_dict(model, load_file(str(ck1 / f"step-{final_step(r1)}" / "adapter" / "adapter_model.safetensors")))
-        log.info(f"round 2: LoRA initialised from {r1} step {final_step(r1)}; fresh optimizer and LR schedule")
+        log.info(f"round {name.rsplit('-r', 1)[-1].split('__')[0]}: LoRA initialised from {r1} step {final_step(r1)}; fresh optimizer and LR schedule")
     if start:
         d = ck / f"step-{start}"
         set_peft_model_state_dict(model, load_file(str(d / "adapter" / "adapter_model.safetensors")))

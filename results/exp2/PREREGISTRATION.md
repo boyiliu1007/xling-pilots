@@ -259,3 +259,18 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   Outcomes: R1 = round 2 - round 1 (same filter, seed); P1 = round 2 - base + penalty 1.1 (default decoding and
   penalty decoding); F1/F2/F3/G as before within round 2. Predictions: R1 > 0 for vote and gold, ~0 for nofilter
   (iterating on unchecked answers should not keep improving reasoning); P1 still <= 0 with default decoding.
+- 2026-11-15 ~11:30, round 3 of self-SFT on Qwen3-8B (user asked to test how far the English-vote advantage keeps
+  growing; written after the round-2 results, before any round-3 run or pool exists). Known: Qwen3-8B round 2
+  (commit 02015b0) gave the first non-null filter effect: F2 vote - nofilter +2.3 / +2.5 and G gold - nofilter
+  +3.0 / +2.5 mean_acc (CIs exclude 0, both seeds), vote ~ gold; R1 +2.6..+4.3 for vote / gold, +1.1..+2.5 for
+  nofilter; round-2 vote still -1.6 / -1.8 vs base + penalty 1.1 (n.s.). Qwen3-1.7B round 2: filter null.
+  Method: identical to round 2, one round on: ..rp-<f>-r3__sN samples ..rp-<f>-r2__sN step 100 with the round-1
+  pool's questions, prompts, sampling (penalty 1.1) and seeds; same filter, at most 2 per question; subsample (seed
+  1234) to the round-1 equalised size (3166; fewer if fewer kept, reported); train the round-2 adapter 100 more SFT
+  steps, fresh optimizer and LR schedule. Arms: vote, nofilter, gold; seeds 42/43; Qwen3-8B only (1.7B was null).
+  Evaluation as before. Outcomes: F2(r3) = vote - nofilter and its change from round 2 (F2(r3) - F2(r2), descriptive,
+  per seed); G(r3); F3(r3) = gold - vote; R2 = round 3 - round 2 per filter; P1(r3) = vote round 3 - base +
+  penalty 1.1. Predictions: F2(r3) >= F2(r2) (the advantage keeps growing: nofilter compounds its own errors);
+  F3(r3) ~ 0; R2 > 0 for vote, smaller than R1 (diminishing returns); P1(r3) for vote reaches ~0 or above.
+  "The advantage keeps growing" is supported if F2(r3) > F2(r2) in both seeds with F2(r3) CIs excluding 0.
+  If F2(r3) <= F2(r2), the effect is a one-step separation that saturates, and the write-up says so.
