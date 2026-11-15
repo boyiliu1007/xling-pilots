@@ -150,7 +150,7 @@ def _filter_keep(recs, data, filt, rep_pen):
     for r in recs:
         if _eligible(r, rep_pen):
             by_q[r["qid"]].append(r)
-    gold = {r["qid"]: r["Answer"] for r in (_copsd_rows() if data == "copsd" else _gsm8k_rows())} if filt == "gold" else {}
+    gold = {r["qid"]: str(r["Answer"]) for r in (_copsd_rows() if data == "copsd" else _gsm8k_rows(data))} if filt == "gold" else {}
     out = []
     for q, ss in by_q.items():
         target = {"vote": ss[0].get("vote_answer"), "gold": gold.get(q), "nofilter": None,
