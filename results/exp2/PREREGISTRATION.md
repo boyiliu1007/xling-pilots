@@ -261,7 +261,7 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   (iterating on unchecked answers should not keep improving reasoning); P1 still <= 0 with default decoding.
 - 2026-11-15 ~11:30, round 3 of self-SFT on Qwen3-8B (user asked to test how far the English-vote advantage keeps
   growing; written after the round-2 results, before any round-3 run or pool exists). Known: Qwen3-8B round 2
-  (commit 02015b0) gave the first non-null filter effect: F2 vote - nofilter +2.3 / +2.5 and G gold - nofilter
+  (commit 53c6b4d) gave the first non-null filter effect: F2 vote - nofilter +2.3 / +2.5 and G gold - nofilter
   +3.0 / +2.5 mean_acc (CIs exclude 0, both seeds), vote ~ gold; R1 +2.6..+4.3 for vote / gold, +1.1..+2.5 for
   nofilter; round-2 vote still -1.6 / -1.8 vs base + penalty 1.1 (n.s.). Qwen3-1.7B round 2: filter null.
   Method: identical to round 2, one round on: ..rp-<f>-r3__sN samples ..rp-<f>-r2__sN step 100 with the round-1

@@ -177,7 +177,7 @@ is subsampled to the size of the smallest arm, so data size is equal across arms
 ## Status and what's running
 
 - **Round 3 on Qwen3-8B** (`rp-{vote,nofilter,gold}-r3__s{42,43}`) was submitted around midday 2026-11-15 and
-  preregistered beforehand (commit `532753d`).
+  preregistered beforehand (commit `4091901`).
   - "The advantage keeps growing" requires F2 in round 3 to exceed F2 in round 2 on both seeds, with CIs excluding 0.
   - Otherwise the write-up reports a one-step separation that saturates.
   - A watchdog commits the results automatically when they finish.
