@@ -309,3 +309,16 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   drifts toward English (Cross-lingual Collapse, arXiv 2506.05850); goldsw keeps Swahili >= 0.9 and beats base +
   penalty on Swahili accuracy; goldsw - gold < 0 on mean_acc by a few points. "Something works" = goldsw beats base
   + penalty 1.1 on Swahili accuracy with the CI excluding 0 in both seeds.
+
+## 2026-11-15 ~18:45 — GRPO amendment: higher learning-rate arm (decided before any GRPO evaluation)
+
+Observed (training log only, `goldsw` s42 at lr 1e-5, steps 1–26): batch reward flat at about 0.17
+(0.180 / 0.172 / 0.167 over steps 1–10 / 11–20 / 21–26), whole-output Swahili share 0.95 → 0.90, about 3 of 8
+questions per step carrying signal. With Adam the step size is set by the learning rate, not by the loss
+normaliser, and 1e-5 is at the low end for LoRA RL (LoRA's best learning rate is typically about 10× full fine-tuning's).
+
+Added arm: `grpo__gsm8k-mt3k__exact__goldsw-lr5e-5__s42`, identical except learning rate 5e-5 (variant suffix
+`-lr<value>`; plain names keep 1e-5). Rule fixed now: if the lr-1e-5 `goldsw` run's mean reward over steps 41–50
+is not above its steps 1–10 mean (0.180), the lr-1e-5 run is stopped and the remaining arms (gold, s43, votesw,
+goldswv) move to the learning rate that learns; the lr-1e-5 checkpoints that exist are still evaluated and reported.
+Both learning rates are reported; the success criterion is unchanged and is judged on the arm(s) that complete.

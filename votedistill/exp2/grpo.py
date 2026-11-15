@@ -48,6 +48,14 @@ LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished
               "groups_with_signal,questions,t_gen,t_train\n")
 
 
+def parse_kind(variant):
+    """'goldsw' -> ('goldsw', LR); 'goldsw-lr5e-5' -> ('goldsw', 5e-5) (learning-rate arm, PREREGISTRATION amendment 18:45)."""
+    kind, sep, lr = variant.partition("-lr")
+    if kind not in REWARDS or (sep and not lr):
+        raise SystemExit(f"unknown GRPO variant {variant}; known {REWARDS}, optionally with -lr<value>")
+    return kind, (float(lr) if sep else LR)
+
+
 def _same(a, b):
     return a is not None and b is not None and equiv(a, parse_answer(a), b, parse_answer(b))
 
@@ -108,8 +116,7 @@ def train_grpo(name, data, seed, kind):
     from .runs import paths
     from .screen import _prompt_ids
 
-    if kind not in REWARDS:
-        raise SystemExit(f"unknown reward {kind}; known {REWARDS}")
+    kind, lr = parse_kind(kind)
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     ck.mkdir(parents=True, exist_ok=True)
@@ -122,7 +129,7 @@ def train_grpo(name, data, seed, kind):
     write_json(rd / "config.json", {
         "model": MODEL, "method": "GRPO (grpo.py)", "doc": __doc__, "reward": kind, "data": data,
         "questions": len(rows), "steps": STEPS, "questions_per_step": QUESTIONS_PER_STEP, "group": GROUP,
-        "max_tokens": MAX_TOKENS, "lr": LR, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
+        "max_tokens": MAX_TOKENS, "lr": lr, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
         "lora": {k: OFFICIAL[k] for k in ("lora_r", "lora_alpha", "lora_target_modules")}, "versions": versions(),
         "created": datetime.now().isoformat(timespec="seconds")})
     wait_for_gpu()
@@ -141,7 +148,7 @@ def train_grpo(name, data, seed, kind):
     model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     model.enable_input_require_grads()
     params = [p for p in model.parameters() if p.requires_grad]
-    opt = torch.optim.AdamW(params, lr=LR, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0)
+    opt = torch.optim.AdamW(params, lr=lr, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0)
     log_csv = rd / "train_log.csv"
     if start:
         d = ck / f"step-{start}"

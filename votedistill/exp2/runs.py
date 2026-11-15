@@ -121,7 +121,7 @@ def parse_variant(v):
     if v in OBJECTIVE_VARIANTS:
         return None, None
     from .grpo import REWARDS
-    if v in REWARDS:
+    if v.partition("-lr")[0] in REWARDS:
         return None, None
     if _strip_round(v) in SFT_FILTERS:
         return None, OFFICIAL_CLIP
