@@ -1,6 +1,6 @@
 # Experiment 2 walkthrough: what we ran, what we found, where it stands
 
-Branch `jeff/exp2-levels` (59 commits on top of `refactor-votedistill`, 60 ahead of `main`). Status as of 2026-11-15.
+Branch `jeff/exp2-levels` (built on `refactor-votedistill`). Status as of 2026-11-15.
 Every design decision was written into [`PREREGISTRATION.md`](PREREGISTRATION.md) before the runs it concerns, and
 every number below is in a committed `SUMMARY.txt` (`results/exp2/`, `results/exp2_qwen3-4b/`,
 `results/exp2_qwen3-8b/`).
