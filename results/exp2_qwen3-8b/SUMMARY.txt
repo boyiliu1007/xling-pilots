@@ -1,0 +1,98 @@
+Experiment 2 summary, generated 2026-11-15T06:22:39
+TEST 200 items; checkpoint selected by DEV maj@12 among steps 10..100; gains in points with 95% paired-bootstrap CI
+
+run                                            sel  maj@12  pass@12   mean  trunc   Δmaj@12 vs L0          Δpass@12 vs L0         Δmean_acc vs L0       
+L0 (base)                                        -   0.510    0.690  0.285  0.468
+selfsft-vote__gsm8k-mt3k__exact__rp-gold__s42       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-gold__s43       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s42       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s43       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s42       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s43       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-vote__s42       -   (no TEST yet)
+selfsft-vote__gsm8k-mt3k__exact__rp-vote__s43       -   (no TEST yet)
+
+## Selection-free: TEST at the final checkpoint (step 100)
+selfsft-vote__gsm8k-mt3k__exact__rp-gold__s42 step100   0.555    0.760  0.402  0.115    +4.5 [ -1.0, +10.0]    +7.0 [ +1.5, +12.5]   +11.7 [ +9.3, +14.2]  
+selfsft-vote__gsm8k-mt3k__exact__rp-gold__s43 step100   0.500    0.775  0.387  0.122    -1.0 [ -6.5,  +4.5]    +8.5 [ +3.0, +14.5]   +10.2 [ +7.7, +12.8]  
+selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s42 step100   0.500    0.760  0.380  0.108    -1.0 [ -6.0,  +4.0]    +7.0 [ +1.5, +12.5]    +9.5 [ +7.0, +11.9]  
+selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s43 step100   0.545    0.775  0.393  0.122    +3.5 [ -2.0,  +9.0]    +8.5 [ +2.5, +14.5]   +10.8 [ +8.1, +13.6]  
+selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s42 step100   0.530    0.805  0.403  0.114    +2.0 [ -3.5,  +7.5]   +11.5 [ +6.0, +17.5]   +11.8 [ +9.2, +14.3]  
+selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s43 step100   0.520    0.760  0.401  0.113    +1.0 [ -4.5,  +6.5]    +7.0 [ +1.5, +12.5]   +11.6 [ +9.2, +14.2]  
+selfsft-vote__gsm8k-mt3k__exact__rp-vote__s42 step100   0.535    0.790  0.393  0.105    +2.5 [ -3.0,  +8.0]   +10.0 [ +4.0, +16.0]   +10.8 [ +8.3, +13.2]  
+selfsft-vote__gsm8k-mt3k__exact__rp-vote__s43 step100   0.530    0.790  0.403  0.113    +2.0 [ -3.0,  +7.0]   +10.0 [ +4.0, +16.0]   +11.8 [ +9.3, +14.4]  
+
+## Planned contrasts (B - A on TEST, same seed)
+  [DEV-selected]
+  [step100]
+  F1 large: English vote - Swahili self-vote     s42  maj@12  +0.5 [ -4.5,  +5.5]  pass@12  -1.5 [ -6.5,  +3.5]  mean_acc  -1.0 [ -3.0,  +1.0]
+  F1 large: English vote - Swahili self-vote     s43  maj@12  +1.0 [ -4.0,  +6.0]  pass@12  +3.0 [ -1.5,  +7.5]  mean_acc  +0.2 [ -1.7,  +2.2]
+  F2 large: English vote - no filter             s42  maj@12  +3.5 [ -1.0,  +8.0]  pass@12  +3.0 [ -1.0,  +7.0]  mean_acc  +1.3 [ -0.7,  +3.2]
+  F2 large: English vote - no filter             s43  maj@12  -1.5 [ -6.5,  +3.5]  pass@12  +1.5 [ -3.0,  +6.0]  mean_acc  +1.0 [ -1.2,  +3.0]
+  F3 large: gold oracle - English vote           s42  maj@12  +2.0 [ -3.0,  +7.5]  pass@12  -3.0 [ -7.5,  +1.5]  mean_acc  +1.0 [ -1.0,  +3.0]
+  F3 large: gold oracle - English vote           s43  maj@12  -3.0 [ -8.0,  +1.5]  pass@12  -1.5 [ -6.5,  +3.5]  mean_acc  -1.6 [ -3.6,  +0.4]
+  G large: gold oracle - no filter               s42  maj@12  +5.5 [ +0.5, +11.0]  pass@12  +0.0 [ -4.5,  +4.5]  mean_acc  +2.2 [ +0.3,  +4.3]
+  G large: gold oracle - no filter               s43  maj@12  -4.5 [ -9.0,  +0.0]  pass@12  +0.0 [ -5.0,  +5.0]  mean_acc  -0.6 [ -2.6,  +1.3]
+  large self-SFT English vote - L0               s42  maj@12  +2.5 [ -3.0,  +8.0]  pass@12 +10.0 [ +4.0, +16.0]  mean_acc +10.8 [ +8.3, +13.2]
+  large self-SFT English vote - L0               s43  maj@12  +2.0 [ -3.0,  +7.0]  pass@12 +10.0 [ +4.0, +16.0]  mean_acc +11.8 [ +9.3, +14.4]
+  large self-SFT no filter - L0                  s42  maj@12  -1.0 [ -6.0,  +4.0]  pass@12  +7.0 [ +1.5, +12.5]  mean_acc  +9.5 [ +7.0, +11.9]
+  large self-SFT no filter - L0                  s43  maj@12  +3.5 [ -2.0,  +9.0]  pass@12  +8.5 [ +2.5, +14.5]  mean_acc +10.8 [ +8.1, +13.6]
+  large self-SFT gold - L0                       s42  maj@12  +4.5 [ -1.0, +10.0]  pass@12  +7.0 [ +1.5, +12.5]  mean_acc +11.7 [ +9.3, +14.2]
+  large self-SFT gold - L0                       s43  maj@12  -1.0 [ -6.5,  +4.5]  pass@12  +8.5 [ +3.0, +14.5]  mean_acc +10.2 [ +7.7, +12.8]
+  large self-SFT English vote - base+penalty1.1  s42  maj@12  -6.0 [-11.5,  -0.5]  pass@12  -1.0 [ -6.0,  +4.0]  mean_acc  -5.3 [ -7.9,  -2.8]
+  large self-SFT English vote - base+penalty1.1  s43  maj@12  -6.5 [-12.0,  -1.5]  pass@12  -1.0 [ -6.0,  +4.0]  mean_acc  -4.2 [ -6.7,  -1.8]
+  decoding: repetition penalty 1.1 - L0          s42  maj@12  +8.5 [ +3.0, +14.0]  pass@12 +11.0 [ +4.5, +17.5]  mean_acc +16.0 [+13.0, +19.2]
+  decoding: repetition penalty 1.1 - L0          s43  maj@12  +8.5 [ +3.0, +14.0]  pass@12 +11.0 [ +4.5, +17.5]  mean_acc +16.0 [+13.0, +19.2]
+
+## Decoding x training: trained checkpoint (step 100) sampled with a base-model level's decoding
+  (B - A on TEST; A = same checkpoint with default decoding, or the base model with the same decoding)
+  selfsft-vote__gsm8k-mt3k__exact__rp-gold__s42__L0-reppen1.1 step100 maj@12 0.550  pass@12 0.860  mean 0.447  trunc 0.012  sw-lang 0.532
+    vs L0                                        maj@12  +4.0 [ -1.5,  +9.0]  pass@12 +17.0 [+11.0, +23.5]  mean_acc +16.2 [+13.0, +19.4]
+    vs same ckpt, default decoding               maj@12  -0.5 [ -6.0,  +5.0]  pass@12 +10.0 [ +5.0, +15.0]  mean_acc  +4.5 [ +1.7,  +7.2]
+    vs base model + L0-reppen1.1                 maj@12  -4.5 [ -9.5,  +0.5]  pass@12  +6.0 [ +1.5, +11.0]  mean_acc  +0.1 [ -2.2,  +2.4]
+  selfsft-vote__gsm8k-mt3k__exact__rp-gold__s43__L0-reppen1.1 step100 maj@12 0.545  pass@12 0.820  mean 0.445  trunc 0.017  sw-lang 0.539
+    vs L0                                        maj@12  +3.5 [ -2.0,  +9.0]  pass@12 +13.0 [ +7.0, +19.5]  mean_acc +16.0 [+13.0, +19.1]
+    vs same ckpt, default decoding               maj@12  +4.5 [ -1.0, +10.0]  pass@12  +4.5 [ -0.5,  +9.5]  mean_acc  +5.8 [ +3.2,  +8.5]
+    vs base model + L0-reppen1.1                 maj@12  -5.0 [-10.0,  +0.0]  pass@12  +2.0 [ -3.0,  +7.0]  mean_acc  -0.0 [ -2.1,  +2.0]
+  selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s42__L0-reppen1.1 step100 maj@12 0.540  pass@12 0.800  mean 0.419  trunc 0.015  sw-lang 0.555
+    vs L0                                        maj@12  +3.0 [ -3.0,  +9.0]  pass@12 +11.0 [ +5.0, +17.0]  mean_acc +13.4 [+10.2, +16.6]
+    vs same ckpt, default decoding               maj@12  +4.0 [ -2.0, +10.0]  pass@12  +4.0 [ -1.5,  +9.5]  mean_acc  +4.0 [ +1.5,  +6.4]
+    vs base model + L0-reppen1.1                 maj@12  -5.5 [-11.0,  +0.0]  pass@12  +0.0 [ -4.0,  +4.0]  mean_acc  -2.6 [ -4.8,  -0.5]
+  selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s43__L0-reppen1.1 step100 maj@12 0.555  pass@12 0.820  mean 0.426  trunc 0.017  sw-lang 0.547
+    vs L0                                        maj@12  +4.5 [ -1.0, +10.5]  pass@12 +13.0 [ +7.0, +19.5]  mean_acc +14.1 [+11.1, +17.2]
+    vs same ckpt, default decoding               maj@12  +1.0 [ -4.5,  +6.5]  pass@12  +4.5 [ -1.0, +10.0]  mean_acc  +3.3 [ +0.8,  +5.8]
+    vs base model + L0-reppen1.1                 maj@12  -4.0 [ -9.0,  +1.0]  pass@12  +2.0 [ -3.0,  +7.0]  mean_acc  -1.9 [ -4.0,  +0.2]
+  selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s42__L0-reppen1.1 step100 maj@12 0.560  pass@12 0.815  mean 0.433  trunc 0.013  sw-lang 0.550
+    vs L0                                        maj@12  +5.0 [ -1.0, +11.0]  pass@12 +12.5 [ +6.5, +19.0]  mean_acc +14.8 [+11.4, +18.2]
+    vs same ckpt, default decoding               maj@12  +3.0 [ -3.0,  +9.0]  pass@12  +1.0 [ -4.0,  +6.0]  mean_acc  +3.1 [ +0.0,  +6.1]
+    vs base model + L0-reppen1.1                 maj@12  -3.5 [ -8.5,  +1.5]  pass@12  +1.5 [ -3.5,  +6.5]  mean_acc  -1.2 [ -3.5,  +1.0]
+  selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s43__L0-reppen1.1 step100 maj@12 0.555  pass@12 0.805  mean 0.442  trunc 0.019  sw-lang 0.536
+    vs L0                                        maj@12  +4.5 [ -1.0, +10.0]  pass@12 +11.5 [ +5.5, +17.5]  mean_acc +15.7 [+12.5, +18.8]
+    vs same ckpt, default decoding               maj@12  +3.5 [ -2.5,  +9.5]  pass@12  +4.5 [ -0.5, +10.0]  mean_acc  +4.0 [ +1.6,  +6.5]
+    vs base model + L0-reppen1.1                 maj@12  -4.0 [ -9.0,  +0.5]  pass@12  +0.5 [ -5.0,  +6.0]  mean_acc  -0.4 [ -2.5,  +1.7]
+  selfsft-vote__gsm8k-mt3k__exact__rp-vote__s42__L0-reppen1.1 step100 maj@12 0.580  pass@12 0.800  mean 0.446  trunc 0.022  sw-lang 0.537
+    vs L0                                        maj@12  +7.0 [ +1.5, +12.5]  pass@12 +11.0 [ +5.0, +17.5]  mean_acc +16.1 [+12.8, +19.4]
+    vs same ckpt, default decoding               maj@12  +4.5 [ -0.5,  +9.5]  pass@12  +1.0 [ -3.5,  +5.5]  mean_acc  +5.3 [ +2.8,  +7.9]
+    vs base model + L0-reppen1.1                 maj@12  -1.5 [ -6.0,  +2.5]  pass@12  +0.0 [ -5.5,  +5.5]  mean_acc  +0.0 [ -2.0,  +2.1]
+  selfsft-vote__gsm8k-mt3k__exact__rp-vote__s43__L0-reppen1.1 step100 maj@12 0.605  pass@12 0.795  mean 0.451  trunc 0.018  sw-lang 0.555
+    vs L0                                        maj@12  +9.5 [ +4.0, +15.0]  pass@12 +10.5 [ +4.5, +17.0]  mean_acc +16.6 [+13.5, +19.7]
+    vs same ckpt, default decoding               maj@12  +7.5 [ +2.0, +13.0]  pass@12  +0.5 [ -4.5,  +5.5]  mean_acc  +4.8 [ +2.4,  +7.1]
+    vs base model + L0-reppen1.1                 maj@12  +1.0 [ -4.0,  +6.0]  pass@12  -0.5 [ -6.0,  +5.0]  mean_acc  +0.5 [ -1.8,  +2.8]
+
+## Mechanism: does training stop the looping, or also make finished answers more accurate?
+  run                                         trunc   loop  acc|finished  finished/item  sw-lang    ttr  degen
+  (ttr = distinct-word share of the last 300 words; degen = truncated and (loop or ttr < 0.3): also catches the word salad the verbatim loop detector misses)
+  L0 (base)                                   0.468  0.538         0.533           6.38    0.941  0.226  0.467
+  selfsft-vote__gsm8k-mt3k__exact__rp-gold__s42 (step100)  0.115  0.203         0.453          10.61    0.895  0.396  0.112
+  selfsft-vote__gsm8k-mt3k__exact__rp-gold__s43 (step100)  0.122  0.210         0.440          10.54    0.902  0.394  0.120
+  selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s42 (step100)  0.108  0.186         0.424          10.71    0.910  0.395  0.103
+  selfsft-vote__gsm8k-mt3k__exact__rp-nofilter__s43 (step100)  0.122  0.203         0.446          10.54    0.907  0.391  0.121
+  selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s42 (step100)  0.114  0.205         0.453          10.63    0.895  0.394  0.110
+  selfsft-vote__gsm8k-mt3k__exact__rp-swvote__s43 (step100)  0.113  0.193         0.451          10.64    0.907  0.395  0.110
+  selfsft-vote__gsm8k-mt3k__exact__rp-vote__s42 (step100)  0.105  0.196         0.435          10.74    0.892  0.401  0.103
+  selfsft-vote__gsm8k-mt3k__exact__rp-vote__s43 (step100)  0.113  0.195         0.455          10.64    0.901  0.395  0.110
+
+## Gain over L0 by capability bin (number of the 12 L0 samples that finish; gold-free)
+  run                                        finish 0-0 (n=3)           finish 1-2 (n=16)          finish 3-5 (n=55)          finish 6-12 (n=126)       
+  L0 maj@12 / mean_acc                       0.000 / 0.000            0.188 / 0.026            0.291 / 0.088            0.659 / 0.411           
+  (cells: Δ mean_acc in points; maj@12 is too coarse within bins)
