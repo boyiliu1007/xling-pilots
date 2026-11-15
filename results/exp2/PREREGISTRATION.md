@@ -274,3 +274,13 @@ test: the ranking of contexts by D predicts the ranking of TEST maj@12 gains (Sp
   F3(r3) ~ 0; R2 > 0 for vote, smaller than R1 (diminishing returns); P1(r3) for vote reaches ~0 or above.
   "The advantage keeps growing" is supported if F2(r3) > F2(r2) in both seeds with F2(r3) CIs excluding 0.
   If F2(r3) <= F2(r2), the effect is a one-step separation that saturates, and the write-up says so.
+- 2026-11-15 ~15:45, post hoc check of the Qwen3-8B round-2 filter effect (after seeing round 2 and the round-3
+  sampling pool, before any round-3 TEST result). Prompted by language drift: the whole-output English share rises
+  from ~10% (round 1) to 16-22% (round 2), mostly English reasoning with a Swahili final answer, and usable
+  Swahili samples in the next pool fall 15361 -> 13627 -> 8354. Recomputed per item: share of the 12 samples that are
+  correct AND in Swahili (answer language; and whole-output language). Result (s42 / s43, paired bootstrap):
+  F2 vote - nofilter +2.3 / +2.5 (any language) -> +1.4 / +1.5 (answer in Swahili, CIs include 0) -> +1.4 / +0.3
+  (whole output in Swahili); G +3.0 / +2.5 -> +1.8 / +0.9 -> +1.8 / +0.2; F3 ~0 throughout. R1 (round 2 - round 1)
+  for vote +3.5 / +2.6 -> +2.4 / +2.3 -> -0.3 / -2.0. Reading: about 40% of the round-2 vote advantage, and all of
+  the round-2 iteration gain in fully-Swahili outputs, comes from more English in the output. Round 3 is reported on
+  both metrics (any language, and correct with the whole output in Swahili).
