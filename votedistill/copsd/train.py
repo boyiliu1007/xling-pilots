@@ -106,14 +106,19 @@ def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, i
 def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_after=0, no_save=False,
           include_problem_en=True, include_reference_solution_en=True, seed=SEED, layout="official", rows=None,
           data_desc=None, reference_desc=None, clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None,
-          rollout_rep_pen=1.0):
+          rollout_rep_pen=1.0, keep_fn=None, token_limit=None):
     """rollout_rep_pen: vLLM repetition penalty for the student's rollouts (1.0 = official; >1 = penalty-rollout
     variant: the student still samples its own rollouts, but with a decoding-time guard against loops).
     objective: "copsd" (distillation from the teacher prompt; teacher_temp, if set, replaces the loss temperature
     for the teacher's logits only, e.g. a hotter copy of the base model = an entropy-raising target), or
     "unlikelihood" (no teacher: -log(1 - p_student(y)) at positions whose token continues a verbatim 8-token repeat
     of the student's own rollout; Welleck et al. 2019). clip: the per-(token, vocab) loss clamp (official 0.05; None = no clip). rows: prepared training rows (copsd.collator.prepare_rows format, `solution` = the teacher's reference);
-    default the released COPSD set. layout: see LAYOUTS. seed: data order, LoRA init, generation and RNG state."""
+    default the released COPSD set. layout: see LAYOUTS. seed: data order, LoRA init, generation and RNG state.
+    keep_fn(row, completion_text, finish_reason) -> bool: if given, only kept rollouts enter the loss (and its token
+    denominator); e.g. U-OPSD trains only on rollouts whose answer disagrees with the majority vote. The share kept
+    per step goes to keep_frac.csv. None = every rollout (official).
+    token_limit: if set, only the first token_limit completion tokens of each rollout enter the loss (and its token
+    denominator); the rest is masked. None = the whole completion (official)."""
     import torch
     from peft import LoraConfig, get_peft_model, set_peft_model_state_dict
     from safetensors.torch import load_file
@@ -205,6 +210,18 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
         comps = [list(o.outputs[0].token_ids) for o in outs]
         texts = [o.outputs[0].text for o in outs]
         t_gen = time.time() - t0
+        step_rows = [rows[i] for mb in sched[step - 1]["micro_batches"] for i in mb]
+        keep = ([bool(keep_fn(r, t, o.outputs[0].finish_reason)) for r, t, o in zip(step_rows, texts, outs)]
+                if keep_fn else [True] * len(texts))
+        if keep_fn and not no_save:
+            kf = run_dir / "keep_frac.csv"
+            if not kf.exists():
+                kf.write_text("step,n_rollouts,n_kept\n")
+            if start_step == step - 1 and kf.exists():   # resumed: drop rows written after the checkpoint
+                ls = kf.read_text().splitlines()
+                kf.write_text("\n".join([ls[0]] + [l for l in ls[1:] if int(l.split(",")[0]) < step]) + "\n")
+            with open(kf, "a") as fh:
+                fh.write(f"{step},{len(keep)},{sum(keep)}\n")
 
         model.train()
         opt.zero_grad(set_to_none=True)
@@ -212,11 +229,14 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
         for b in batches:
             n_mb = len(b["student_prompts"])
             mc = comps[k:k + n_mb]
+            mk = keep[k:k + n_mb]
             k += n_mb
             # official: labels = generated ids with the per-example prompt and all pad tokens masked
-            n_tokens = sum(sum(1 for t in c if t != pad) for c in mc)
+            n_tokens = sum(sum(1 for t in c[:token_limit] if t != pad) for c, kp in zip(mc, mk) if kp)
             mb_loss = 0.0
             for i in range(n_mb):   # per-sample backward == official micro-batch loss (sum over tokens / micro-batch token count)
+                if not mk[i]:
+                    continue
                 c = torch.tensor(mc[i], dtype=torch.long)
                 sp_i, tp_i = b["student_prompts"][i], b["teacher_prompts"][i]
                 if layout == "exact":
@@ -225,6 +245,8 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
                 t_ids = torch.cat([tp_i, c]).unsqueeze(0).cuda()
                 lab = c.clone()
                 lab[lab == pad] = -100
+                if token_limit:
+                    lab[token_limit:] = -100
                 lab = lab.unsqueeze(0).cuda()
                 L = len(mc[i])
                 with torch.autocast("cuda", dtype=torch.bfloat16):
