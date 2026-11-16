@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import random
+import re
 import shutil
 import time
 from datetime import datetime
@@ -48,12 +49,26 @@ LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished
               "groups_with_signal,questions,t_gen,t_train\n")
 
 
+_VARIANT = re.compile(r"(?P<kind>[a-z]+)(?:-lr(?P<lr>[0-9.]+(?:e-?[0-9]+)?))?(?:-q(?P<q>[0-9]+))?(?:-steps(?P<steps>[0-9]+))?")
+
+
+def parse_variant(variant):
+    """'goldsw' -> preregistered defaults; optional suffixes in this order: -lr<value> (amendment 18:45),
+    -q<questions per step>, -steps<steps> (amendment 2026-11-16 ~00:00), e.g. 'goldsw-lr5e-5-q32-steps150'.
+    -> dict(kind, lr, questions_per_step, steps), or None if the variant is not a GRPO variant."""
+    m = _VARIANT.fullmatch(variant)
+    if not m or m["kind"] not in REWARDS:
+        return None
+    return dict(kind=m["kind"], lr=float(m["lr"]) if m["lr"] else LR,
+                questions_per_step=int(m["q"]) if m["q"] else QUESTIONS_PER_STEP,
+                steps=int(m["steps"]) if m["steps"] else STEPS)
+
+
 def parse_kind(variant):
-    """'goldsw' -> ('goldsw', LR); 'goldsw-lr5e-5' -> ('goldsw', 5e-5) (learning-rate arm, PREREGISTRATION amendment 18:45)."""
-    kind, sep, lr = variant.partition("-lr")
-    if kind not in REWARDS or (sep and not lr):
-        raise SystemExit(f"unknown GRPO variant {variant}; known {REWARDS}, optionally with -lr<value>")
-    return kind, (float(lr) if sep else LR)
+    v = parse_variant(variant)
+    if v is None:
+        raise SystemExit(f"unknown GRPO variant {variant}; known {REWARDS} with optional -lr<v>-q<n>-steps<n>")
+    return v
 
 
 def _same(a, b):
@@ -95,12 +110,12 @@ def question_rows(data, kind):
     return rows
 
 
-def schedule(n_rows, seed):
+def schedule(n_rows, seed, steps=STEPS, per_step=QUESTIONS_PER_STEP):
     order = list(range(n_rows))
     random.Random(seed).shuffle(order)
-    need = STEPS * QUESTIONS_PER_STEP
+    need = steps * per_step
     order = (order * (need // n_rows + 1))[:need]
-    return [order[i * QUESTIONS_PER_STEP:(i + 1) * QUESTIONS_PER_STEP] for i in range(STEPS)]
+    return [order[i * per_step:(i + 1) * per_step] for i in range(steps)]
 
 
 def train_grpo(name, data, seed, kind):
@@ -116,19 +131,20 @@ def train_grpo(name, data, seed, kind):
     from .runs import paths
     from .screen import _prompt_ids
 
-    kind, lr = parse_kind(kind)
+    v = parse_kind(kind)
+    kind, lr, per_step, n_steps = v["kind"], v["lr"], v["questions_per_step"], v["steps"]
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     ck.mkdir(parents=True, exist_ok=True)
     start = latest_ckpt(ck) or 0
-    if start >= STEPS:
+    if start >= n_steps:
         log.info("GRPO already complete")
         return
     rows = question_rows(data, kind)
-    sched = schedule(len(rows), seed)
+    sched = schedule(len(rows), seed, n_steps, per_step)
     write_json(rd / "config.json", {
         "model": MODEL, "method": "GRPO (grpo.py)", "doc": __doc__, "reward": kind, "data": data,
-        "questions": len(rows), "steps": STEPS, "questions_per_step": QUESTIONS_PER_STEP, "group": GROUP,
+        "questions": len(rows), "steps": n_steps, "questions_per_step": per_step, "group": GROUP,
         "max_tokens": MAX_TOKENS, "lr": lr, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
         "lora": {k: OFFICIAL[k] for k in ("lora_r", "lora_alpha", "lora_target_modules")}, "versions": versions(),
         "created": datetime.now().isoformat(timespec="seconds")})
@@ -140,7 +156,7 @@ def train_grpo(name, data, seed, kind):
     tok = AutoTokenizer.from_pretrained(MODEL)
     col = make_collator(tok, OFFICIAL["max_length"], False, False)
     llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.4, enable_lora=True, max_lora_rank=64,
-              max_loras=1, max_cpu_loras=2, max_model_len=4096, max_num_seqs=QUESTIONS_PER_STEP * GROUP, seed=seed)
+              max_loras=1, max_cpu_loras=2, max_model_len=4096, max_num_seqs=min(per_step * GROUP, 256), seed=seed)
     model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
     model.config.use_cache = False
     model = get_peft_model(model, LoraConfig(task_type="CAUSAL_LM", r=OFFICIAL["lora_r"], lora_alpha=OFFICIAL["lora_alpha"],
@@ -169,7 +185,7 @@ def train_grpo(name, data, seed, kind):
     sync_dir = Path(f"/tmp/votedistill_grpo_adapter_{os.environ.get('SLURM_JOB_ID', os.getpid())}")
     samples_f = rd / "rollouts.jsonl"
 
-    for step in range(start + 1, STEPS + 1):
+    for step in range(start + 1, n_steps + 1):
         t0 = time.time()
         lora = None
         if step > 1:

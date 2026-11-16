@@ -121,8 +121,8 @@ def parse_variant(v):
         return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
-    from .grpo import REWARDS
-    if v.partition("-lr")[0] in REWARDS:
+    from .grpo import parse_variant as grpo_variant
+    if grpo_variant(v) is not None:
         return None, None
     if _strip_round(v) in SFT_FILTERS:
         return None, OFFICIAL_CLIP
@@ -173,8 +173,8 @@ def eval_steps(name, max_steps=MAX_STEPS):
     if name.split("__")[0] == SFT_CONTEXT:
         return [f"step{s}" for s in range(SAVE_EVERY, sft_steps(name) + 1, SAVE_EVERY)]
     if name.split("__")[0] == GRPO_CONTEXT:
-        from .grpo import SAVE_EVERY as G_EVERY, STEPS
-        return [f"step{s}" for s in range(G_EVERY, STEPS + 1, G_EVERY)]
+        from .grpo import SAVE_EVERY as G_EVERY, parse_kind
+        return [f"step{s}" for s in range(G_EVERY, parse_kind(name.split("__")[3])["steps"] + 1, G_EVERY)]
     init = init_of(name)
     first = init[1] if init else SAVE_EVERY
     return [f"step{s}" for s in range(first, max_steps + 1, SAVE_EVERY)]
@@ -184,8 +184,8 @@ def final_step(name, max_steps=MAX_STEPS):
     if os.environ.get("EXP2_FINAL_STEP"):   # a run stopped early by a preregistered rule: evaluate its last checkpoint
         return int(os.environ["EXP2_FINAL_STEP"])
     if name.split("__")[0] == GRPO_CONTEXT:
-        from .grpo import STEPS
-        return STEPS
+        from .grpo import parse_kind
+        return parse_kind(name.split("__")[3])["steps"]
     return sft_steps(name) if name.split("__")[0] == SFT_CONTEXT else max_steps
 
 

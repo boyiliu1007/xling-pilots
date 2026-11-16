@@ -334,3 +334,14 @@ lr 5e-5 only if the lr-5e-5 run learns by the same rule (steps 41–50 mean rewa
 seed-42 question schedule, so steps 41–50 are the same questions: 0.208 at 5e-5 vs 0.141 at 1e-5.) The held lr-1e-5
 arms are cancelled and resubmitted as `gold-lr5e-5` s42, `gold-lr5e-5` s43 and `goldsw-lr5e-5` s43. Success criterion
 unchanged, judged on the lr-5e-5 arms.
+
+## 2026-11-16 ~00:00 — GRPO amendment: larger batch (decided before any GRPO test evaluation)
+
+Observed (training log only, `goldsw` lr 5e-5 s42, 200 steps): batch reward about 0.19 over steps 1–75, then
+0.11–0.16; Swahili share 0.95 → 0.99; steps 151–175 unstable (finished 0.67, length 1370). Only about 2.5–3 of the
+8 questions per step had mixed rewards, so each update came from about 20 informative samples.
+
+Added arm: `grpo__gsm8k-mt3k__exact__goldsw-lr5e-5-q32-steps150__s42` (and s43): 32 questions per step (about 10
+informative per update), 150 steps (4800 question visits, about 1.6 passes over the 3000 questions), lr 5e-5;
+everything else unchanged. Variant suffixes `-q<n>` and `-steps<n>`; plain names keep their earlier settings.
+Evaluated like the other arms (TEST of step 150, default and penalty-1.1 decoding). Success criterion unchanged.
