@@ -15,6 +15,9 @@ Rewards (run variant, `REWARDS`), all 0/1:
   votesw   the final answer equals the model's own English majority vote AND the whole output is Swahili
            (gold-free; questions the vote did not accept are skipped)
   goldswv  goldsw + 0.5 x (answer equals the English vote AND whole output Swahili)  (gold plus English signal)
+  goldswr  gold AND hack-resistant Swahili (`robust_sw`): goldsw at lr 5e-5 learned to pass language_of by repeating
+           one Swahili function word ("jibu" was 51% of all test-output words), so this counts DISTINCT Swahili
+           function words (>= SW_MIN_TYPES, and more than distinct English ones) and caps the most frequent word's share
 """
 import json
 import logging
@@ -36,7 +39,9 @@ from ..utils import versions, write_json, write_jsonl
 
 log = logging.getLogger("votedistill.exp2.grpo")
 
-REWARDS = ("gold", "goldsw", "votesw", "goldswv")
+REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr")
+SW_MIN_TYPES = 8        # goldswr: at least this many DISTINCT Swahili function words ...
+SW_MAX_TOP_SHARE = 0.35  # ... and no single word above this share of all words (amendment 2026-11-16 ~00:30)
 STEPS = 200
 QUESTIONS_PER_STEP = 8
 GROUP = 8
@@ -75,6 +80,19 @@ def _same(a, b):
     return a is not None and b is not None and equiv(a, parse_answer(a), b, parse_answer(b))
 
 
+def robust_sw(text):
+    """Swahili by distinct function-word types, not counts; rejects single-word spam (see goldswr)."""
+    import collections
+    from ..copsd.evaluate import EN_WORDS, SW_WORDS
+    t = re.sub(r"\\\(.*?\\\)|\\\[.*?\\\]|\$[^$]*\$|\\boxed\{[^}]*\}", " ", text, flags=re.S)
+    w = re.findall(r"[a-zA-Z']+", t.lower())
+    if not w:
+        return False
+    c = collections.Counter(w)
+    sw, en = len(set(c) & SW_WORDS), len(set(c) & EN_WORDS)
+    return sw >= SW_MIN_TYPES and sw > en and c.most_common(1)[0][1] / len(w) <= SW_MAX_TOP_SHARE
+
+
 def score(text, finish_reason, gold, vote):
     """Per-rollout facts the rewards are built from."""
     from ..copsd.evaluate import language_of
@@ -84,7 +102,7 @@ def score(text, finish_reason, gold, vote):
     correct = fin and _same(str(gold), pred)
     vote_ok = fin and vote is not None and _same(str(vote), pred)
     return {"pred": pred, "finished": fin, "sw": sw, "correct": correct, "correct_sw": correct and sw,
-            "vote_sw": vote_ok and sw}
+            "vote_sw": vote_ok and sw, "correct_swr": correct and robust_sw(text)}
 
 
 def reward(kind, s):
@@ -94,6 +112,8 @@ def reward(kind, s):
         return float(s["correct_sw"])
     if kind == "votesw":
         return float(s["vote_sw"])
+    if kind == "goldswr":
+        return float(s["correct_swr"])
     if kind == "goldswv":
         return float(s["correct_sw"]) + 0.5 * float(s["vote_sw"])
     raise ValueError(kind)
@@ -207,7 +227,7 @@ def train_grpo(name, data, seed, kind):
                 s = score(c.text, c.finish_reason, q["Answer"], q.get("vote_answer"))
                 g.append((list(c.token_ids), reward(kind, s), s))
                 recs.append({"step": step, "qid": q["qid"], "reward": reward(kind, s), "len": len(c.token_ids),
-                             **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw")}})
+                             **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr")}})
             groups.append((p, g))
 
         model.train()

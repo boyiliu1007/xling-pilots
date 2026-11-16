@@ -345,3 +345,20 @@ Added arm: `grpo__gsm8k-mt3k__exact__goldsw-lr5e-5-q32-steps150__s42` (and s43):
 informative per update), 150 steps (4800 question visits, about 1.6 passes over the 3000 questions), lr 5e-5;
 everything else unchanged. Variant suffixes `-q<n>` and `-steps<n>`; plain names keep their earlier settings.
 Evaluated like the other arms (TEST of step 150, default and penalty-1.1 decoding). Success criterion unchanged.
+
+## 2026-11-16 ~00:30 — GRPO amendment: the `goldsw` reward was hacked; hack-resistant reward `goldswr`
+
+Result (TEST, `goldsw` lr 5e-5 s42, step 200; paired bootstrap over items, 95% CI):
+- default decoding: mean_acc 12.5 vs base 14.4 (−1.9 [−5.0, +1.2]); majority 14.5 vs 26.5.
+- penalty 1.1: mean_acc 13.6 vs base+penalty 23.2 (−9.6 [−13.0, −6.5]); Swahili accuracy 12.8 vs 18.0 (−5.1 [−8.2, −2.2]).
+- Reward hacking: the policy passes `language_of` (Swahili vs English function-word COUNTS) by repeating one Swahili
+  function word: "jibu" is 51% of all words in its test outputs, surrounded by pseudo-words ("toto", "totali",
+  "soali"). Median distinct Swahili function words per correct output: 3 (base 12, base+penalty 20).
+
+Change: reward `goldswr` = correct AND `robust_sw` (at least 8 DISTINCT Swahili function words, more distinct Swahili
+than English ones, and no word above 35% of all words). On existing TEST outputs it keeps 92% / 91% of base /
+base+penalty `goldsw` successes and 0% of the hacked run's. Runs: `goldswr-lr5e-5-q32-steps150` s42 and s43.
+The q32 `goldsw` runs (0 steps logged) and the queued `goldsw-lr5e-5` s43 are cancelled. `gold-lr5e-5` s42/s43
+(language-free reward, cannot hack the check) stay as the control.
+Evaluation: Swahili accuracy is reported with BOTH `language_of` and `robust_sw`; for GRPO arms the `robust_sw`
+version is primary, since `language_of` is the quantity that was gamed.
