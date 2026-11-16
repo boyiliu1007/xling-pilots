@@ -9,3 +9,4 @@ math-verify==0.9.0
 numpy==2.3.5
 pytest
 sacrebleu==2.6.0
+lingua-language-detector==2.1.1
