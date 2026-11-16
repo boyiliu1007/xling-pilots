@@ -328,3 +328,9 @@ Both learning rates are reported; the success criterion is unchanged and is judg
 stopped at step 51. Its step-50 checkpoint is evaluated (TEST, default and penalty-1.1 decoding) as
 `EXP2_FINAL_STEP=50`. The other lr-1e-5 arms (gold s42, gold s43, goldsw s43) are held, not yet moved: they move to
 lr 5e-5 only if the lr-5e-5 run learns by the same rule (steps 41–50 mean reward above its steps 1–10 mean).
+
+### ~19:50 — lr 5e-5 passes the step-50 rule; remaining arms moved to lr 5e-5
+`goldsw` lr 5e-5 s42: steps 41–50 mean reward 0.208 vs steps 1–10 0.167 → passes. (Both learning rates use the same
+seed-42 question schedule, so steps 41–50 are the same questions: 0.208 at 5e-5 vs 0.141 at 1e-5.) The held lr-1e-5
+arms are cancelled and resubmitted as `gold-lr5e-5` s42, `gold-lr5e-5` s43 and `goldsw-lr5e-5` s43. Success criterion
+unchanged, judged on the lr-5e-5 arms.
