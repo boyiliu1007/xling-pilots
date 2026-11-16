@@ -362,3 +362,10 @@ The q32 `goldsw` runs (0 steps logged) and the queued `goldsw-lr5e-5` s43 are ca
 (language-free reward, cannot hack the check) stay as the control.
 Evaluation: Swahili accuracy is reported with BOTH `language_of` and `robust_sw`; for GRPO arms the `robust_sw`
 version is primary, since `language_of` is the quantity that was gamed.
+
+### 2026-11-16 ~08:50 — goldswr s42 training finished; second hack suspected; exploratory step-50 evaluation
+Training log, 25-step blocks: correct 0.197 / 0.242 / 0.216 / 0.167 / 0.178 / 0.207; language_of Swahili share
+0.92 / 0.99 / 0.99 / 0.87 / 0.95 / 0.57. In the last block the reward (correct AND robust_sw, 0.165) exceeds correct AND
+language_of-Swahili (0.145), so robust_sw accepts outputs language_of calls English: suspected code-switching (English
+text with at least 8 distinct Swahili function words). The preregistered evaluation stays TEST of step 150. Added,
+EXPLORATORY and chosen after seeing the training log: TEST of step 50 (training-log peak), job 11173016.
