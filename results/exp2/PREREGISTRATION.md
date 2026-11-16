@@ -369,3 +369,30 @@ Training log, 25-step blocks: correct 0.197 / 0.242 / 0.216 / 0.167 / 0.178 / 0.
 language_of-Swahili (0.145), so robust_sw accepts outputs language_of calls English: suspected code-switching (English
 text with at least 8 distinct Swahili function words). The preregistered evaluation stays TEST of step 150. Added,
 EXPLORATORY and chosen after seeing the training log: TEST of step 50 (training-log peak), job 11173016.
+
+## 2026-11-16 ~10:30 — NEW EXPERIMENT (replaces the GRPO arms above): self-play transfer with a privileged English reference
+
+The earlier GRPO arms are cancelled (user decision). Reason: two reward hacks of word-list language checks, and
+no accuracy gain. The design follows SP3F (Sutawika, Swamy, Wu, Neubig, ACL 2026, "Gained in Translation"): RL with
+gold-answer + language-fidelity rewards plus a judge that sees an English reference as privileged information. The
+change that makes it test THIS project's claim: in the gold-free arms the privileged reference is the model's OWN
+English solution (majority vote of 12 English thinking-mode samples), not a gold one.
+
+Arms (Qwen3-4B, LoRA r64, thinking mode, gsm8k-mt3k Swahili questions, 8 rollouts per question, 32 questions per
+step, 300 steps, constant lr 5e-6, temperature 1.0, Dr. GRPO advantages, one update per batch, no KL):
+- A `goldlid`:     gold-correct + lid_ok                                       (gold ceiling, answer only)
+- B `goldlidref`:  gold-correct + lid_ok + ref_f1 vs the gold English GSM8K solution   (SP3F-like, gold privilege)
+- C `votelid`:     equals own English vote + lid_ok      (vote-accepted questions only; gold-free)
+- D `votelidref`:  equals own English vote + lid_ok + ref_f1 vs own English voted answer text  (THE PROPOSAL)
+lid_ok = at least 70% of the prose is Swahili by lingua (all languages; calibrated: 88% of base TEST outputs pass, 9%
+of the "jibu"-hacked outputs). ref_f1 = F1 of the number sets in the rollout and the reference (judge-free stand-in
+for SP3F's pairwise judge; an LLM judge is a later step only if D or B shows something).
+Deviations from SP3F: LoRA instead of full fine-tuning (lr 5e-6 ≈ 10× their 5e-7), no SFT stage (the
+translated-reasoning SFT is outside supervision; the gold-free arms must not use it), 300 steps instead of 500, one
+update per batch (so no PPO clipping), number overlap instead of an LLM judge. One seed (42) first; seed 43 after.
+
+Primary metric: TEST (AfriMGSM swa) accuracy of outputs that pass lid_ok ("Swahili accuracy, LID"), step 300, default
+decoding; also any-language mean_acc and the penalty-1.1 decoding, vs base and base+penalty, paired bootstrap.
+Contrasts: D − C (does own English reasoning help beyond its answer), D − B and C − A (cost of no gold),
+B − A (does the reference help with gold), each arm − base. Success for the proposal: D > base on Swahili accuracy
+(LID) with the CI excluding 0. Rollout texts are saved every 10 steps and read for hacking at step 50.

@@ -39,7 +39,18 @@ from ..utils import versions, write_json, write_jsonl
 
 log = logging.getLogger("votedistill.exp2.grpo")
 
-REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr")
+REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlidref", "votelid", "votelidref")
+# Self-play transfer design (PREREGISTRATION 2026-11-16 ~10:30), SP3F-style (Sutawika et al., ACL 2026) rewards:
+#   goldlid     correct (gold)         + lid_ok                         A: gold ceiling
+#   goldlidref  correct (gold)         + lid_ok + ref_f1 (gold English solution)          B: SP3F-like, gold privilege
+#   votelid     equals own English vote + lid_ok  (vote-accepted questions only)          C: gold-free, answer only
+#   votelidref  equals own English vote + lid_ok + ref_f1 (own English voted answer text)   D: the proposal
+# lid_ok: >= LID_MIN of the prose (chunks with >= 3 words; math/LaTeX removed) is Swahili by lingua over ALL languages
+# (a Swahili-vs-English-only detector passes the "jibu"-spam outputs; the all-language one passes 13% of them, 86% of
+# base outputs). ref_f1: F1 between the sets of numbers in the rollout and in the English reference (a judge-free
+# stand-in for SP3F's privileged pairwise judge; numbers are language-independent, and precision penalises spam).
+LID_MIN = 0.7
+SAVE_TEXT_EVERY = 10    # rollout texts kept every N steps, to inspect for reward hacking
 SW_MIN_TYPES = 8        # goldswr: at least this many DISTINCT Swahili function words ...
 SW_MAX_TOP_SHARE = 0.35  # ... and no single word above this share of all words (amendment 2026-11-16 ~00:30)
 STEPS = 200
@@ -51,7 +62,45 @@ MAX_GRAD_NORM = 1.0
 TEMPERATURE = 1.0
 SAVE_EVERY = 25
 LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished,mean_len,"
-              "groups_with_signal,questions,t_gen,t_train\n")
+              "groups_with_signal,questions,t_gen,t_train,lid_ok,correct_lid,vote_ok,ref_f1\n")
+_LID = None
+
+
+def lid_fraction(text):
+    """Share of prose characters lingua (all languages) labels Swahili."""
+    global _LID
+    from lingua import Language, LanguageDetectorBuilder
+    if _LID is None:
+        _LID = LanguageDetectorBuilder.from_all_languages().with_low_accuracy_mode().with_preloaded_language_models().build()
+    t = re.sub(r"\\\(.*?\\\)|\\\[.*?\\\]|\$[^$]*\$|\\boxed\{[^}]*\}", " ", text, flags=re.S)
+    chunks = [c.strip() for c in re.split(r"[\n.!?]+", t)]
+    chunks = [c for c in chunks if len(re.findall(r"[^\W\d_]{2,}", c)) >= 3]
+    if not chunks:
+        return 0.0
+    n = [len(c) for c in chunks]
+    return sum(k for k, l in zip(n, _LID.detect_languages_in_parallel_of(chunks)) if l == Language.SWAHILI) / sum(n)
+
+
+_NUM = re.compile(r"(?<![\w.])-?\d[\d,]*(?:\.\d+)?")
+
+
+def numbers(text):
+    out = set()
+    for x in _NUM.findall(text or ""):
+        try:
+            v = float(x.replace(",", ""))
+        except ValueError:
+            continue
+        out.add(round(v, 4))
+    return out
+
+
+def ref_f1(text, ref):
+    a, b = numbers(text), numbers(ref)
+    if not a or not b:
+        return 0.0
+    tp = len(a & b)
+    return 0.0 if tp == 0 else 2 * tp / (len(a) + len(b))
 
 
 _VARIANT = re.compile(r"(?P<kind>[a-z]+)(?:-lr(?P<lr>[0-9.]+(?:e-?[0-9]+)?))?(?:-q(?P<q>[0-9]+))?(?:-steps(?P<steps>[0-9]+))?")
@@ -93,7 +142,7 @@ def robust_sw(text):
     return sw >= SW_MIN_TYPES and sw > en and c.most_common(1)[0][1] / len(w) <= SW_MAX_TOP_SHARE
 
 
-def score(text, finish_reason, gold, vote):
+def score(text, finish_reason, gold, vote, ref=None):
     """Per-rollout facts the rewards are built from."""
     from ..copsd.evaluate import language_of
     pred, _ = extract_pred(text, thinking=True)
@@ -102,7 +151,9 @@ def score(text, finish_reason, gold, vote):
     correct = fin and _same(str(gold), pred)
     vote_ok = fin and vote is not None and _same(str(vote), pred)
     return {"pred": pred, "finished": fin, "sw": sw, "correct": correct, "correct_sw": correct and sw,
-            "vote_sw": vote_ok and sw, "correct_swr": correct and robust_sw(text)}
+            "vote_sw": vote_ok and sw, "correct_swr": correct and robust_sw(text), "vote_ok": vote_ok,
+            "lid": (lid := lid_fraction(text)), "lid_ok": lid >= LID_MIN, "correct_lid": correct and lid >= LID_MIN,
+            "ref_f1": ref_f1(text, ref) if ref else 0.0}
 
 
 def reward(kind, s):
@@ -116,17 +167,23 @@ def reward(kind, s):
         return float(s["correct_swr"])
     if kind == "goldswv":
         return float(s["correct_sw"]) + 0.5 * float(s["vote_sw"])
+    if kind in ("goldlid", "goldlidref", "votelid", "votelidref"):
+        ok = s["correct"] if kind.startswith("gold") else s["vote_ok"]
+        return float(ok) + float(s["lid_ok"]) + (s["ref_f1"] if kind.endswith("ref") else 0.0)
     raise ValueError(kind)
 
 
 def question_rows(data, kind):
     from .trainsets import _gsm8k_rows, voted_references
     rows = _gsm8k_rows(data)
-    if kind in ("votesw", "goldswv"):
+    if kind in ("votesw", "goldswv", "votelid", "votelidref"):
         refs = voted_references(data)
-        rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None} for r in rows]
-        if kind == "votesw":
+        rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None,
+                 "vote_ref": refs[r["qid"]][0] if r["qid"] in refs else None} for r in rows]
+        if kind in ("votesw", "votelid", "votelidref"):
             rows = [r for r in rows if r["vote_answer"] is not None]
+    for r in rows:   # privileged reference for the ref_f1 term
+        r["ref"] = r.get("vote_ref") if kind == "votelidref" else r["solution"] if kind == "goldlidref" else None
     return rows
 
 
@@ -224,10 +281,12 @@ def train_grpo(name, data, seed, kind):
         for q, p, o in zip(qs, p_ids, outs):
             g = []
             for c in o.outputs:
-                s = score(c.text, c.finish_reason, q["Answer"], q.get("vote_answer"))
+                s = score(c.text, c.finish_reason, q["Answer"], q.get("vote_answer"), q.get("ref"))
                 g.append((list(c.token_ids), reward(kind, s), s))
                 recs.append({"step": step, "qid": q["qid"], "reward": reward(kind, s), "len": len(c.token_ids),
-                             **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr")}})
+                             **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr",
+                                                  "vote_ok", "lid", "lid_ok", "correct_lid", "ref_f1")},
+                             **({"text": c.text} if step % SAVE_TEXT_EVERY == 0 else {})})
             groups.append((p, g))
 
         model.train()
@@ -261,7 +320,8 @@ def train_grpo(name, data, seed, kind):
         with open(log_csv, "a") as fh:
             fh.write(f"{step},{loss_sum:.6f},{gn:.5f},{m('reward'):.4f},{m('correct'):.4f},{m('sw'):.4f},"
                      f"{float(np.mean([x['correct'] and x['sw'] for x in recs])):.4f},{m('vote_sw'):.4f},{m('finished'):.4f},"
-                     f"{m('len'):.0f},{n_signal},{len(qs)},{t_gen:.1f},{t_all - t_gen:.1f}\n")
+                     f"{m('len'):.0f},{n_signal},{len(qs)},{t_gen:.1f},{t_all - t_gen:.1f},"
+                     f"{m('lid_ok'):.4f},{m('correct_lid'):.4f},{m('vote_ok'):.4f},{m('ref_f1'):.4f}\n")
         with open(samples_f, "a") as fh:
             for x in recs:
                 fh.write(json.dumps(x) + "\n")
