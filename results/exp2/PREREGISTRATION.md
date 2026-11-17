@@ -422,3 +422,13 @@ D step 150 + penalty 23.2 / 24.2 / 92.2 / 0.8. D − base, Swahili accuracy +10.
 +9.3 [+4.7, +14.3] -> "promising" by the rule above. But any-language mean_acc only ties base+penalty (+0.3
 [−4.0, +5.2]): so far D reaches the accuracy that penalty decoding reaches, while staying in Swahili, rather
 than reasoning better. C, A and B proceed as planned.
+
+### 2026-11-17 ~09:30 — TEST results, arms A and B (s42, step 300); compute note for C
+TEST, 200 items x 12; Swahili accuracy (LID) / any-language mean_acc / LID pass / truncated:
+base 11.9 / 14.4 / 85.8 / 31.0; base+penalty 14.8 / 23.2 / 63.2 / 6.6;
+A goldlid 23.5 / 24.5 / 96.9 / 6.0; B goldlidref 26.1 / 27.6 / 96.0 / 1.7.
+B − base+penalty: Swahili accuracy +11.2 [+8.3, +14.3], mean_acc +4.4 [+1.7, +7.1]. A − base+penalty: +8.7 [+6.3,
++11.2], mean_acc +1.3 [−1.1, +3.8]. B − A: +2.6 [+0.8, +4.5], mean_acc +3.1 [+1.3, +4.9]. Penalty decoding:
+A+pen 24.9 / 25.9, B+pen 25.9 / 27.9.
+Compute: preempt RTX PRO 6000 ran 300 steps in ~4 h (local A6000 ~13 h), so arm C moved from the interactive node to
+preempt (train 11186698, eval 11186699); D finishes and is evaluated locally.
