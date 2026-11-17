@@ -81,7 +81,8 @@ def report(label, step=100):
 
 
 def report_all(step=100):
-    labels = sorted({p.name.rsplit("__", 1)[0] for p in XEVAL.glob("*__*") if p.is_dir()})
+    # "base" holds the frozen model's own views (non-default BASE_MODEL), not a trained run
+    labels = sorted({p.name.rsplit("__", 1)[0] for p in XEVAL.glob("*__*") if p.is_dir()} - {"base"})
     txt = "\n\n".join(report(l, step) for l in labels)
     (XEVAL / "REPORT.txt").write_text(txt + "\n")
     return txt

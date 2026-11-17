@@ -1,0 +1,97 @@
+xeval report: rc__gsm8k-mt__all__noclip__s42 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/rc__gsm8k-mt__all__noclip__s42/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.034  Δ +0.6 [-0.3, +1.5] | maj_correct 0.090 -> 0.085  Δ -0.5 [-4.0, +3.0] | pass_at_n 0.150 -> 0.165  Δ +1.5 [-3.5, +6.0]
+           format 0.233 -> 0.387  truncated 0.772 -> 0.599  maj flips: fixed 6, broken 7 (base right 18)
+  swen     mean_acc 0.072 -> 0.094  Δ +2.2 [+0.3, +4.1] | maj_correct 0.090 -> 0.135  Δ +4.5 [-0.5, +9.5] | pass_at_n 0.265 -> 0.355  Δ +9.0 [+2.5, +15.5]
+           format 0.868 -> 0.865  truncated 0.166 -> 0.165  maj flips: fixed 17, broken 8 (base right 18)
+  enen     mean_acc 0.886 -> 0.895  Δ +0.9 [-0.2, +2.0] | maj_correct 0.915 -> 0.910  Δ -0.5 [-1.5, +0.0] | pass_at_n 0.960 -> 0.960  Δ +0.0 [-1.5, +1.5]
+           format 0.966 -> 0.961  truncated 0.044 -> 0.049  maj flips: fixed 0, broken 1 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.057  Δ -2.4 [-4.1, -0.8] | maj_correct 0.105 -> 0.105  Δ +0.0 [-3.5, +3.5] | pass_at_n 0.285 -> 0.285  Δ +0.0 [-7.0, +6.5]
+           format 0.977 -> 0.948  truncated 0.018 -> 0.010  maj flips: fixed 6, broken 6 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.801  Δ -1.3 [-3.5, +0.8]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 16/165 = 0.097 [0.061, 0.152]; swen broken among base-right 8/18 = 0.444 [0.246, 0.663]
+  same set, swsw fixed 7/165 = 0.042 [0.021, 0.085]
+
+xeval report: rc__gsm8k-mt__first256__clip__s42 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/rc__gsm8k-mt__first256__clip__s42/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.046  Δ +1.8 [+0.6, +3.0] | maj_correct 0.090 -> 0.110  Δ +2.0 [-2.0, +6.0] | pass_at_n 0.150 -> 0.205  Δ +5.5 [+0.0, +11.0]
+           format 0.233 -> 0.532  truncated 0.772 -> 0.485  maj flips: fixed 11, broken 7 (base right 18)
+  swen     mean_acc 0.072 -> 0.090  Δ +1.9 [+0.4, +3.4] | maj_correct 0.090 -> 0.145  Δ +5.5 [+0.5, +11.0] | pass_at_n 0.265 -> 0.280  Δ +1.5 [-4.0, +7.0]
+           format 0.868 -> 0.729  truncated 0.166 -> 0.354  maj flips: fixed 19, broken 8 (base right 18)
+  enen     mean_acc 0.886 -> 0.877  Δ -0.9 [-2.0, +0.3] | maj_correct 0.915 -> 0.920  Δ +0.5 [+0.0, +1.5] | pass_at_n 0.960 -> 0.950  Δ -1.0 [-3.0, +1.0]
+           format 0.966 -> 0.935  truncated 0.044 -> 0.080  maj flips: fixed 1, broken 0 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.065  Δ -1.6 [-3.2, -0.1] | maj_correct 0.105 -> 0.110  Δ +0.5 [-3.5, +4.5] | pass_at_n 0.285 -> 0.315  Δ +3.0 [-3.5, +9.5]
+           format 0.977 -> 0.985  truncated 0.018 -> 0.016  maj flips: fixed 9, broken 8 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.787  Δ -2.8 [-4.6, -0.9]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 19/165 = 0.115 [0.075, 0.173]; swen broken among base-right 8/18 = 0.444 [0.246, 0.663]
+  same set, swsw fixed 13/165 = 0.079 [0.047, 0.130]
+
+xeval report: rc__gsm8k-mt__first256__noclip__s42 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/rc__gsm8k-mt__first256__noclip__s42/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.040  Δ +1.2 [+0.1, +2.4] | maj_correct 0.090 -> 0.090  Δ +0.0 [-4.0, +4.0] | pass_at_n 0.150 -> 0.185  Δ +3.5 [-2.0, +9.0]
+           format 0.233 -> 0.418  truncated 0.772 -> 0.565  maj flips: fixed 8, broken 8 (base right 18)
+  swen     mean_acc 0.072 -> 0.086  Δ +1.5 [-0.3, +3.2] | maj_correct 0.090 -> 0.105  Δ +1.5 [-3.0, +6.0] | pass_at_n 0.265 -> 0.330  Δ +6.5 [+0.5, +12.5]
+           format 0.868 -> 0.894  truncated 0.166 -> 0.134  maj flips: fixed 13, broken 10 (base right 18)
+  enen     mean_acc 0.886 -> 0.883  Δ -0.3 [-1.2, +0.7] | maj_correct 0.915 -> 0.920  Δ +0.5 [+0.0, +1.5] | pass_at_n 0.960 -> 0.950  Δ -1.0 [-3.0, +1.0]
+           format 0.966 -> 0.953  truncated 0.044 -> 0.064  maj flips: fixed 1, broken 0 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.051  Δ -3.0 [-4.8, -1.3] | maj_correct 0.105 -> 0.125  Δ +2.0 [-2.0, +6.0] | pass_at_n 0.285 -> 0.290  Δ +0.5 [-6.0, +7.0]
+           format 0.977 -> 0.940  truncated 0.018 -> 0.007  maj flips: fixed 11, broken 7 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.797  Δ -1.8 [-3.8, +0.2]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 13/165 = 0.079 [0.047, 0.130]; swen broken among base-right 10/18 = 0.556 [0.337, 0.754]
+  same set, swsw fixed 10/165 = 0.061 [0.033, 0.108]
+
+xeval report: rc__gsm8k-mt__first256__noclip__s43 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/rc__gsm8k-mt__first256__noclip__s43/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.032  Δ +0.4 [-0.6, +1.4] | maj_correct 0.090 -> 0.085  Δ -0.5 [-4.5, +3.5] | pass_at_n 0.150 -> 0.170  Δ +2.0 [-3.0, +7.0]
+           format 0.233 -> 0.405  truncated 0.772 -> 0.583  maj flips: fixed 8, broken 9 (base right 18)
+  swen     mean_acc 0.072 -> 0.087  Δ +1.5 [-0.2, +3.2] | maj_correct 0.090 -> 0.150  Δ +6.0 [+1.0, +11.0] | pass_at_n 0.265 -> 0.320  Δ +5.5 [-1.0, +12.0]
+           format 0.868 -> 0.894  truncated 0.166 -> 0.138  maj flips: fixed 20, broken 8 (base right 18)
+  enen     mean_acc 0.886 -> 0.887  Δ +0.1 [-1.1, +1.4] | maj_correct 0.915 -> 0.915  Δ +0.0 [-1.5, +1.5] | pass_at_n 0.960 -> 0.965  Δ +0.5 [-1.0, +2.5]
+           format 0.966 -> 0.951  truncated 0.044 -> 0.060  maj flips: fixed 1, broken 1 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.061  Δ -2.0 [-3.8, -0.3] | maj_correct 0.105 -> 0.130  Δ +2.5 [-2.0, +7.0] | pass_at_n 0.285 -> 0.315  Δ +3.0 [-3.5, +9.5]
+           format 0.977 -> 0.949  truncated 0.018 -> 0.008  maj flips: fixed 12, broken 7 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.800  Δ -1.4 [-3.4, +0.6]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 20/165 = 0.121 [0.080, 0.180]; swen broken among base-right 8/18 = 0.444 [0.246, 0.663]
+  same set, swsw fixed 11/165 = 0.067 [0.038, 0.115]
+
+xeval report: uopsd__gsm8k-mt__clip__s42 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/uopsd__gsm8k-mt__clip__s42/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.025  Δ -0.3 [-1.0, +0.4] | maj_correct 0.090 -> 0.085  Δ -0.5 [-5.0, +3.5] | pass_at_n 0.150 -> 0.145  Δ -0.5 [-5.5, +4.0]
+           format 0.233 -> 0.236  truncated 0.772 -> 0.787  maj flips: fixed 9, broken 10 (base right 18)
+  swen     mean_acc 0.072 -> 0.054  Δ -1.8 [-3.1, -0.5] | maj_correct 0.090 -> 0.095  Δ +0.5 [-3.0, +4.0] | pass_at_n 0.265 -> 0.210  Δ -5.5 [-10.5, -0.5]
+           format 0.868 -> 0.830  truncated 0.166 -> 0.249  maj flips: fixed 7, broken 6 (base right 18)
+  enen     mean_acc 0.886 -> 0.857  Δ -2.9 [-4.5, -1.2] | maj_correct 0.915 -> 0.900  Δ -1.5 [-4.0, +1.0] | pass_at_n 0.960 -> 0.960  Δ +0.0 [-3.0, +3.0]
+           format 0.966 -> 0.960  truncated 0.044 -> 0.056  maj flips: fixed 2, broken 5 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.064  Δ -1.7 [-3.0, -0.5] | maj_correct 0.105 -> 0.110  Δ +0.5 [-3.5, +4.5] | pass_at_n 0.285 -> 0.260  Δ -2.5 [-8.5, +3.5]
+           format 0.977 -> 0.970  truncated 0.018 -> 0.042  maj flips: fixed 8, broken 7 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.803  Δ -1.1 [-3.3, +1.0]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 7/165 = 0.042 [0.021, 0.085]; swen broken among base-right 6/18 = 0.333 [0.163, 0.563]
+  same set, swsw fixed 11/165 = 0.067 [0.038, 0.115]
+
+xeval report: uopsd__gsm8k-mt__clip__s43 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/uopsd__gsm8k-mt__clip__s43/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.028  Δ +0.0 [-0.7, +0.8] | maj_correct 0.090 -> 0.075  Δ -1.5 [-5.0, +2.0] | pass_at_n 0.150 -> 0.140  Δ -1.0 [-6.5, +4.0]
+           format 0.233 -> 0.240  truncated 0.772 -> 0.784  maj flips: fixed 5, broken 8 (base right 18)
+  swen     mean_acc 0.072 -> 0.062  Δ -1.0 [-2.2, +0.2] | maj_correct 0.090 -> 0.090  Δ +0.0 [-3.5, +3.5] | pass_at_n 0.265 -> 0.260  Δ -0.5 [-6.0, +5.0]
+           format 0.868 -> 0.781  truncated 0.166 -> 0.308  maj flips: fixed 6, broken 6 (base right 18)
+  enen     mean_acc 0.886 -> 0.867  Δ -1.9 [-3.3, -0.5] | maj_correct 0.915 -> 0.915  Δ +0.0 [+0.0, +0.0] | pass_at_n 0.960 -> 0.960  Δ +0.0 [-2.5, +2.5]
+           format 0.966 -> 0.943  truncated 0.044 -> 0.074  maj flips: fixed 0, broken 0 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.061  Δ -2.0 [-3.5, -0.5] | maj_correct 0.105 -> 0.105  Δ +0.0 [-3.5, +3.5] | pass_at_n 0.285 -> 0.285  Δ +0.0 [-6.0, +6.0]
+           format 0.977 -> 0.963  truncated 0.018 -> 0.040  maj flips: fixed 7, broken 7 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.805  Δ -1.0 [-2.8, +0.9]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 6/165 = 0.036 [0.017, 0.077]; swen broken among base-right 6/18 = 0.333 [0.163, 0.563]
+  same set, swsw fixed 7/165 = 0.042 [0.021, 0.085]
+
+xeval report: uopsd__gsm8k-mt__noclip__s42 step100 (TEST 200 items; Δ = trained - base, points, paired bootstrap 95% CI)
+checkpoint: /data/user_data/szujuc/votedistill_ckpt/xfer/uopsd__gsm8k-mt__noclip__s42/step-100/adapter
+  swsw     mean_acc 0.028 -> 0.033  Δ +0.5 [-0.4, +1.3] | maj_correct 0.090 -> 0.095  Δ +0.5 [-3.5, +4.5] | pass_at_n 0.150 -> 0.165  Δ +1.5 [-4.0, +7.0]
+           format 0.233 -> 0.350  truncated 0.772 -> 0.644  maj flips: fixed 9, broken 8 (base right 18)
+  swen     mean_acc 0.072 -> 0.076  Δ +0.4 [-0.7, +1.5] | maj_correct 0.090 -> 0.085  Δ -0.5 [-4.5, +3.5] | pass_at_n 0.265 -> 0.300  Δ +3.5 [-1.5, +8.5]
+           format 0.868 -> 0.982  truncated 0.166 -> 0.028  maj flips: fixed 7, broken 8 (base right 18)
+  enen     mean_acc 0.886 -> 0.871  Δ -1.5 [-3.2, +0.2] | maj_correct 0.915 -> 0.915  Δ +0.0 [-2.5, +2.5] | pass_at_n 0.960 -> 0.975  Δ +1.5 [-0.5, +4.0]
+           format 0.966 -> 0.994  truncated 0.044 -> 0.009  maj flips: fixed 3, broken 3 (base right 183)
+  swsw-rp  mean_acc 0.081 -> 0.061  Δ -2.0 [-3.4, -0.7] | maj_correct 0.105 -> 0.090  Δ -1.5 [-4.5, +1.5] | pass_at_n 0.285 -> 0.265  Δ -2.0 [-8.0, +4.0]
+           format 0.977 -> 0.986  truncated 0.018 -> 0.003  maj flips: fixed 3, broken 6 (base right 21)
+  comprehension gap (enen - swen mean_acc): base 0.814 -> trained 0.795  Δ -1.9 [-4.0, +0.2]  (negative = reads Swahili better)
+  transfer set (base: English right, Swahili->English wrong): 165 items; swen fixed 7/165 = 0.042 [0.021, 0.085]; swen broken among base-right 8/18 = 0.444 [0.246, 0.663]
+  same set, swsw fixed 8/165 = 0.048 [0.025, 0.093]

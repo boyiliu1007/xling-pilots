@@ -1,0 +1,13 @@
+{
+  "model": "Qwen/Qwen3-8B",
+  "sampling": {
+    "val_n": 12,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": -1,
+    "max_new_tokens": 4096,
+    "enable_thinking": true
+  },
+  "style": "en-think-en",
+  "conditions": "Explicit vs implicit reading: can the model *translate* the Swahili question, and does solving its own translation\nbeat solving the Swahili question directly? Base models only (no training), Qwen3-1.7B / 4B / 8B.\n\nEvery condition solves AfriMGSM TEST (200 items) with the same prompt (style en-think-en: think and answer in\nEnglish) and COPSD's evaluation protocol (12 samples, T 1.0, top-p 0.95, 4096 new tokens, thinking mode, COPSD\ngrader). Only the question text differs:\n\n  en    human English question                              ceiling: the model's reasoning with perfect reading\n  sw    Swahili question                                    implicit reading (understand without writing it down)\n  self  the model's own English translation (greedy,        explicit reading: translate, then answer\n        non-thinking, results/exp2/translation prompt)\n  nllb  NLLB-200 3.3B translation                           an external reader; also the translate-test baseline\n  x8b   Qwen3-8B's translation (1.7B and 4B only)           a better reader of the same family, same solver\n\nGap decomposition per model:  en - sw  =  (en - self) [lost in explicit translation] + (self - sw) [explicit vs\nimplicit]. self > sw: the model reads better when it writes the translation out. self ~ sw with a poor translation:\nthe reading knowledge is not there to be elicited.\n\nPer-item translation quality vs the human English question: sentence chrF++ and \"numbers kept\" (same multiset of\nnumbers), so solving can be split by faithful vs unfaithful translation.\n\n  python -m votedistill.xfer reading --model Qwen/Qwen3-4B          # translate + solve (idempotent)\n  python -m votedistill.xfer reading-report\nOutputs results/xfer/reading/<model>/{trans_self.jsonl, solve_<cond>.jsonl}, results/xfer/reading/report.txt.\n"
+}

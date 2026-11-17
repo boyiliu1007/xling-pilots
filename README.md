@@ -70,6 +70,7 @@ selection, TEST 200 items (`results/splits/`).
 | `votedistill/stats.py`, `gpu.py`, `utils.py`, `paths.py` | Wilson and paired-bootstrap intervals; GPU wait and memory polling; I/O; machine-specific paths |
 | `slurm/` | `copsd.sbatch` (train + DEV/TEST eval + report) and `consensus.sbatch` |
 | `tests/` | Answer extraction and voting tests (`pytest tests`) |
+| `votedistill/xfer/` | Szu-Ju's branch: U-OPSD baseline, reading-comprehension OPSD, 4-view checkpoint eval, explicit-vs-implicit reading study. Results and summary: `results/xfer/README.md` |
 | `results/<run>/` | `report.txt`, `config.json`, per-item JSONL with every generation |
 
 ## Running

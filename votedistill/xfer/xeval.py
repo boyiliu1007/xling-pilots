@@ -13,7 +13,7 @@ from pathlib import Path
 
 from ..copsd.config import EVAL
 from ..paths import RESULTS
-from .uopsd import XFER
+from .uopsd import MODEL_SUFFIX, XFER
 
 XEVAL = XFER / "xeval"
 VIEWS = {
@@ -29,7 +29,20 @@ def out_dir(label, view):
 
 
 def base_file(view):
+    """Qwen3-1.7B: Experiment 2's base level. Other models: the same view of the frozen model, evaluated by
+    xeval_base() into results/xfer_<model>/xeval/base__<view>."""
+    if MODEL_SUFFIX:
+        return out_dir("base", view) / "eval" / "base_test.jsonl"
     return RESULTS / "exp2" / VIEWS[view]["base"] / "eval" / "base_test.jsonl"
+
+
+def xeval_base(view):
+    from ..copsd.evaluate import evaluate
+    v = VIEWS[view]
+    out = out_dir("base", view)
+    out.mkdir(parents=True, exist_ok=True)
+    evaluate(out, ["base"], "test", dict(EVAL, **v["cfg"]), None, lang=v["lang"])
+    return out
 
 
 def xeval(label, ckpt_dir, step, view):

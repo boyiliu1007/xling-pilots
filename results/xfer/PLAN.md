@@ -1,5 +1,7 @@
 # Szu-Ju's experiments on Experiment 2 (branch `szujuc/understanding-uopsd`)
 
+> Results and verdicts: [`README.md`](README.md). This file is the plan as written before training; it is left unchanged.
+
 Written 2026-11-16, before any of the runs below were trained. Model Qwen3-1.7B, AfriMGSM Swahili, Experiment 2's
 DEV 50 / TEST 200 split, COPSD's evaluation protocol (12 samples, T 1.0, top-p 0.95, 4096 tokens, thinking mode).
 Every number is reported at the **final checkpoint (step 100)**; there is no DEV selection (Experiment 2 found DEV

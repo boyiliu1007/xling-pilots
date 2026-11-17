@@ -19,14 +19,17 @@ from ..answers_math import extract_pred, final_text
 from ..answers_numeric import extract_answer, numeric_equal
 from ..consensus import eligible
 from ..copsd.config import OFFICIAL
-from ..paths import CKPT_ROOT, RESULTS
+from ..paths import CKPT_ROOT, MODEL, RESULTS
 from ..utils import read_jsonl, write_jsonl
 from ..exp2.trainsets import CONSENSUS, CONSENSUS_FILE, _agrees, _copsd_rows, _gsm8k_rows
 
 log = logging.getLogger("votedistill.xfer.uopsd")
-XFER = RESULTS / "xfer"
+DEFAULT_MODEL = "Qwen/Qwen3-1.7B"
+# a bigger base model (BASE_MODEL=Qwen/Qwen3-4B) gets its own results and checkpoint trees: xfer_qwen3-4b
+MODEL_SUFFIX = "" if MODEL == DEFAULT_MODEL else "_" + MODEL.split("/")[-1].lower()
+XFER = RESULTS / f"xfer{MODEL_SUFFIX}"
 RUNS = XFER / "runs"
-CKPT = CKPT_ROOT / "xfer"
+CKPT = CKPT_ROOT / f"xfer{MODEL_SUFFIX}"
 THRESHOLD = 0.5            # U-OPSD: discard questions with < 50% agreement
 METHODS = {"uopsd": True, "uopsd-all": False}   # -> train only on disagreeing rollouts?
 CLIPS = {"clip": OFFICIAL["jsd_token_clip"], "noclip": None}

@@ -1,0 +1,56 @@
+Explicit vs implicit reading (base models, AfriMGSM TEST 200, style en-think-en, COPSD protocol: 12 samples,
+T 1.0, 4096 tokens). Δ in points, paired bootstrap over items, 95% CI. See votedistill/xfer/reading.py.
+
+## A. Translation of the Swahili questions into English (TEST 200, vs the human English question)
+  reader        chrF++  numbers kept  cut off  echoes prompt  copies Swahili
+  qwen3-1.7b      28.4         0.695    0.015          0.000           0.050
+  qwen3-4b        46.5         0.760    0.005          0.000           0.000
+  qwen3-8b        57.1         0.870    0.000          0.000           0.000
+  nllb            67.7         0.670    0.000          0.000           0.000
+
+## B. Solve accuracy by question text (mean_acc / maj@12 / pass@12 / truncated)
+  model                                en                         sw                       self                       nllb                        x8b
+  qwen3-1.7b       0.885/0.910/0.965/0.02     0.076/0.100/0.255/0.17     0.054/0.055/0.095/0.12     0.653/0.690/0.800/0.07     0.506/0.525/0.630/0.10
+  qwen3-4b         0.958/0.980/0.980/0.04     0.278/0.375/0.520/0.26     0.254/0.280/0.310/0.28     0.720/0.780/0.820/0.14     0.563/0.590/0.615/0.20
+  qwen3-8b         0.943/0.965/0.975/0.05     0.529/0.605/0.795/0.18     0.552/0.575/0.610/0.22     0.715/0.790/0.825/0.17                          -
+
+## C. Gap decomposition, mean_acc (paired over items)
+  en - sw = (en - self) lost in the model's own translation + (self - sw) explicit vs implicit reading
+  qwen3-1.7b
+      en - sw   total reading gap          +81.0 [+76.8, +85.0]   maj +81.0 [+75.5, +86.5]
+      en - self lost in own translation    +83.2 [+78.8, +87.4]   maj +85.5 [+80.5, +90.5]
+    self - sw   EXPLICIT - IMPLICIT         -2.2 [ -5.2,  +0.8]   maj  -4.5 [ -8.5,  -0.5]
+    nllb - sw   external MT - implicit     +57.7 [+51.6, +63.7]   maj +59.0 [+51.5, +66.5]
+     x8b - self 8B's translation - own     +45.2 [+38.1, +52.2]   maj +47.0 [+39.5, +54.5]
+      en - nllb lost in NLLB translation   +23.2 [+17.8, +29.0]   maj +22.0 [+15.5, +28.5]
+  qwen3-4b
+      en - sw   total reading gap          +68.0 [+62.9, +73.0]   maj +60.5 [+54.0, +67.5]
+      en - self lost in own translation    +70.4 [+64.2, +76.3]   maj +70.0 [+63.5, +76.5]
+    self - sw   EXPLICIT - IMPLICIT         -2.4 [ -6.9,  +2.1]   maj  -9.5 [-16.0,  -3.5]
+    nllb - sw   external MT - implicit     +44.2 [+37.7, +50.7]   maj +40.5 [+32.5, +48.5]
+     x8b - self 8B's translation - own     +30.9 [+23.3, +38.1]   maj +31.0 [+23.0, +39.0]
+      en - nllb lost in NLLB translation   +23.8 [+18.3, +29.3]   maj +20.0 [+14.5, +25.5]
+  qwen3-8b
+      en - sw   total reading gap          +41.4 [+35.6, +47.2]   maj +36.0 [+29.0, +43.5]
+      en - self lost in own translation    +39.0 [+32.2, +45.9]   maj +39.0 [+32.0, +46.0]
+    self - sw   EXPLICIT - IMPLICIT         +2.4 [ -2.7,  +7.1]   maj  -3.0 [ -9.5,  +3.5]
+    nllb - sw   external MT - implicit     +18.7 [+12.6, +24.8]   maj +18.5 [+10.5, +27.0]
+      en - nllb lost in NLLB translation   +22.7 [+17.4, +28.1]   maj +17.5 [+12.0, +23.0]
+
+## D. Items split by the model's own translation (faithful = same numbers as the human question and
+   sentence chrF++ >= 50). mean_acc per condition; 'sw wins' = items where sw maj is right but self maj wrong.
+  qwen3-1.7b
+    faithful    n= 10  en 0.883  self 0.000  sw 0.042   self wins   0  sw wins   0
+    unfaithful  n=190  en 0.886  self 0.057  sw 0.078   self wins   4  sw wins  13
+    chrF 0-30: n=101 self 0.048 sw 0.055 en 0.882 | chrF 30-50: n=86 self 0.069 sw 0.107 en 0.886 | chrF 50-70: n=13 self 0.000 sw 0.032 en 0.910
+    items solved from English (n=182): recovered by sw 0.104, by self 0.060, by nllb 0.736
+  qwen3-4b
+    faithful    n= 64  en 0.966  self 0.435  sw 0.408   self wins   6  sw wins  10
+    unfaithful  n=136  en 0.954  self 0.169  sw 0.217   self wins   6  sw wins  21
+    chrF 0-30: n=13 self 0.000 sw 0.167 en 0.955 | chrF 30-50: n=105 self 0.183 sw 0.229 en 0.950 | chrF 50-70: n=75 self 0.346 sw 0.333 en 0.966 | chrF 70-100: n=7 self 0.821 sw 0.631 en 1.000
+    items solved from English (n=196): recovered by sw 0.383, by self 0.281, by nllb 0.796
+  qwen3-8b
+    faithful    n=122  en 0.936  self 0.580  sw 0.555   self wins  15  sw wins  15
+    unfaithful  n= 78  en 0.952  self 0.510  sw 0.487   self wins   3  sw wins   9
+    chrF 0-30: n=4 self 0.500 sw 0.354 en 1.000 | chrF 30-50: n=59 self 0.535 sw 0.513 en 0.956 | chrF 50-70: n=104 self 0.518 sw 0.494 en 0.921 | chrF 70-100: n=33 self 0.697 sw 0.689 en 0.980
+    items solved from English (n=193): recovered by sw 0.606, by self 0.585, by nllb 0.803
