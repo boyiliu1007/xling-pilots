@@ -414,3 +414,11 @@ base and base+penalty on DEV (L0 / L0-reppen1.1 base_dev.jsonl). Reading, fixed 
 (LID) under default decoding above base+penalty's, and above base with the paired CI excluding 0. DEV is small, so
 this only steers effort (whether C, A, B and seed 43 are worth the GPU time); it changes nothing in the primary
 analysis, and D still trains to step 300 regardless.
+
+### 2026-11-17 ~03:40 — result of the step-150 DEV check (arm D)
+DEV, 50 items x 12, Swahili accuracy (LID) / any-language mean_acc / LID pass / truncated:
+base 12.5 / 14.0 / 89.2 / 26.5; base+penalty 13.5 / 23.0 / 66.0 / 5.2; D step 150 22.8 / 23.3 / 96.8 / 1.2;
+D step 150 + penalty 23.2 / 24.2 / 92.2 / 0.8. D − base, Swahili accuracy +10.3 [+5.8, +15.2]; D − base+penalty
++9.3 [+4.7, +14.3] -> "promising" by the rule above. But any-language mean_acc only ties base+penalty (+0.3
+[−4.0, +5.2]): so far D reaches the accuracy that penalty decoding reaches, while staying in Swahili, rather
+than reasoning better. C, A and B proceed as planned.
