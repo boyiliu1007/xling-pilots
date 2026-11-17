@@ -439,3 +439,5 @@ D: Swahili accuracy (LID) 25.2 / mean_acc 26.1 / LID pass 98.0 / truncated 2.1.
 D − base: +13.4 [+10.4, +16.5] (preregistered success criterion met), mean_acc +11.7 [+8.8, +14.6].
 D − base+penalty: +10.4 [+7.9, +13.0], mean_acc +2.8 [+0.4, +5.3]. D − B (gold): −0.8 [−2.7, +1.0], mean_acc −1.5
 [−3.3, +0.2]. D − A: +1.8 [−0.1, +3.5]. Penalty decoding and arm C pending.
+D, penalty 1.1 decoding: 25.7 / 27.0 / 96.3 / 0.7. D+pen − base+pen: +10.8 [+8.3, +13.5], mean_acc +3.8 [+1.4, +6.3];
+D+pen − B+pen: −0.2 [−2.2, +1.7], mean_acc −0.9 [−2.9, +1.0].
