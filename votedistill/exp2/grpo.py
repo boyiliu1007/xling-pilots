@@ -39,12 +39,15 @@ from ..utils import versions, write_json, write_jsonl
 
 log = logging.getLogger("votedistill.exp2.grpo")
 
-REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlidref", "votelid", "votelidref")
+REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlidref", "votelid", "votelidref",
+           "lidonly", "selfvotelid")
 # Self-play transfer design (PREREGISTRATION 2026-11-16 ~10:30), SP3F-style (Sutawika et al., ACL 2026) rewards:
 #   goldlid     correct (gold)         + lid_ok                         A: gold ceiling
 #   goldlidref  correct (gold)         + lid_ok + ref_f1 (gold English solution)          B: SP3F-like, gold privilege
 #   votelid     equals own English vote + lid_ok  (vote-accepted questions only)          C: gold-free, answer only
 #   votelidref  equals own English vote + lid_ok + ref_f1 (own English voted answer text)   D: the proposal
+#   lidonly     lid_ok only (vote-accepted questions, as C)                               E: control, language only
+#   selfvotelid equals the group's own Swahili majority answer + lid_ok (as C)            F: control, no English
 # lid_ok: >= LID_MIN of the prose (chunks with >= 3 words; math/LaTeX removed) is Swahili by lingua over ALL languages
 # (a Swahili-vs-English-only detector passes the "jibu"-spam outputs; the all-language one passes 13% of them, 86% of
 # base outputs). ref_f1: F1 between the sets of numbers in the rollout and in the English reference (a judge-free
@@ -156,6 +159,24 @@ def score(text, finish_reason, gold, vote, ref=None):
             "ref_f1": ref_f1(text, ref) if ref else 0.0}
 
 
+def group_majority(outputs):
+    """TTRL-style pseudo-label: the most common final answer among the group's finished samples (None if no answer
+    occurs at least twice)."""
+    preds = [extract_pred(c.text, thinking=True)[0] for c in outputs if c.finish_reason == "stop"]
+    clusters = []   # [representative, count], answers merged by the evaluation's equivalence check
+    for x in (x for x in preds if x is not None):
+        for cl in clusters:
+            if _same(cl[0], x):
+                cl[1] += 1
+                break
+        else:
+            clusters.append([x, 1])
+    if not clusters:
+        return None
+    ans, n = max(clusters, key=lambda cl: cl[1])
+    return ans if n >= 2 else None
+
+
 def reward(kind, s):
     if kind == "gold":
         return float(s["correct"])
@@ -167,6 +188,10 @@ def reward(kind, s):
         return float(s["correct_swr"])
     if kind == "goldswv":
         return float(s["correct_sw"]) + 0.5 * float(s["vote_sw"])
+    if kind == "lidonly":
+        return float(s["lid_ok"])
+    if kind == "selfvotelid":   # score() was called with vote = the group's Swahili majority answer
+        return float(s["vote_ok"]) + float(s["lid_ok"])
     if kind in ("goldlid", "goldlidref", "votelid", "votelidref"):
         ok = s["correct"] if kind.startswith("gold") else s["vote_ok"]
         return float(ok) + float(s["lid_ok"]) + (s["ref_f1"] if kind.endswith("ref") else 0.0)
@@ -176,11 +201,11 @@ def reward(kind, s):
 def question_rows(data, kind):
     from .trainsets import _gsm8k_rows, voted_references
     rows = _gsm8k_rows(data)
-    if kind in ("votesw", "goldswv", "votelid", "votelidref"):
+    if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid"):
         refs = voted_references(data)
         rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None,
                  "vote_ref": refs[r["qid"]][0] if r["qid"] in refs else None} for r in rows]
-        if kind in ("votesw", "votelid", "votelidref"):
+        if kind in ("votesw", "votelid", "votelidref", "lidonly", "selfvotelid"):   # same questions as C
             rows = [r for r in rows if r["vote_answer"] is not None]
     for r in rows:   # privileged reference for the ref_f1 term
         r["ref"] = r.get("vote_ref") if kind == "votelidref" else r["solution"] if kind == "goldlidref" else None
@@ -280,8 +305,10 @@ def train_grpo(name, data, seed, kind):
         recs, groups = [], []
         for q, p, o in zip(qs, p_ids, outs):
             g = []
+            vote = group_majority(o.outputs) if kind == "selfvotelid" else \
+                None if kind == "lidonly" else q.get("vote_answer")
             for c in o.outputs:
-                s = score(c.text, c.finish_reason, q["Answer"], q.get("vote_answer"), q.get("ref"))
+                s = score(c.text, c.finish_reason, q["Answer"], vote, q.get("ref"))
                 g.append((list(c.token_ids), reward(kind, s), s))
                 recs.append({"step": step, "qid": q["qid"], "reward": reward(kind, s), "len": len(c.token_ids),
                              **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr",

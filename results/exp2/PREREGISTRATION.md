@@ -448,3 +448,14 @@ C − base +13.1 [+10.2, +16.1]; C − base+penalty +10.1 [+7.7, +12.7], mean_ac
 [−0.2, +3.1]. D − C: +0.3 [−1.3, +1.9], mean_acc +0.5 [−1.1, +2.1] — the own-English-solution reference adds
 nothing measurable on top of the own-English-vote answer reward (unlike the gold reference: B − A +3.1 [+1.3, +4.9]),
 though it lowers truncation (2.1 vs 7.0). C penalty decoding pending.
+
+### 2026-11-17 ~15:30 — follow-up: two controls for "does the model's own ENGLISH ability teach it?" (before any result)
+C and D gain ~+13 Swahili accuracy over base, but C's reward has two parts (agree with own English vote, lid_ok). Two
+controls, same settings as C (vote-accepted questions, lr 5e-6, q16, 300 steps, s42, preempt RTX PRO 6000):
+- E `lidonly`: reward = lid_ok only. Tests whether the gain is just staying in Swahili / finishing.
+- F `selfvotelid`: reward = agrees with the group's own Swahili majority answer (TTRL-style, most common answer among
+  the 8 finished samples, needs >= 2 votes) + lid_ok. Tests whether English is needed or any self-consistency works.
+Primary: TEST Swahili accuracy (LID), default decoding, step 300; also mean_acc. Contrasts C − E and C − F, paired
+bootstrap. Reading: English ability teaches = C > E and C > F, CIs excluding 0. If C ≈ F, self-consistency suffices;
+if C ≈ E, the gain is form (language + finishing). Rollout texts read at step 50 for hacking (E may collapse to
+short Swahili with no math).
