@@ -43,3 +43,51 @@ Dataset inspection 2026-11-14T14:54:52
 ================================================================================
 COPSD train (yihongLiu/COPSD-AfriMGSM-TrainDataset) en: 500 rows; sources {'olympiads': 500}
 gold 'Answer' parseable and equal to the reference solution's last \boxed{}: 478/500; first 5 disagreements: [(28, '8', '-2'), (35, '26', '51'), (54, '\\sum_{k=0}^{r}\\binom{n}{k}\\binom{m}{r-k} = \\binom{n+m}{r}', '\\sum_{k=0}^{n} \\binom{n}{k}^2 = \\binom{2n}{n}'), (62, '8', '1'), (67, '\\frac{a}{b+c}+\\frac{b}{c+a}+\\frac{c}{a+b} \\geq \\frac{3}{2}', 'a^3 + b^3 + c^3 + \\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} \\geq 2(a+b+c)')]
+Dataset inspection 2026-11-16T14:50:58
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T14:51:00
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T15:39:43
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T15:41:56
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T16:27:44
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T16:36:30
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T17:13:02
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T17:26:21
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T18:04:35
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T18:13:05
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T18:52:34
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
+Dataset inspection 2026-11-16T19:07:44
+
+================================================================================
+GSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed
