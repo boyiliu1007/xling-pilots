@@ -432,3 +432,10 @@ B − base+penalty: Swahili accuracy +11.2 [+8.3, +14.3], mean_acc +4.4 [+1.7, +
 A+pen 24.9 / 25.9, B+pen 25.9 / 27.9.
 Compute: preempt RTX PRO 6000 ran 300 steps in ~4 h (local A6000 ~13 h), so arm C moved from the interactive node to
 preempt (train 11186698, eval 11186699); D finishes and is evaluated locally.
+
+### 2026-11-17 ~12:45 — TEST result, arm D (votelidref, s42, step 300, default decoding)
+Session loss: interactive job 11180064 ended 09:51 at step 288; D resumed from step-275 on babel-u9-32.
+D: Swahili accuracy (LID) 25.2 / mean_acc 26.1 / LID pass 98.0 / truncated 2.1.
+D − base: +13.4 [+10.4, +16.5] (preregistered success criterion met), mean_acc +11.7 [+8.8, +14.6].
+D − base+penalty: +10.4 [+7.9, +13.0], mean_acc +2.8 [+0.4, +5.3]. D − B (gold): −0.8 [−2.7, +1.0], mean_acc −1.5
+[−3.3, +0.2]. D − A: +1.8 [−0.1, +3.5]. Penalty decoding and arm C pending.
