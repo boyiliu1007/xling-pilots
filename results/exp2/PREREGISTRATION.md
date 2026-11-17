@@ -404,3 +404,13 @@ All arms now use 16 questions per step (128 rollouts), 300 steps, lr 5e-6 (same 
 informative groups per update, more than any earlier run): `<reward>-lr5e-6-q16-steps300`. Compute: D and C on the
 interactive node's A6000 (one after the other), A and B on the shared preempt queue (they start whenever it allows;
 moved to the interactive node if D finishes first). Everything else as in the ~10:30 entry.
+
+### 2026-11-17 ~00:20 — exploratory step-150 DEV check of arm D (before any evaluation of it)
+Step-50 training logs: language pass and finish rates rise, accuracy flat (0.13-0.20 among finished outputs); ~2/3 of
+groups have all 8 rollouts wrong, so most of the signal is form (lid_ok, ref_f1). To decide early whether the method
+learns reasoning, arm D's step-150 checkpoint is evaluated on DEV (50 items x 12 samples), default decoding and
+penalty 1.1, into results/exp2_qwen3-4b/devcheck/ (training paused ~1 h, then resumed from step 150). Compared with
+base and base+penalty on DEV (L0 / L0-reppen1.1 base_dev.jsonl). Reading, fixed now: "promising" = Swahili accuracy
+(LID) under default decoding above base+penalty's, and above base with the paired CI excluding 0. DEV is small, so
+this only steers effort (whether C, A, B and seed 43 are worth the GPU time); it changes nothing in the primary
+analysis, and D still trains to step 300 regardless.
