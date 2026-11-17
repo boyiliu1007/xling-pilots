@@ -441,3 +441,10 @@ D − base+penalty: +10.4 [+7.9, +13.0], mean_acc +2.8 [+0.4, +5.3]. D − B (go
 [−3.3, +0.2]. D − A: +1.8 [−0.1, +3.5]. Penalty decoding and arm C pending.
 D, penalty 1.1 decoding: 25.7 / 27.0 / 96.3 / 0.7. D+pen − base+pen: +10.8 [+8.3, +13.5], mean_acc +3.8 [+1.4, +6.3];
 D+pen − B+pen: −0.2 [−2.2, +1.7], mean_acc −0.9 [−2.9, +1.0].
+
+### 2026-11-17 ~15:00 — TEST result, arm C (votelid, s42, step 300, default decoding)
+C: Swahili accuracy (LID) 25.0 / mean_acc 25.6 / LID pass 98.1 / truncated 7.0.
+C − base +13.1 [+10.2, +16.1]; C − base+penalty +10.1 [+7.7, +12.7], mean_acc +2.3 [+0.0, +4.7]; C − A +1.5
+[−0.2, +3.1]. D − C: +0.3 [−1.3, +1.9], mean_acc +0.5 [−1.1, +2.1] — the own-English-solution reference adds
+nothing measurable on top of the own-English-vote answer reward (unlike the gold reference: B − A +3.1 [+1.3, +4.9]),
+though it lowers truncation (2.1 vs 7.0). C penalty decoding pending.
