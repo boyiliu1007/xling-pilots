@@ -396,3 +396,11 @@ decoding; also any-language mean_acc and the penalty-1.1 decoding, vs base and b
 Contrasts: D − C (does own English reasoning help beyond its answer), D − B and C − A (cost of no gold),
 B − A (does the reference help with gold), each arm − base. Success for the proposal: D > base on Swahili accuracy
 (LID) with the CI excluding 0. Rollout texts are saved every 10 steps and read for hacking at step 50.
+
+### 2026-11-16 ~20:35 — amendment: 16 questions per step (before any result)
+Arm D at 32 questions/step took about 6.5 min/step (3 steps run, then aborted and deleted): with the continuous
+ref_f1 term every group carries signal, so all 256 rollouts are back-propagated, and 300 steps would take ~33 h.
+All arms now use 16 questions per step (128 rollouts), 300 steps, lr 5e-6 (same number and size of updates; 16
+informative groups per update, more than any earlier run): `<reward>-lr5e-6-q16-steps300`. Compute: D and C on the
+interactive node's A6000 (one after the other), A and B on the shared preempt queue (they start whenever it allows;
+moved to the interactive node if D finishes first). Everything else as in the ~10:30 entry.
