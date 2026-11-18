@@ -459,3 +459,17 @@ Primary: TEST Swahili accuracy (LID), default decoding, step 300; also mean_acc.
 bootstrap. Reading: English ability teaches = C > E and C > F, CIs excluding 0. If C ≈ F, self-consistency suffices;
 if C ≈ E, the gain is form (language + finishing). Rollout texts read at step 50 for hacking (E may collapse to
 short Swahili with no math).
+
+### 2026-11-17 ~22:00 — follow-up batch (before any result): prior-work reward, offline vs online, transfer
+Related work found 2026-11-17 (PASMR, arXiv 2601.17671; cross-lingual self-consistency, arXiv 2606.01464) already
+rewards target-language answers by agreement with the model's own English answer, without a language reward.
+Three additions, all s42, Qwen3-4B, gsm8k-mt3k:
+- G `grpo__..__voteonly-lr5e-6-q16-steps300`: reward = agrees with own English vote only (no lid_ok), C's
+  questions and settings. Prediction: any-language mean_acc up, Swahili accuracy (LID) below C. Contrast C − G.
+- RFT `selfsft-vote__gsm8k-mt3k__exact__lidvote__s42`: C's reward applied OFFLINE. Base model samples 8 Swahili
+  answers per question once (self-SFT generation: T 1.1, top-p 0.95, top-k 20, 2048 tokens); keep those agreeing
+  with the English vote AND lid_ok (<= 2 per question); SFT 100 steps (COPSD optimizer, LoRA r64, lr 5e-6, 32/step).
+  Contrast C − RFT: same signal, online vs offline.
+- Transfer and forgetting: base, C and D (step 300) on AfriMGSM TEST in English (eng) and Hausa (hau), default
+  decoding, any-language mean_acc, paired bootstrap vs base. Exploratory.
+Evaluation as before (TEST, final checkpoint, default + penalty 1.1 decoding for G and RFT).

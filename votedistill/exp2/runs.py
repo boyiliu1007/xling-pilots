@@ -59,7 +59,9 @@ def _strip_rp(v):
 
 # Self-SFT filter arms (selfsft.FILTERS; PREREGISTRATION 2026-11-14 self-SFT filter entry): variant "rp-<filter>"
 # on the selfsft-vote context, e.g. selfsft-vote__copsd__exact__rp-swvote__s42 (equal-size kept sets).
-SFT_FILTERS = ("vote", "swvote", "nofilter", "gold")
+SFT_FILTERS = ("vote", "swvote", "nofilter", "gold", "lidvote")
+# "lidvote" (PREREGISTRATION 2026-11-17 ~22:00): offline rejection-sampling fine-tuning with arm C's reward = agrees
+# with the English vote AND passes the LID check (grpo.lid_fraction >= LID_MIN); not equalised with the other arms.
 
 
 ROUND2 = "-r2"   # round 2 of self-SFT (PREREGISTRATION 2026-11-14 ~23:45): "rp-<filter>-r2"

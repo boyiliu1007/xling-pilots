@@ -212,7 +212,11 @@ def _filter_keep(recs, data, filt, rep_pen):
     gold = {r["qid"]: str(r["Answer"]) for r in (_copsd_rows() if data == "copsd" else _gsm8k_rows(data))} if filt == "gold" else {}
     out = []
     for q, ss in by_q.items():
-        target = {"vote": ss[0].get("vote_answer"), "gold": gold.get(q), "nofilter": None,
+        if filt == "lidvote":
+            from .grpo import LID_MIN, lid_fraction
+            ss = [r for r in ss if lid_fraction(r["text"]) >= LID_MIN]
+        target = {"vote": ss[0].get("vote_answer") if ss else None, "lidvote": ss[0].get("vote_answer") if ss else None,
+                  "gold": gold.get(q), "nofilter": None,
                   "swvote": _sw_majority(ss) if filt == "swvote" else None}[filt]
         if filt != "nofilter" and target is None:
             continue
@@ -266,6 +270,8 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
         recs = read_jsonl(rd / "round2_pool.jsonl")
     elif filt is None:
         recs = [r for r in generate(data, rep_pen) if r["keep"]]
+    elif filt == "lidvote":   # C's reward, offline: own-sample answers agreeing with the English vote AND in Swahili
+        recs = _filter_keep(generate(data, rep_pen), data, "lidvote", rep_pen)
     else:
         generate(data, rep_pen)
         recs = filter_arms(data, rep_pen)[filt]

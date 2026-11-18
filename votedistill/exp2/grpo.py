@@ -40,13 +40,14 @@ from ..utils import versions, write_json, write_jsonl
 log = logging.getLogger("votedistill.exp2.grpo")
 
 REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlidref", "votelid", "votelidref",
-           "lidonly", "selfvotelid")
+           "lidonly", "selfvotelid", "voteonly")
 # Self-play transfer design (PREREGISTRATION 2026-11-16 ~10:30), SP3F-style (Sutawika et al., ACL 2026) rewards:
 #   goldlid     correct (gold)         + lid_ok                         A: gold ceiling
 #   goldlidref  correct (gold)         + lid_ok + ref_f1 (gold English solution)          B: SP3F-like, gold privilege
 #   votelid     equals own English vote + lid_ok  (vote-accepted questions only)          C: gold-free, answer only
 #   votelidref  equals own English vote + lid_ok + ref_f1 (own English voted answer text)   D: the proposal
 #   lidonly     lid_ok only (vote-accepted questions, as C)                               E: control, language only
+#   voteonly    equals own English vote only, no language term (PASMR-style reward)       G: prior work's reward
 #   selfvotelid equals the group's own Swahili majority answer + lid_ok (as C)            F: control, no English
 # lid_ok: >= LID_MIN of the prose (chunks with >= 3 words; math/LaTeX removed) is Swahili by lingua over ALL languages
 # (a Swahili-vs-English-only detector passes the "jibu"-spam outputs; the all-language one passes 13% of them, 86% of
@@ -190,6 +191,8 @@ def reward(kind, s):
         return float(s["correct_sw"]) + 0.5 * float(s["vote_sw"])
     if kind == "lidonly":
         return float(s["lid_ok"])
+    if kind == "voteonly":
+        return float(s["vote_ok"])
     if kind == "selfvotelid":   # score() was called with vote = the group's Swahili majority answer
         return float(s["vote_ok"]) + float(s["lid_ok"])
     if kind in ("goldlid", "goldlidref", "votelid", "votelidref"):
@@ -201,11 +204,11 @@ def reward(kind, s):
 def question_rows(data, kind):
     from .trainsets import _gsm8k_rows, voted_references
     rows = _gsm8k_rows(data)
-    if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid"):
+    if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly"):
         refs = voted_references(data)
         rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None,
                  "vote_ref": refs[r["qid"]][0] if r["qid"] in refs else None} for r in rows]
-        if kind in ("votesw", "votelid", "votelidref", "lidonly", "selfvotelid"):   # same questions as C
+        if kind in ("votesw", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly"):   # same questions as C
             rows = [r for r in rows if r["vote_answer"] is not None]
     for r in rows:   # privileged reference for the ref_f1 term
         r["ref"] = r.get("vote_ref") if kind == "votelidref" else r["solution"] if kind == "goldlidref" else None
