@@ -540,3 +540,22 @@ Swahili + 1109 Zulu, same English vote per qid), uniform sampling, q32, 300 step
 D at ~430 steps). Evaluation: Swahili TEST (compare to D450 as the closest compute match, and to D300), Zulu TEST
 (vs base, Zulu accuracy by LID), Hausa (unseen) and English (forgetting). Reading: Zulu − base > 0 with CI excluding
 0 = the recipe works on a second, much weaker language; Swahili ≥ D450 − 2 = no interference.
+
+### 2026-11-18 ~12:00 — main-conference plan (before any of these results)
+Goal: turn the single-seed Qwen3-4B Swahili result into a paper. All settings as D (lr 5e-6, q16, 300 steps, LoRA
+r64, Dr. GRPO) unless stated; primary metric Swahili accuracy (LID) on AfriMGSM TEST; paired bootstrap over items,
+seeds averaged per item where a run has several seeds; Holm correction over the paper's main contrasts (listed below).
+Wave 1 (existing code, launched now):
+1. Seeds 43 and 44 for A goldlid, B goldlidref, C votelid, D votelidref, E lidonly, F selfvotelid, G voteonly,
+   H votelidstep, and offline RFT (selfsft lidvote). Main claims are re-tested on 3 seeds.
+2. Equal compute: B, G and H continued to 600 steps from their step-300 checkpoints (as D600). The claim "gold-free
+   ≥ gold" is judged at equal steps (D600 vs B600); "language check needed" at G600 vs D600/C.
+3. Model scale: Qwen3-1.7B and Qwen3-8B, s42, runs B, C, D, F, G (own English vote from each model's own consensus
+   file). Prediction: D − base > 0 and C − G > 0 on Swahili accuracy for both sizes.
+Wave 2 (code to be written, design entries before launch): more training languages (single-language runs, lingua-
+supported: Zulu, Yoruba with number words allowed, Shona, Sotho); baselines (translate-test with NLLB, SFT on
+NLLB-translated gold solutions, prompting "think in English, answer in Swahili", PASMR-style SFT warm-up + vote
+reward); second test sets (MGSM Swahili, MSVAMP Swahili); language-check ablation (Swahili-vs-English detector,
+word-list check, thresholds 0.5/0.9) with hacking rates; vote-corruption (10/20/40% of vote answers replaced by a
+wrong answer); a non-Qwen model; a blinded native-speaker rating sheet of 100 outputs; full TEST curve of D600.
+Main contrasts (Holm): D − base, D − base+pen (any-language), D600 − B600, C − G, C − E, C − F, C − RFT, H − D.
