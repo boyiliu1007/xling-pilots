@@ -1,0 +1,27 @@
+{
+  "model": "facebook/nllb-200-3.3B",
+  "src": "eng_Latn",
+  "tgt": "sna_Latn",
+  "generation": {
+    "num_beams": 4,
+    "max_new_tokens": 256,
+    "no_repeat_ngram_size": 0
+  },
+  "sentence_split": "Sentences, keeping line breaks as hard boundaries. A boundary is [.?!] + whitespace + an uppercase letter,\n    digit, quote or '$', so '3.5', 'Mr. Smith' (lowercase follows rarely) and amounts stay intact in practice.",
+  "qc": "(ok, reasons). Numbers: every digit-number of the translation must come from the English question; English\n    numbers missing from the translation must be small (<= WORD_MAX, e.g. fraction parts) and the translation must\n    contain at least as many Swahili number words. Length ratio in LEN_RATIO; no 4-word loop x3.",
+  "items": 3000,
+  "qc_ok": 1343,
+  "selection": [
+    "\n================================================================================\nGSM8K train: 3000 of 7473 rows via random.Random(42).sample, sorted; first 10 indices [3, 4, 9, 12, 13, 17, 21, 23, 24, 26]; gold = text after '####', commas removed"
+  ],
+  "versions": {
+    "python": "3.11.16",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  },
+  "created": "2026-11-18T12:14:27"
+}

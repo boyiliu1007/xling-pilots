@@ -48,7 +48,7 @@ def pin_eval_config(run_dir, cfg, ckpt_dir):
                    "checkpoint_dir": str(ckpt_dir) if ckpt_dir else None})
 
 
-def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
+def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa", bench=None):
     """names: 'base' and/or 'step<N>' (LoRA adapter at <ckpt_dir>/step-<N>/adapter). Existing outputs are skipped."""
     run_dir = Path(run_dir)
     pin_eval_config(run_dir, cfg, ckpt_dir)
@@ -66,8 +66,14 @@ def evaluate(run_dir, names, split, cfg, ckpt_dir=None, lang="swa"):
     from vllm import LLM, SamplingParams
     from vllm.lora.request import LoRARequest
     wait_for_gpu()
-    rows = load_afrimgsm(lang)
-    ids = load_split()[split]
+    if bench == "msvamp":   # second test set (PREREGISTRATION 2026-11-18 wave 2): MSVAMP Swahili, all 1000 items
+        from datasets import load_dataset
+        rows = [{"question": r["m_query"], "answer_number": r["response"]}
+                for r in load_dataset("Mathoctopus/MSVAMP", "sw", split="test")]
+        ids = list(range(len(rows)))
+    else:
+        rows = load_afrimgsm(lang)
+        ids = load_split()[split]
     model = cfg.get("model", MODEL)   # base-model level may name a different (bigger) model; no LoRA then
     tok = AutoTokenizer.from_pretrained(model)
     max_len = cfg["max_new_tokens"] + 2048
