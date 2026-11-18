@@ -513,3 +513,30 @@ C 95.5 (+0.5 [−0.1, +1.3]) — no forgetting. Hausa (never trained) base 3.6, 
    question order starts with the 300-step order (verified). TEST at steps 450 and 600 (default + penalty 1.1).
    Reading: D600 − D300 and D450 − D300 on Swahili accuracy (LID); descriptive (more steps chosen post hoc).
 2. One English teacher for two languages (design entry to follow once the Hausa data and language check exist).
+
+### 2026-11-18 ~11:40 — TEST results: G, offline RFT, H, and D at 450 / 600 steps (s42)
+Swahili accuracy (LID) / mean_acc / LID pass, default decoding (paired bootstrap, 200 items):
+- G `voteonly` (PASMR-style, no language term): 10.0 / 32.2 / 28.0. C − G: Swahili accuracy +15.0 [+11.5, +18.5],
+  mean_acc −6.6 [−9.9, −3.4]. Without a language term the policy answers in English (72% of outputs): any-language
+  accuracy rises, Swahili accuracy falls below base+penalty. The language check is what keeps the gain in Swahili.
+- Offline RFT `selfsft-vote__gsm8k-mt3k__exact__lidvote` (C's reward as a filter, 100 SFT steps): 13.0 / 15.3 / 87.6
+  (truncated 26.0). RFT − base +1.2 [−0.1, +2.5]; C − RFT +11.9 [+9.3, +14.7]. Same signal offline ≈ nothing: the
+  on-policy delivery is what works.
+- H `votelidstep`: 27.7 / 28.3 / 98.2. H − C +2.8 [+0.8, +4.8]; H − D +2.5 [+0.7, +4.3]. Credit on the own English
+  solution's intermediate numbers helps where D's whole-reference F1 did not (D − C +0.3 n.s.).
+- D continued: step 450 29.4 / 30.0; step 600 32.5 / 33.0 / 98.8. D600 − D300 +7.2 [+4.5, +10.0]; D600 − D450
+  +3.1 [+1.1, +5.1]; D600 − base+pen +17.7 [+14.1, +21.2], mean_acc +9.7 [+6.7, +12.8]; D600 − B (gold, 300
+  steps, unequal compute) +6.4 [+3.9, +9.0]. Still rising at 600.
+- I `votelidrefanc`: the eval job was cancelled (its dependency was the crashed first attempt); resubmitted 11200188.
+
+### 2026-11-18 ~11:40 — design (before training): Swahili + Zulu, one English teacher
+Second language Zulu, not Hausa (lingua has no Hausa) and not Yoruba (NLLB writes numbers as words; only 155/3000
+Yoruba translations pass the number QC vs 1131 Zulu). Language check calibration: lingua labels 16% of QC-passed
+Zulu questions <70% Zulu, mostly as Xhosa; for Zulu, chunks labelled ZULU or XHOSA count (questions then pass 98.5%;
+Swahili check unchanged). Base Qwen3-4B on AfriMGSM Zulu TEST: mean_acc 2.5, Zulu accuracy (LID) 2.2, LID pass 91.
+Run `grpo__gsm8k-mt3k-zul__exact__votelidref-lr5e-6-q32-steps300__s42`: D's reward (vote_ok + lid_ok in the
+question's language + ref_f1 vs the own English vote solution), vote-accepted questions of both languages (2752
+Swahili + 1109 Zulu, same English vote per qid), uniform sampling, q32, 300 steps (≈6900 Swahili question draws ≈
+D at ~430 steps). Evaluation: Swahili TEST (compare to D450 as the closest compute match, and to D300), Zulu TEST
+(vs base, Zulu accuracy by LID), Hausa (unseen) and English (forgetting). Reading: Zulu − base > 0 with CI excluding
+0 = the recipe works on a second, much weaker language; Swahili ≥ D450 − 2 = no interference.

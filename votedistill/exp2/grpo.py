@@ -74,7 +74,9 @@ SAVE_EVERY = 25
 LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished,mean_len,"
               "groups_with_signal,questions,t_gen,t_train,lid_ok,correct_lid,vote_ok,ref_f1\n")
 _LID = None
-LID_LANG = {"swa": "SWAHILI", "zul": "ZULU", "yor": "YORUBA"}   # lingua names of the training languages
+# lingua names accepted per training language. Zulu also accepts Xhosa: lingua labels ~16% of QC-passed NLLB Zulu
+# questions <70% Zulu, mostly as Xhosa (closely related Nguni language); with Xhosa allowed the questions pass (see prereg).
+LID_LANG = {"swa": ("SWAHILI",), "zul": ("ZULU", "XHOSA"), "yor": ("YORUBA",)}
 
 
 def lid_fraction(text, lang="swa"):
@@ -89,7 +91,7 @@ def lid_fraction(text, lang="swa"):
     if not chunks:
         return 0.0
     n = [len(c) for c in chunks]
-    return sum(k for k, l in zip(n, _LID.detect_languages_in_parallel_of(chunks)) if l == getattr(Language, LID_LANG[lang])) / sum(n)
+    return sum(k for k, l in zip(n, _LID.detect_languages_in_parallel_of(chunks)) if l is not None and l.name in LID_LANG[lang]) / sum(n)
 
 
 _NUM = re.compile(r"(?<![\w.])-?\d[\d,]*(?:\.\d+)?")
