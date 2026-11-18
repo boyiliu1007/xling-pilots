@@ -497,3 +497,11 @@ E: Swahili accuracy (LID) 9.4 / mean_acc 9.4 / LID pass 99.9 / truncated 11.8; p
 C − E: +15.6 [+12.2, +19.2], mean_acc +16.2 [+12.7, +19.8]. E − base: −2.5 [−4.3, −0.7], mean_acc −5.0 [−6.9, −3.2].
 Reading (as preregistered): the language reward alone does not produce C's gain; it lowers accuracy below the
 untrained model. F (Swahili self-vote) pending.
+
+### 2026-11-18 ~00:50 — TEST results: control F (selfvotelid) and English / Hausa transfer
+F (Swahili self-vote + lid_ok): Swahili accuracy (LID) 17.8 / mean_acc 19.0 / truncated 0.7; penalty 18.2 / 19.5.
+C − F: +7.2 [+4.6, +9.9], mean_acc +6.6 [+4.0, +9.3]. With C − E (+15.6) both preregistered conditions for "the
+model's own English ability teaches" hold (C > E and C > F, CIs excluding 0).
+AfriMGSM TEST mean_acc, default decoding, vs base (paired bootstrap): English base 94.9, D 95.5 (+0.6 [−0.1, +1.4]),
+C 95.5 (+0.5 [−0.1, +1.3]) — no forgetting. Hausa (never trained) base 3.6, D 5.3 (+1.8 [+0.6, +3.0]), C 5.7
+(+2.1 [+1.0, +3.4]) — small transfer.
