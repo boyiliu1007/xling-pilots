@@ -122,6 +122,13 @@ ANCHOR_PROMPT = ("Translate the following solution of a math word problem from E
 ANCHOR_MAX_TOKENS = 1536
 
 
+def anchor_prompt_ids(tok, ref):
+    """Token ids of the (non-thinking) chat prompt asking the policy to translate its English solution."""
+    text = tok.apply_chat_template([{"role": "user", "content": ANCHOR_PROMPT.format(ref=ref)}], tokenize=False,
+                                   add_generation_prompt=True, enable_thinking=False)
+    return tok(text, add_special_tokens=False)["input_ids"]
+
+
 def anchor_text(translation, vote):
     """A self-translated anchor in the student's output format: the Swahili translation as the thinking, then the
     vote answer (the prompt already opens <think>)."""
@@ -359,9 +366,7 @@ def train_grpo(name, data, seed, kind):
             dead = [i for i, (_, g) in enumerate(groups) if not any(x[2]["vote_ok"] for x in g)]
             n_tried = len(dead)
             if dead:
-                t_ids = [tok.apply_chat_template([{"role": "user", "content": ANCHOR_PROMPT.format(ref=qs[i]["ref"])}],
-                                                 tokenize=True, add_generation_prompt=True, enable_thinking=False)
-                         for i in dead]
+                t_ids = [anchor_prompt_ids(tok, qs[i]["ref"]) for i in dead]
                 t_outs = llm.generate([{"prompt_token_ids": list(t)} for t in t_ids],
                                       SamplingParams(n=1, temperature=0.0, max_tokens=ANCHOR_MAX_TOKENS),
                                       lora_request=lora, use_tqdm=False)
