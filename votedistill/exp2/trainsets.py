@@ -25,13 +25,21 @@ from ..copsd.collator import prepare_rows
 from ..paths import RESULTS
 from .levels import EXP2_RESULTS, TEACHER_CONTEXTS
 
-DATASETS = ("copsd", "gsm8k-mt", "mix", "gsm8k-mt3k")
+DATASETS = ("copsd", "gsm8k-mt", "mix", "gsm8k-mt3k", "gsm8k-mt3k-zul", "gsm8k-mt3k-yor")
+# Two-language sets (PREREGISTRATION 2026-11-18): the gsm8k-mt3k Swahili rows plus the same questions translated into a
+# second language by NLLB; both are graded by the same English votes.
+TWO_LANG = {"gsm8k-mt3k-zul": "zul", "gsm8k-mt3k-yor": "yor"}
 MT_FILE = RESULTS / "exp2" / "data" / "gsm8k_swa_mt.jsonl"   # NLLB translation: shared by every model
 CONSENSUS = EXP2_RESULTS / "consensus"
 # gsm8k-mt3k: a 3000-question GSM8K train sample (same seed, NLLB, same QC), used by the large self-SFT ablation only
 MT_FILES = {"gsm8k-mt": MT_FILE, "gsm8k-mt3k": RESULTS / "exp2" / "data" / "gsm8k_swa_mt3k.jsonl"}
 CONSENSUS_FILE = {"copsd": "copsd_en_thinking.jsonl", "gsm8k-mt": "gsm8k_en_thinking.jsonl",
-                  "gsm8k-mt3k": "gsm8k3k_en_thinking.jsonl"}
+                  "gsm8k-mt3k": "gsm8k3k_en_thinking.jsonl", "gsm8k-mt3k-zul": "gsm8k3k_en_thinking.jsonl",
+                  "gsm8k-mt3k-yor": "gsm8k3k_en_thinking.jsonl"}
+
+
+def l2_file(lang):
+    return RESULTS / "exp2" / "data" / f"gsm8k_{lang}_mt3k.jsonl"
 VOTE_THRESHOLD = 5 / 8
 SUBSAMPLE_SEED = 42
 
@@ -49,6 +57,20 @@ def _copsd_rows():
 
 
 def _gsm8k_rows(dataset="gsm8k-mt"):
+    if dataset in TWO_LANG:
+        lang = TWO_LANG[dataset]
+        f = l2_file(lang)
+        if not f.exists():
+            raise SystemExit(f"{f} missing: run `python -m votedistill.exp2 translate --data gsm8k-mt3k --lang {lang}`")
+        sw = [{**r, "dataset": dataset} for r in _gsm8k_rows("gsm8k-mt3k")]
+        l2 = []
+        for m in read_jsonl(f):
+            if not m["qc_ok"]:
+                continue
+            r = {"problem": m["question_en"], "problem_translated": m["question_tgt"], "Answer": m["gold"],
+                 "solution": gsm8k_reference(m["answer_en"]), "source": "gsm8k_train", "language": lang}
+            l2.append({**prepare_rows([r], lang)[0], "qid": m["qid"], "dataset": dataset})
+        return sw + l2
     f = MT_FILES[dataset]
     if not f.exists():
         raise SystemExit(f"{f} missing: run `python -m votedistill.exp2 translate` first")

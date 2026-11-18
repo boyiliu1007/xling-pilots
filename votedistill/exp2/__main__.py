@@ -71,7 +71,9 @@ def main():
     g = sub.add_parser("selfsft-gen")
     g.add_argument("--data", required=True)
     g.add_argument("--rep_pen", type=float, default=1.1)
-    sub.add_parser("translate").add_argument("--data", default="gsm8k-mt", choices=["gsm8k-mt", "gsm8k-mt3k"])
+    tr = sub.add_parser("translate")
+    tr.add_argument("--data", default="gsm8k-mt", choices=["gsm8k-mt", "gsm8k-mt3k"])
+    tr.add_argument("--lang", default="swa", choices=["swa", "zul", "yor"])
     sub.add_parser("trainsets")
     for c in ("train", "eval-run", "run-report", "eval-final", "eval-run-final"):
         x = sub.add_parser(c)
@@ -174,7 +176,7 @@ def run_commands(args):
         from .trainsets import MT_FILE
         setup_logging(MT_FILE.parent / "logs" / "translate.log")
         from .translate import translate
-        translate(dataset=args.data)
+        translate(dataset=args.data, lang=args.lang)
         return
     if args.cmd == "run-report":
         print(runs.report_run(args.name))

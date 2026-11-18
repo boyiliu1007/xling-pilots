@@ -74,9 +74,10 @@ SAVE_EVERY = 25
 LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished,mean_len,"
               "groups_with_signal,questions,t_gen,t_train,lid_ok,correct_lid,vote_ok,ref_f1\n")
 _LID = None
+LID_LANG = {"swa": "SWAHILI", "zul": "ZULU", "yor": "YORUBA"}   # lingua names of the training languages
 
 
-def lid_fraction(text):
+def lid_fraction(text, lang="swa"):
     """Share of prose characters lingua (all languages) labels Swahili."""
     global _LID
     from lingua import Language, LanguageDetectorBuilder
@@ -88,7 +89,7 @@ def lid_fraction(text):
     if not chunks:
         return 0.0
     n = [len(c) for c in chunks]
-    return sum(k for k, l in zip(n, _LID.detect_languages_in_parallel_of(chunks)) if l == Language.SWAHILI) / sum(n)
+    return sum(k for k, l in zip(n, _LID.detect_languages_in_parallel_of(chunks)) if l == getattr(Language, LID_LANG[lang])) / sum(n)
 
 
 _NUM = re.compile(r"(?<![\w.])-?\d[\d,]*(?:\.\d+)?")
@@ -182,7 +183,7 @@ def robust_sw(text):
     return sw >= SW_MIN_TYPES and sw > en and c.most_common(1)[0][1] / len(w) <= SW_MAX_TOP_SHARE
 
 
-def score(text, finish_reason, gold, vote, ref=None, question=None):
+def score(text, finish_reason, gold, vote, ref=None, question=None, lang="swa"):
     """Per-rollout facts the rewards are built from."""
     from ..copsd.evaluate import language_of
     pred, _ = extract_pred(text, thinking=True)
@@ -192,7 +193,7 @@ def score(text, finish_reason, gold, vote, ref=None, question=None):
     vote_ok = fin and vote is not None and _same(str(vote), pred)
     return {"pred": pred, "finished": fin, "sw": sw, "correct": correct, "correct_sw": correct and sw,
             "vote_sw": vote_ok and sw, "correct_swr": correct and robust_sw(text), "vote_ok": vote_ok,
-            "lid": (lid := lid_fraction(text)), "lid_ok": lid >= LID_MIN, "correct_lid": correct and lid >= LID_MIN,
+            "lid": (lid := lid_fraction(text, lang)), "lid_ok": lid >= LID_MIN, "correct_lid": correct and lid >= LID_MIN,
             "ref_f1": ref_f1(text, ref) if ref else 0.0,
             "step_f1": step_f1(text, ref, question) if ref and question else 0.0}
 
@@ -354,9 +355,11 @@ def train_grpo(name, data, seed, kind):
             vote = group_majority(o.outputs) if kind == "selfvotelid" else \
                 None if kind == "lidonly" else q.get("vote_answer")
             for c in o.outputs:
-                s = score(c.text, c.finish_reason, q["Answer"], vote, q.get("ref"), q.get("problem_translated"))
+                s = score(c.text, c.finish_reason, q["Answer"], vote, q.get("ref"), q.get("problem_translated"),
+                          q.get("language", "swa"))
                 g.append((list(c.token_ids), reward(kind, s), s))
-                recs.append({"step": step, "qid": q["qid"], "reward": reward(kind, s), "len": len(c.token_ids),
+                recs.append({"step": step, "qid": q["qid"], "lang": q.get("language", "swa"), "reward": reward(kind, s),
+                             "len": len(c.token_ids),
                              **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr",
                                                   "vote_ok", "lid", "lid_ok", "correct_lid", "ref_f1", "step_f1")},
                              **({"text": c.text} if step % SAVE_TEXT_EVERY == 0 else {})})
