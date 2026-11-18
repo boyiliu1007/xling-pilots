@@ -505,3 +505,11 @@ model's own English ability teaches" hold (C > E and C > F, CIs excluding 0).
 AfriMGSM TEST mean_acc, default decoding, vs base (paired bootstrap): English base 94.9, D 95.5 (+0.6 [−0.1, +1.4]),
 C 95.5 (+0.5 [−0.1, +1.3]) — no forgetting. Hausa (never trained) base 3.6, D 5.3 (+1.8 [+0.6, +3.0]), C 5.7
 (+2.1 [+1.0, +3.4]) — small transfer.
+
+### 2026-11-18 ~01:20 — follow-ups (before any result): longer training, and Swahili + Hausa
+1. Longer training of the method (D). Training accuracy was still rising at step 300 (blocks of 50: 0.15, 0.16,
+   0.20, 0.21, 0.22, 0.24). `grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps600__s42` continues D exactly:
+   step-300 checkpoint (adapter, optimizer state) copied; constant LR and per-step sampling seeds, and the 600-step
+   question order starts with the 300-step order (verified). TEST at steps 450 and 600 (default + penalty 1.1).
+   Reading: D600 − D300 and D450 − D300 on Swahili accuracy (LID); descriptive (more steps chosen post hoc).
+2. One English teacher for two languages (design entry to follow once the Hausa data and language check exist).
