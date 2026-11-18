@@ -585,3 +585,17 @@ labelled SOTHO or TSWANA count (as Zulu/Xhosa). Runs `gsm8k-mt3k-{sna,sot}only` 
 wave 2a. Also logged (descriptive): D TEST curve every 50 steps is monotone within noise (300: 25.2, 450: 29.4,
 600: 32.5); MSVAMP Swahili (1000 items, 4 samples): D 62.3 vs base+pen 41.3 Swahili accuracy (+20.9 [+19.1, +22.8]),
 any-language +6.7 [+5.0, +8.5]; B (gold) 59.6.
+
+## 2026-11-18 15:30 — MSVAMP Swahili results (1000 items, maj-free mean of 4, s42)
+
+| run | Swahili acc | any-language acc | LID pass |
+|---|---|---|---|
+| base + rep. penalty 1.1 | 41.3 | 55.8 | 74.9 |
+| gold + gold solution (B), 300 | 59.6 | 60.7 | 98.5 |
+| vote + Swahili check (C), 300 | 55.9 | 56.3 | 99.5 |
+| vote, no Swahili check (G), 300 | 24.0 | 66.7 | 36.3 |
+| our method (D), 300 | 62.3 | 62.5 | 99.5 |
+| D + step credit (H), 300 | 59.6 | 59.7 | 99.6 |
+| our method (D), 600 | 65.1 | 65.3 | 99.7 |
+
+Paired bootstrap (items), Swahili acc: D − base+pen +20.9 [19.1, 22.8]; D600 − base+pen +23.8 [21.7, 26.1] (any-language +9.5 [7.4, 11.6]); C − G +31.9 [29.8, 33.9]; D − B +2.7 [1.0, 4.3]; D600 − D300 +2.9 [1.2, 4.5]; **H − D −2.7 [−4.2, −1.1]** — the step-credit gain on AfriMGSM (+2.5) does NOT replicate on MSVAMP; claim 3 (step credit) is downgraded to "mixed" pending seeds. G has the highest any-language accuracy (66.7) but answers mostly in English, as on AfriMGSM.
