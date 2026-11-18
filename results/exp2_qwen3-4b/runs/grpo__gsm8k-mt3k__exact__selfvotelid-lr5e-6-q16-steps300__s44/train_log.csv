@@ -1,0 +1,2 @@
+step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished,mean_len,groups_with_signal,questions,t_gen,t_train,lid_ok,correct_lid,vote_ok,ref_f1
+1,-0.008772,0.02267,1.3594,0.1562,0.9531,0.1484,0.4844,0.8516,1066,15,16,26.5,36.0,0.8672,0.1484,0.4922,0.0000

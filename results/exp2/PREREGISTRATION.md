@@ -577,3 +577,11 @@ that pass the training check but fail the evaluation check ("hack rate").
   mistranslated number makes the vote wrong for that question — noted, not filtered). Shona and Sotho translated now,
   LID calibrated on base outputs before training. Per language: D and G (no language check), s42; evaluated on that
   language's AfriMGSM TEST (Swahili-style LID accuracy), Swahili and English.
+
+### 2026-11-18 ~14:10 — Shona and Sotho calibration (before training)
+NLLB QC: Shona 1343/3000, Sotho 1313/3000. Base Qwen3-4B AfriMGSM TEST: Shona mean_acc 2.4 (LID pass 62.4), Sotho 2.3
+(59.7). lingua passes 98.3% of QC'd Shona questions; Sotho only 85% (misses labelled Tswana), so for Sotho chunks
+labelled SOTHO or TSWANA count (as Zulu/Xhosa). Runs `gsm8k-mt3k-{sna,sot}only` × {votelidref, voteonly}, s42, as
+wave 2a. Also logged (descriptive): D TEST curve every 50 steps is monotone within noise (300: 25.2, 450: 29.4,
+600: 32.5); MSVAMP Swahili (1000 items, 4 samples): D 62.3 vs base+pen 41.3 Swahili accuracy (+20.9 [+19.1, +22.8]),
+any-language +6.7 [+5.0, +8.5]; B (gold) 59.6.

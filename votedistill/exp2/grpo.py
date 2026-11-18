@@ -76,7 +76,7 @@ LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished
 _LID = None
 # lingua names accepted per training language. Zulu also accepts Xhosa: lingua labels ~16% of QC-passed NLLB Zulu
 # questions <70% Zulu, mostly as Xhosa (closely related Nguni language); with Xhosa allowed the questions pass (see prereg).
-LID_LANG = {"swa": ("SWAHILI",), "zul": ("ZULU", "XHOSA"), "yor": ("YORUBA",), "sna": ("SHONA",), "sot": ("SOTHO",)}
+LID_LANG = {"swa": ("SWAHILI",), "zul": ("ZULU", "XHOSA"), "yor": ("YORUBA",), "sna": ("SHONA",), "sot": ("SOTHO", "TSWANA")}   # Sotho also accepts Tswana (Sotho-Tswana group; ~15% of QC-passed questions)
 # Wave 2 ablations (PREREGISTRATION 2026-11-18), set per run from the variant by train_grpo:
 #   -lid<t>   lid_ok threshold t instead of LID_MIN
 #   -detsw2   lid_ok by lingua restricted to {Swahili, English} (the detector the hacked outputs passed)
