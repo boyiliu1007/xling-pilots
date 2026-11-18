@@ -18,7 +18,10 @@ from .trainsets import MT_FILE, MT_FILES
 log = logging.getLogger("votedistill.exp2.translate")
 MT_MODEL = "facebook/nllb-200-3.3B"
 SRC, TGT = "eng_Latn", "swh_Latn"
-TGTS = {"swa": "swh_Latn", "zul": "zul_Latn", "yor": "yor_Latn"}
+TGTS = {"swa": "swh_Latn", "zul": "zul_Latn", "yor": "yor_Latn", "sna": "sna_Latn", "sot": "sot_Latn"}
+# NLLB spells most numbers out in Yoruba (vigesimal words); there the QC only rejects digit-numbers that are not in
+# the English question (PREREGISTRATION 2026-11-18 wave 2).
+WORDNUM_LANGS = {"yor"}
 GEN = dict(num_beams=4, max_new_tokens=256, no_repeat_ngram_size=0)
 LEN_RATIO = (0.7, 2.0)   # Swahili / English characters
 
@@ -46,6 +49,8 @@ def qc(en, sw, lang="swa"):
     reasons = []
     ne, ns = _question_numbers(en), _question_numbers(sw)
     extra, missing = ns - ne, ne - ns
+    if lang in WORDNUM_LANGS:
+        missing = Counter()
     words = len(SW_NUMBER_WORD.findall(sw)) if lang == "swa" else 0   # other languages: every number must stay a digit
     if extra or any(abs(float(v)) > WORD_MAX or float(v) != int(float(v)) for v in missing) \
             or words < sum(missing.values()):
@@ -60,17 +65,19 @@ def qc(en, sw, lang="swa"):
     return not reasons, reasons
 
 
-def requalify():
+def requalify(lang="swa"):
     """Re-run QC on the stored translations (no new translation)."""
     from ..utils import read_json, read_jsonl
-    recs = read_jsonl(MT_FILE)
+    from .trainsets import l2_file
+    f = MT_FILE if lang == "swa" else l2_file(lang)
+    recs = read_jsonl(f)
     for r in recs:
-        r["qc_ok"], r["qc_fail"] = qc(r["question_en"], r["question_sw"])
-    write_jsonl(MT_FILE, recs)
-    meta = read_json(MT_FILE.with_suffix(".meta.json"))
+        r["qc_ok"], r["qc_fail"] = qc(r["question_en"], r["question_sw" if lang == "swa" else "question_tgt"], lang)
+    write_jsonl(f, recs)
+    meta = read_json(f.with_suffix(".meta.json"))
     meta.update({"qc": qc.__doc__, "qc_ok": sum(r["qc_ok"] for r in recs),
                  "requalified": datetime.now().isoformat(timespec="seconds")})
-    write_json(MT_FILE.with_suffix(".meta.json"), meta)
+    write_json(f.with_suffix(".meta.json"), meta)
     return recs
 
 

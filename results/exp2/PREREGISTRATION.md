@@ -559,3 +559,21 @@ reward); second test sets (MGSM Swahili, MSVAMP Swahili); language-check ablatio
 word-list check, thresholds 0.5/0.9) with hacking rates; vote-corruption (10/20/40% of vote answers replaced by a
 wrong answer); a non-Qwen model; a blinded native-speaker rating sheet of 100 outputs; full TEST curve of D600.
 Main contrasts (Holm): D − base, D − base+pen (any-language), D600 − B600, C − G, C − E, C − F, C − RFT, H − D.
+
+### 2026-11-18 ~12:30 — wave 2a design (before any result): language-check ablation, vote noise, more languages
+All on Qwen3-4B, D's reward and settings (votelidref, lr 5e-6, q16, 300 steps), s42; evaluation metric unchanged
+(Swahili accuracy by lingua over all languages ≥ 0.7), so a check the policy games shows up as low LID pass / low
+Swahili accuracy. Reported per run: Swahili accuracy, any-language accuracy, LID pass, the share of training rollouts
+that pass the training check but fail the evaluation check ("hack rate").
+- Language check: `-lid0.5`, `-lid0.9` (threshold), `-detsw2` (lingua limited to Swahili vs English), `-detwl` (the
+  word-list check robust_sw used by goldswr). Prediction: detsw2 and detwl have higher hack rates and lower Swahili
+  accuracy than D; thresholds change little.
+- Vote noise: `-cor0.1`, `-cor0.2`, `-cor0.4` — that fraction of vote-accepted questions (seed 1234) get the vote
+  answer and own solution of another question with a different answer (vote accuracy 94.9% → 85.5/76.0/57.0% approx).
+  Reading: Swahili accuracy as a function of vote accuracy; where it falls to C − (C − E)/2 is the usable limit.
+- Single-language runs (no Swahili): `gsm8k-mt3k-<lang>only` for Zulu (QC'd 1109 vote-accepted), Yoruba, Shona, Sotho,
+  each graded by the same English votes; lingua check in that language (Zulu also accepts Xhosa). Yoruba QC relaxed:
+  NLLB writes numbers as words, so only digit-numbers absent from the English question fail (2710/3000 pass; risk: a
+  mistranslated number makes the vote wrong for that question — noted, not filtered). Shona and Sotho translated now,
+  LID calibrated on base outputs before training. Per language: D and G (no language check), s42; evaluated on that
+  language's AfriMGSM TEST (Swahili-style LID accuracy), Swahili and English.

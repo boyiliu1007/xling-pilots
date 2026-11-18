@@ -76,7 +76,13 @@ LOG_HEADER = ("step,loss,grad_norm,reward,correct,sw,correct_sw,vote_sw,finished
 _LID = None
 # lingua names accepted per training language. Zulu also accepts Xhosa: lingua labels ~16% of QC-passed NLLB Zulu
 # questions <70% Zulu, mostly as Xhosa (closely related Nguni language); with Xhosa allowed the questions pass (see prereg).
-LID_LANG = {"swa": ("SWAHILI",), "zul": ("ZULU", "XHOSA"), "yor": ("YORUBA",)}
+LID_LANG = {"swa": ("SWAHILI",), "zul": ("ZULU", "XHOSA"), "yor": ("YORUBA",), "sna": ("SHONA",), "sot": ("SOTHO",)}
+# Wave 2 ablations (PREREGISTRATION 2026-11-18), set per run from the variant by train_grpo:
+#   -lid<t>   lid_ok threshold t instead of LID_MIN
+#   -detsw2   lid_ok by lingua restricted to {Swahili, English} (the detector the hacked outputs passed)
+#   -detwl    lid_ok by the word-list check robust_sw (distinct function words, top-word cap)
+#   -cor<f>   a seeded fraction f of vote-accepted questions get another question's vote answer and solution
+ABL = {"lid": None, "det": None}
 
 
 def lid_fraction(text, lang="swa"):
@@ -146,7 +152,8 @@ def ref_f1(text, ref):
     return 0.0 if tp == 0 else 2 * tp / (len(a) + len(b))
 
 
-_VARIANT = re.compile(r"(?P<kind>[a-z]+)(?:-lr(?P<lr>[0-9.]+(?:e-?[0-9]+)?))?(?:-q(?P<q>[0-9]+))?(?:-steps(?P<steps>[0-9]+))?")
+_VARIANT = re.compile(r"(?P<kind>[a-z]+)(?:-lr(?P<lr>[0-9.]+(?:e-?[0-9]+)?))?(?:-q(?P<q>[0-9]+))?(?:-steps(?P<steps>[0-9]+))?"
+                      r"(?:-lid(?P<lid>0\.[0-9]+))?(?:-det(?P<det>sw2|wl))?(?:-cor(?P<cor>0\.[0-9]+))?")
 
 
 def parse_variant(variant):
@@ -158,7 +165,8 @@ def parse_variant(variant):
         return None
     return dict(kind=m["kind"], lr=float(m["lr"]) if m["lr"] else LR,
                 questions_per_step=int(m["q"]) if m["q"] else QUESTIONS_PER_STEP,
-                steps=int(m["steps"]) if m["steps"] else STEPS)
+                steps=int(m["steps"]) if m["steps"] else STEPS, lid=float(m["lid"]) if m["lid"] else None,
+                det=m["det"], cor=float(m["cor"]) if m["cor"] else 0.0)
 
 
 def parse_kind(variant):
@@ -185,6 +193,34 @@ def robust_sw(text):
     return sw >= SW_MIN_TYPES and sw > en and c.most_common(1)[0][1] / len(w) <= SW_MAX_TOP_SHARE
 
 
+def _lid_sw2(text):
+    """Share of prose characters lingua labels Swahili when it may only choose Swahili or English."""
+    global _LID2
+    from lingua import Language, LanguageDetectorBuilder
+    if _LID2 is None:
+        _LID2 = LanguageDetectorBuilder.from_languages(Language.SWAHILI, Language.ENGLISH).build()
+    t = re.sub(r"\\\(.*?\\\)|\\\[.*?\\\]|\$[^$]*\$|\\boxed\{[^}]*\}", " ", text, flags=re.S)
+    chunks = [c.strip() for c in re.split(r"[\n.!?]+", t)]
+    chunks = [c for c in chunks if len(re.findall(r"[^\W\d_]{2,}", c)) >= 3]
+    if not chunks:
+        return 0.0
+    n = [len(c) for c in chunks]
+    return sum(k for k, l in zip(n, _LID2.detect_languages_in_parallel_of(chunks)) if l == Language.SWAHILI) / sum(n)
+
+
+_LID2 = None
+
+
+def _lid_ok(text, lid, lang):
+    """The training reward's language check (ABL set per run; the evaluation metric always uses lid >= LID_MIN)."""
+    thr = ABL["lid"] if ABL["lid"] is not None else LID_MIN
+    if ABL["det"] == "wl":
+        return robust_sw(text)
+    if ABL["det"] == "sw2":
+        return _lid_sw2(text) >= thr
+    return lid >= thr
+
+
 def score(text, finish_reason, gold, vote, ref=None, question=None, lang="swa"):
     """Per-rollout facts the rewards are built from."""
     from ..copsd.evaluate import language_of
@@ -195,7 +231,7 @@ def score(text, finish_reason, gold, vote, ref=None, question=None, lang="swa"):
     vote_ok = fin and vote is not None and _same(str(vote), pred)
     return {"pred": pred, "finished": fin, "sw": sw, "correct": correct, "correct_sw": correct and sw,
             "vote_sw": vote_ok and sw, "correct_swr": correct and robust_sw(text), "vote_ok": vote_ok,
-            "lid": (lid := lid_fraction(text, lang)), "lid_ok": lid >= LID_MIN, "correct_lid": correct and lid >= LID_MIN,
+            "lid": (lid := lid_fraction(text, lang)), "lid_ok": _lid_ok(text, lid, lang), "correct_lid": correct and lid >= LID_MIN,
             "ref_f1": ref_f1(text, ref) if ref else 0.0,
             "step_f1": step_f1(text, ref, question) if ref and question else 0.0}
 
@@ -261,6 +297,26 @@ def question_rows(data, kind):
     return rows
 
 
+def corrupt_votes(rows, frac, seed=1234):
+    """Vote-noise ablation: a seeded fraction of rows take the vote answer (and own-solution reference) of another
+    row whose answer differs, as if the English vote had been wrong on them."""
+    rows = [dict(r) for r in rows]
+    rng = random.Random(seed)
+    idx = sorted(rng.sample(range(len(rows)), round(frac * len(rows))))
+    orig = [(r["vote_answer"], r.get("vote_ref")) for r in rows]
+    for i in idx:
+        while True:
+            j = rng.randrange(len(rows))
+            if j != i and not _same(str(orig[j][0]), str(orig[i][0])):
+                break
+        rows[i]["vote_answer"], rows[i]["vote_ref"] = orig[j]
+        if rows[i].get("ref") is not None:
+            rows[i]["ref"] = orig[j][1]
+        rows[i]["corrupted"] = True
+    log.info(f"vote corruption: {len(idx)}/{len(rows)} rows ({frac})")
+    return rows
+
+
 def schedule(n_rows, seed, steps=STEPS, per_step=QUESTIONS_PER_STEP):
     order = list(range(n_rows))
     random.Random(seed).shuffle(order)
@@ -291,10 +347,13 @@ def train_grpo(name, data, seed, kind):
     if start >= n_steps:
         log.info("GRPO already complete")
         return
+    ABL.update(lid=v["lid"], det=v["det"])
     rows = question_rows(data, kind)
+    if v["cor"]:
+        rows = corrupt_votes(rows, v["cor"])
     sched = schedule(len(rows), seed, n_steps, per_step)
     write_json(rd / "config.json", {
-        "model": MODEL, "method": "GRPO (grpo.py)", "doc": __doc__, "reward": kind, "data": data,
+        "model": MODEL, "method": "GRPO (grpo.py)", "doc": __doc__, "reward": kind, "data": data, "ablation": v,
         "questions": len(rows), "steps": n_steps, "questions_per_step": per_step, "group": GROUP,
         "max_tokens": MAX_TOKENS, "lr": lr, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
         "lora": {k: OFFICIAL[k] for k in ("lora_r", "lora_alpha", "lora_target_modules")}, "versions": versions(),
