@@ -491,3 +491,9 @@ answer signal. Two arms, settings as C/D (vote-accepted questions, lr 5e-6, q16,
   Contrast I − D (do self-translated demonstrations rescue all-wrong groups?).
 Primary metric and evaluation as before. Rollout texts read at step 50 for hacking (I: is the policy learning to
 copy translated solutions verbatim? H: number padding?).
+
+### 2026-11-17 ~22:10 — TEST result, control E (lidonly, s42, step 300)
+E: Swahili accuracy (LID) 9.4 / mean_acc 9.4 / LID pass 99.9 / truncated 11.8; penalty decoding 8.8 / 9.0.
+C − E: +15.6 [+12.2, +19.2], mean_acc +16.2 [+12.7, +19.8]. E − base: −2.5 [−4.3, −0.7], mean_acc −5.0 [−6.9, −3.2].
+Reading (as preregistered): the language reward alone does not produce C's gain; it lowers accuracy below the
+untrained model. F (Swahili self-vote) pending.
