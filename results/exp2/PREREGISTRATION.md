@@ -473,3 +473,21 @@ Three additions, all s42, Qwen3-4B, gsm8k-mt3k:
 - Transfer and forgetting: base, C and D (step 300) on AfriMGSM TEST in English (eng) and Hausa (hau), default
   decoding, any-language mean_acc, paired bootstrap vs base. Exploratory.
 Evaluation as before (TEST, final checkpoint, default + penalty 1.1 decoding for G and RFT).
+
+### 2026-11-17 ~22:40 — two new arms built on D (before any result)
+Diagnosis of D (its rollouts): ref_f1 is mostly copying and correctness — the question's own numbers alone score
+0.44 against the own English solution (30% of the reference's numbers are in the question), and rollouts with the
+vote answer score 0.89 vs 0.63 without. About 2/3 of groups have no rollout matching the vote, so they carry no
+answer signal. Two arms, settings as C/D (vote-accepted questions, lr 5e-6, q16, 300 steps, s42, preempt):
+- H `votelidstep`: C + step_f1 = F1 between the numbers the rollout introduces (not in the Swahili question) and
+  the own English solution's intermediate results (its numbers not in the question). Process credit that copying
+  the question cannot earn and number spam lowers. Contrast H − C (does own English reasoning help when the credit
+  targets intermediate steps?) and H − D.
+- I `votelidrefanc`: D + self-translated anchors. For each group where no rollout matches the English vote, the
+  current policy translates its own English solution into Swahili (non-thinking, greedy, <= 1536 tokens); the
+  anchor = that translation as the thinking + "**Jibu:** \boxed{vote}". It joins the group as a 9th sample only if
+  it keeps the vote answer, passes lid_ok and fits 2048 tokens; advantage over all 9; no importance weighting
+  (one update per batch). Anchors tried/accepted are logged per step; texts of rejected anchors are saved.
+  Contrast I − D (do self-translated demonstrations rescue all-wrong groups?).
+Primary metric and evaluation as before. Rollout texts read at step 50 for hacking (I: is the policy learning to
+copy translated solutions verbatim? H: number padding?).

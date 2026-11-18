@@ -40,13 +40,19 @@ from ..utils import versions, write_json, write_jsonl
 log = logging.getLogger("votedistill.exp2.grpo")
 
 REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlidref", "votelid", "votelidref",
-           "lidonly", "selfvotelid", "voteonly")
+           "lidonly", "selfvotelid", "voteonly",
+           "votelidstep", "votelidrefanc")
 # Self-play transfer design (PREREGISTRATION 2026-11-16 ~10:30), SP3F-style (Sutawika et al., ACL 2026) rewards:
 #   goldlid     correct (gold)         + lid_ok                         A: gold ceiling
 #   goldlidref  correct (gold)         + lid_ok + ref_f1 (gold English solution)          B: SP3F-like, gold privilege
 #   votelid     equals own English vote + lid_ok  (vote-accepted questions only)          C: gold-free, answer only
 #   votelidref  equals own English vote + lid_ok + ref_f1 (own English voted answer text)   D: the proposal
 #   lidonly     lid_ok only (vote-accepted questions, as C)                               E: control, language only
+#   votelidstep C + step_f1: F1 of the rollout's NEW numbers (not in the question) vs the own English solution's
+#               intermediate results (its numbers not in the question)                    H: process credit
+#   votelidrefanc D + self-translated anchors: when no rollout of a group matches the English vote, the policy
+#               translates its own English solution into Swahili (greedy, non-thinking); if that translation keeps
+#               the vote answer and passes lid_ok it joins the group as a 9th sample       I: anchors
 #   voteonly    equals own English vote only, no language term (PASMR-style reward)       G: prior work's reward
 #   selfvotelid equals the group's own Swahili majority answer + lid_ok (as C)            F: control, no English
 # lid_ok: >= LID_MIN of the prose (chunks with >= 3 words; math/LaTeX removed) is Swahili by lingua over ALL languages
@@ -99,6 +105,29 @@ def numbers(text):
     return out
 
 
+def step_f1(text, ref, question):
+    """F1 between the numbers a rollout introduces (not in the question) and the reference's intermediate results
+    (its numbers not in the question). Copying the question earns nothing; number spam lowers precision."""
+    q = numbers(question)
+    a, b = numbers(text) - q, numbers(ref) - q
+    if not a or not b:
+        return 0.0
+    tp = len(a & b)
+    return 0.0 if tp == 0 else 2 * tp / (len(a) + len(b))
+
+
+ANCHOR_PROMPT = ("Translate the following solution of a math word problem from English into Swahili. Keep every "
+                 "number, equation and the final \\boxed{{}} answer exactly as they are. Output only the Swahili "
+                 "translation.\n\n{ref}")
+ANCHOR_MAX_TOKENS = 1536
+
+
+def anchor_text(translation, vote):
+    """A self-translated anchor in the student's output format: the Swahili translation as the thinking, then the
+    vote answer (the prompt already opens <think>)."""
+    return "\n\n" + translation.strip() + "\n</think>\n\n**Jibu:** $\\boxed{" + str(vote) + "}$"
+
+
 def ref_f1(text, ref):
     a, b = numbers(text), numbers(ref)
     if not a or not b:
@@ -146,7 +175,7 @@ def robust_sw(text):
     return sw >= SW_MIN_TYPES and sw > en and c.most_common(1)[0][1] / len(w) <= SW_MAX_TOP_SHARE
 
 
-def score(text, finish_reason, gold, vote, ref=None):
+def score(text, finish_reason, gold, vote, ref=None, question=None):
     """Per-rollout facts the rewards are built from."""
     from ..copsd.evaluate import language_of
     pred, _ = extract_pred(text, thinking=True)
@@ -157,7 +186,8 @@ def score(text, finish_reason, gold, vote, ref=None):
     return {"pred": pred, "finished": fin, "sw": sw, "correct": correct, "correct_sw": correct and sw,
             "vote_sw": vote_ok and sw, "correct_swr": correct and robust_sw(text), "vote_ok": vote_ok,
             "lid": (lid := lid_fraction(text)), "lid_ok": lid >= LID_MIN, "correct_lid": correct and lid >= LID_MIN,
-            "ref_f1": ref_f1(text, ref) if ref else 0.0}
+            "ref_f1": ref_f1(text, ref) if ref else 0.0,
+            "step_f1": step_f1(text, ref, question) if ref and question else 0.0}
 
 
 def group_majority(outputs):
@@ -193,6 +223,10 @@ def reward(kind, s):
         return float(s["lid_ok"])
     if kind == "voteonly":
         return float(s["vote_ok"])
+    if kind == "votelidstep":
+        return float(s["vote_ok"]) + float(s["lid_ok"]) + s["step_f1"]
+    if kind == "votelidrefanc":
+        return float(s["vote_ok"]) + float(s["lid_ok"]) + s["ref_f1"]
     if kind == "selfvotelid":   # score() was called with vote = the group's Swahili majority answer
         return float(s["vote_ok"]) + float(s["lid_ok"])
     if kind in ("goldlid", "goldlidref", "votelid", "votelidref"):
@@ -204,14 +238,16 @@ def reward(kind, s):
 def question_rows(data, kind):
     from .trainsets import _gsm8k_rows, voted_references
     rows = _gsm8k_rows(data)
-    if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly"):
+    if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly",
+                "votelidstep", "votelidrefanc"):
         refs = voted_references(data)
         rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None,
                  "vote_ref": refs[r["qid"]][0] if r["qid"] in refs else None} for r in rows]
-        if kind in ("votesw", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly"):   # same questions as C
+        if kind in ("votesw", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly",
+                    "votelidstep", "votelidrefanc"):   # same questions as C
             rows = [r for r in rows if r["vote_answer"] is not None]
     for r in rows:   # privileged reference for the ref_f1 term
-        r["ref"] = r.get("vote_ref") if kind == "votelidref" else r["solution"] if kind == "goldlidref" else None
+        r["ref"] = r.get("vote_ref") if kind in ("votelidref", "votelidstep", "votelidrefanc") else r["solution"] if kind == "goldlidref" else None
     return rows
 
 
@@ -311,13 +347,39 @@ def train_grpo(name, data, seed, kind):
             vote = group_majority(o.outputs) if kind == "selfvotelid" else \
                 None if kind == "lidonly" else q.get("vote_answer")
             for c in o.outputs:
-                s = score(c.text, c.finish_reason, q["Answer"], vote, q.get("ref"))
+                s = score(c.text, c.finish_reason, q["Answer"], vote, q.get("ref"), q.get("problem_translated"))
                 g.append((list(c.token_ids), reward(kind, s), s))
                 recs.append({"step": step, "qid": q["qid"], "reward": reward(kind, s), "len": len(c.token_ids),
                              **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr",
-                                                  "vote_ok", "lid", "lid_ok", "correct_lid", "ref_f1")},
+                                                  "vote_ok", "lid", "lid_ok", "correct_lid", "ref_f1", "step_f1")},
                              **({"text": c.text} if step % SAVE_TEXT_EVERY == 0 else {})})
             groups.append((p, g))
+        anchors, n_tried = [], 0
+        if kind == "votelidrefanc":   # self-translated anchors for groups with no vote-matching rollout
+            dead = [i for i, (_, g) in enumerate(groups) if not any(x[2]["vote_ok"] for x in g)]
+            n_tried = len(dead)
+            if dead:
+                t_ids = [tok.apply_chat_template([{"role": "user", "content": ANCHOR_PROMPT.format(ref=qs[i]["ref"])}],
+                                                 tokenize=True, add_generation_prompt=True, enable_thinking=False)
+                         for i in dead]
+                t_outs = llm.generate([{"prompt_token_ids": list(t)} for t in t_ids],
+                                      SamplingParams(n=1, temperature=0.0, max_tokens=ANCHOR_MAX_TOKENS),
+                                      lora_request=lora, use_tqdm=False)
+                eos = tok.convert_tokens_to_ids("<|im_end|>")
+                for i, to in zip(dead, t_outs):
+                    q, tr = qs[i], to.outputs[0]
+                    if tr.finish_reason != "stop":
+                        continue
+                    text = anchor_text(tr.text, q["vote_answer"])
+                    sa = score(text, "stop", q["Answer"], q.get("vote_answer"), q.get("ref"), q.get("problem_translated"))
+                    comp = tok(text, add_special_tokens=False)["input_ids"] + [eos]
+                    ok = sa["vote_ok"] and sa["lid_ok"] and len(comp) <= MAX_TOKENS
+                    anchors.append({"step": step, "qid": q["qid"], "anchor": True, "accepted": bool(ok),
+                                    "reward": reward(kind, sa), "len": len(comp),
+                                    **{k: sa[k] for k in ("pred", "vote_ok", "lid", "lid_ok", "correct", "ref_f1")},
+                                    **({"text": text} if step % SAVE_TEXT_EVERY == 0 or not ok else {})})
+                    if ok:
+                        groups[i][1].append((comp, reward(kind, sa), sa))
 
         model.train()
         opt.zero_grad(set_to_none=True)
@@ -353,10 +415,12 @@ def train_grpo(name, data, seed, kind):
                      f"{m('len'):.0f},{n_signal},{len(qs)},{t_gen:.1f},{t_all - t_gen:.1f},"
                      f"{m('lid_ok'):.4f},{m('correct_lid'):.4f},{m('vote_ok'):.4f},{m('ref_f1'):.4f}\n")
         with open(samples_f, "a") as fh:
-            for x in recs:
+            for x in recs + anchors:
                 fh.write(json.dumps(x) + "\n")
         log.info(f"step {step}: reward {m('reward'):.3f} correct {m('correct'):.3f} sw {m('sw'):.3f} finished "
-                 f"{m('finished'):.3f} signal {n_signal}/{len(qs)} grad_norm {gn:.3f} gen {t_gen:.0f}s train {t_all - t_gen:.0f}s")
+                 f"{m('finished'):.3f} signal {n_signal}/{len(qs)}"
+                 + (f" anchors {sum(a['accepted'] for a in anchors)}/{n_tried}" if kind == "votelidrefanc" else "")
+                 + f" grad_norm {gn:.3f} gen {t_gen:.0f}s train {t_all - t_gen:.0f}s")
         if step % SAVE_EVERY == 0:
             d = ck / f"step-{step}"
             if d.exists():
