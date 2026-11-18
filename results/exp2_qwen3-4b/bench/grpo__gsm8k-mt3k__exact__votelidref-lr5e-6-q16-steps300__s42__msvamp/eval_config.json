@@ -1,0 +1,12 @@
+{
+  "sampling": {
+    "val_n": 4,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": -1,
+    "max_new_tokens": 4096,
+    "enable_thinking": true
+  },
+  "protocol": "COPSD african_langs_eval/evaluate_math.py: build_qwen3_prompt, extract_boxed_answer, grade_answer (math-verify); maj = Counter vote over formatted answers",
+  "checkpoint_dir": "/data/user_data/jeffc2/votedistill_ckpt/exp2_qwen3-4b/grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300__s42"
+}
