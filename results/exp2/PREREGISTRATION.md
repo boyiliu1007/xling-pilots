@@ -635,3 +635,15 @@ Primary contrast: D(self-translated) − D(NLLB), Swahili acc (LID) on AfriMGSM 
 Claim if the CI of D(self) − base+pen excludes 0 and D(self) − D(NLLB) CI includes 0 or is positive: the method needs
 only unlabeled English questions and the model itself (no gold answers, no gold rationales, no MT system, no judge,
 no SFT stage) — the separation from SP3F. Report translation QC pass rate vs NLLB (2805/3000).
+
+## 2026-11-19 03:50 — self-translation run STOPPED (before any evaluation)
+Qwen3-4B's own Swahili translations fail QC on 1954/3000 questions (loops 1662, length 1429, numbers 1144, LID 276;
+reasons overlap), and a manual read of QC-passing ones shows changed meaning ("twice" -> "kumi" (ten), "three times
+more" -> "tano" (five)), so the English vote no longer answers the Swahili question. The training run (step 75) and
+its eval were cancelled; no TEST result exists. Finding: at 4B the model cannot replace the MT system, so NLLB stays
+an outside component (stated as a caveat).
+
+## 2026-11-19 03:50 — wave-2 ablation results (TEST step 300, s42, Swahili acc LID / any-language; D = 25.2 / 26.1)
+lid threshold 0.9: 24.2 / 24.2 · Swahili-vs-English-only detector (detsw2): 23.6 / 29.6 · word-list detector (detwl):
+24.3 / 29.0 · 40% of votes replaced by another question's vote (cor0.4): 23.6 / 24.4. 8B gold answer + gold solution:
+20.2 -> 49.8 / 52.7. Seed 44: goldlid 25.5, lidonly 5.0. CIs to be computed with the seed analysis.
