@@ -662,4 +662,5 @@ Reading: D − SDRRL with the CI excluding 0 in D's favour = the method beats th
 baseline without needing an MT system for the solutions. SDRRL >= D = the write-up must state what RL adds over
 translated SFT. Note: the tgt_en subset trains Swahili questions -> English answers, so SDRRL may lose Swahili accuracy
 (LID) while gaining any-language accuracy; both are reported and the primary metric stays Swahili accuracy.
-Prediction: <Person C fills this in before the first SDRRL run starts>
+Prediction: none recorded. Person C chose (2026-11-19, before any SDRRL training or evaluation) to run the paper's
+design as specified without a directional prediction; the contrasts and reading rule above are fixed.
