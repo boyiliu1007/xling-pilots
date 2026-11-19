@@ -18,7 +18,8 @@
 # same evaluation as every other Qwen3-4B run. Every stage skips finished work: on preemption the job requeues and
 # continues (training resumes from the last checkpoint; an interrupted translation restarts).
 # Optional: DATA (gsm8k-mt3k), SEED (42), VARIANT (e.g. ep2 -> sdrrl__<DATA>__exact__ep2__s<SEED>),
-#           BUILD_ARGS (default "--n_parallel 200"), SHARDS (12: consensus shards to merge), PY, COMET_PY.
+#           BUILD_ARGS (default "--n_parallel 200"), SHARDS (12: consensus shards to merge), PY, COMET_PY,
+#           STAGES (all | data: stop after building the SFT set).
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 [[ -d votedistill ]] || { echo "submit from the repository root"; exit 1; }
@@ -38,6 +39,9 @@ fi
 [[ -f $D/translations.jsonl ]] || $PY -m votedistill.sdrrl translate --data "$DATA"
 [[ -f $D/qe_scores.jsonl ]]    || $COMET_PY -m votedistill.sdrrl.quality --out "$D"
 [[ -f $D/sft_data.jsonl ]]     || $PY -m votedistill.sdrrl build --data "$DATA" ${BUILD_ARGS:---n_parallel 200}
+if [[ ${STAGES:-all} == data ]]; then   # data stages only: reveal no result (e.g. before the prediction is preregistered)
+  echo "DATA_DONE $D"; exit 0
+fi
 
 $PY -m votedistill.exp2 train --name "$NAME"
 $PY -m votedistill.exp2 eval-final --name "$NAME"
