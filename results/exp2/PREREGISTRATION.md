@@ -664,3 +664,15 @@ Zulu (AfriMGSM zul TEST, LID=Zulu): base 2.2 · Zulu-only D 6.0 · Zulu-only G 6
 Qwen3-4B cannot produce Zulu math, so no reward helps; a stated limit (method needs some base competence).
 D learning curve (s42, TEST): 50 18.5 · 100 22.6 · 200 24.8 · 300 25.2 · 400 26.3 · 500 32.1 · 600 32.5;
 the same model in English scores 94.9 on these questions, so the Swahili ceiling is far above 32.5.
+
+## 2026-11-19 ~13:30 — PREREGISTERED: where does the gain stop? D and B continued to 1200 steps (s42)
+Motivation: D's TEST curve (s42) 25.2 @300 → 32.1 @500 → 32.5 @600; the same model scores 94.9 on these questions in
+English, so the Swahili ceiling is far away. Training is descriptive (step count chosen after seeing the curve).
+Runs: `grpo__gsm8k-mt3k__exact__{votelidref,goldlidref}-lr5e-6-q16-steps1200__s42`, exact continuations of the
+600-step runs: step-600 adapter + optimizer/RNG state copied, constant LR, the 1200-step question order starts with
+the 600-step order (verified). Note: 600 steps ≈ 3.4 passes over the ~2.8k questions, 1200 ≈ 6.9.
+Evaluation: TEST every 100 steps (700…1200) for both, default decoding (+ penalty 1.1 via eval-final), and B600's
+saved steps 350/400/450/500/550 so B and D curves are paired at every 50 steps from 300 to 600.
+Readings (Swahili acc LID, paired bootstrap): D1200 − D600 (does it keep improving), D1200 − B1200 (does gold-free
+keep pace with gold at the end), and the shape of both curves. Overfitting check: training reward vs TEST trend.
+"Plateau" = last three evals within ±1.5 points. Single seed; no claim beyond description.
