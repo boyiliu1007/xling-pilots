@@ -26,16 +26,19 @@ from ..paths import RESULTS
 from .levels import EXP2_RESULTS, TEACHER_CONTEXTS
 
 ONE_LANG = {f"gsm8k-mt3k-{l}only": l for l in ("zul", "yor", "sna", "sot")}   # wave 2: one language, no Swahili
-DATASETS = ("copsd", "gsm8k-mt", "mix", "gsm8k-mt3k", "gsm8k-mt3k-zul", "gsm8k-mt3k-yor") + tuple(ONE_LANG)
+DATASETS = ("copsd", "gsm8k-mt", "mix", "gsm8k-mt3k", "gsm8k-st3k", "gsm8k-mt3k-zul", "gsm8k-mt3k-yor") + tuple(ONE_LANG)
 # Two-language sets (PREREGISTRATION 2026-11-18): the gsm8k-mt3k Swahili rows plus the same questions translated into a
 # second language by NLLB; both are graded by the same English votes.
 TWO_LANG = {"gsm8k-mt3k-zul": "zul", "gsm8k-mt3k-yor": "yor"}
 MT_FILE = RESULTS / "exp2" / "data" / "gsm8k_swa_mt.jsonl"   # NLLB translation: shared by every model
 CONSENSUS = EXP2_RESULTS / "consensus"
 # gsm8k-mt3k: a 3000-question GSM8K train sample (same seed, NLLB, same QC), used by the large self-SFT ablation only
-MT_FILES = {"gsm8k-mt": MT_FILE, "gsm8k-mt3k": RESULTS / "exp2" / "data" / "gsm8k_swa_mt3k.jsonl"}
+MT_FILES = {"gsm8k-mt": MT_FILE, "gsm8k-mt3k": RESULTS / "exp2" / "data" / "gsm8k_swa_mt3k.jsonl",
+            # gsm8k-st3k: the same 3000 questions translated by the policy's own base model (translate.self_translate)
+            "gsm8k-st3k": EXP2_RESULTS / "data" / "gsm8k_swa_self3k.jsonl"}
 CONSENSUS_FILE = {"copsd": "copsd_en_thinking.jsonl", "gsm8k-mt": "gsm8k_en_thinking.jsonl",
-                  "gsm8k-mt3k": "gsm8k3k_en_thinking.jsonl", "gsm8k-mt3k-zul": "gsm8k3k_en_thinking.jsonl",
+                  "gsm8k-mt3k": "gsm8k3k_en_thinking.jsonl", "gsm8k-st3k": "gsm8k3k_en_thinking.jsonl",
+                  "gsm8k-mt3k-zul": "gsm8k3k_en_thinking.jsonl",
                   "gsm8k-mt3k-yor": "gsm8k3k_en_thinking.jsonl", **{d: "gsm8k3k_en_thinking.jsonl" for d in ONE_LANG}}
 
 

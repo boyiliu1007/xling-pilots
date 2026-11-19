@@ -72,7 +72,7 @@ def main():
     g.add_argument("--data", required=True)
     g.add_argument("--rep_pen", type=float, default=1.1)
     tr = sub.add_parser("translate")
-    tr.add_argument("--data", default="gsm8k-mt", choices=["gsm8k-mt", "gsm8k-mt3k"])
+    tr.add_argument("--data", default="gsm8k-mt", choices=["gsm8k-mt", "gsm8k-mt3k", "gsm8k-st3k"])
     tr.add_argument("--lang", default="swa", choices=["swa", "zul", "yor", "sna", "sot"])
     sub.add_parser("trainsets")
     for c in ("train", "eval-run", "run-report", "eval-final", "eval-run-final"):
@@ -175,8 +175,8 @@ def run_commands(args):
     if args.cmd == "translate":
         from .trainsets import MT_FILE
         setup_logging(MT_FILE.parent / "logs" / "translate.log")
-        from .translate import translate
-        translate(dataset=args.data, lang=args.lang)
+        from .translate import self_translate, translate
+        self_translate() if args.data == "gsm8k-st3k" else translate(dataset=args.data, lang=args.lang)
         return
     if args.cmd == "run-report":
         print(runs.report_run(args.name))

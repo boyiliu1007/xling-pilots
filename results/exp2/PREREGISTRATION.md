@@ -617,3 +617,21 @@ Reading: "self-vote beats gold" is the wrong claim. The defensible claim is that
 (96.6% vote accuracy vs ~17% Swahili accuracy at step 1) is a near-gold label source, so gold answers, gold
 rationales and translated SFT (SP3F's supervision) are replaceable; the Swahili check is what makes it work.
 Implication for a round-2 vote: on GSM8K at most 3.4% of labels can change, so round 2 vs D600 is expected null.
+
+## 2026-11-18 ~23:50 — PREREGISTERED: self-translated training questions (no external MT system)
+
+User decisions tonight: (1) cancel ~39 non-essential jobs (1.7B, step-credit seeds/600, no-check 600, secondary-control
+seeds, lid0.5, cor0.1, Yoruba/Shona/Sotho); kept: seeds 43/44 of B/C/D/G, 8B B/C/D/G, Zulu-only D/G, Swahili+Zulu,
+lid0.9/detsw2/detwl, cor0.2/0.4. (2) Round-2 re-voting dropped: GSM8K votes are already 96.6% gold, and the vote errors
+on harder data sit on olympiad problems needing 4k–9k+ tokens (COPSD: 88.2% maj-correct; errors concentrated at median
+length ≥ 3k tokens) against our 2,048-token rollout cap.
+
+Design: Qwen3-4B base (non-thinking, greedy) translates the same 3000 gsm8k-mt3k English questions into Swahili
+(translate.self_translate; prompt in its SELF_PROMPT). QC = the NLLB QC (numbers, length ratio, loops) + lid_fraction
+>= 0.7. Train our method D (`grpo__gsm8k-st3k__exact__votelidref-lr5e-6-q16-steps300__s42`) on the QC-passing,
+vote-accepted questions, everything else identical to D300 (same English votes, same hyperparameters, s42). Evaluate
+TEST step 300, default decoding.
+Primary contrast: D(self-translated) − D(NLLB), Swahili acc (LID) on AfriMGSM TEST, paired bootstrap; also vs base+pen.
+Claim if the CI of D(self) − base+pen excludes 0 and D(self) − D(NLLB) CI includes 0 or is positive: the method needs
+only unlabeled English questions and the model itself (no gold answers, no gold rationales, no MT system, no judge,
+no SFT stage) — the separation from SP3F. Report translation QC pass rate vs NLLB (2805/3000).

@@ -121,3 +121,46 @@ def translate(batch_size=32, dataset="gsm8k-mt", lang="swa"):
         "created": datetime.now().isoformat(timespec="seconds")})
     log.info(f"QC passed {n_ok}/{len(recs)}; failures: {Counter(w.split()[0] for r in recs for w in r['qc_fail'])}")
     return recs
+
+
+# ----------------------------------------------------------------------------- self-translation (PREREG 2026-11-18 night)
+SELF_PROMPT = ("Translate the following math word problem from English into Swahili. Keep every number exactly as "
+               "written in digits. Output only the Swahili translation, nothing else.\n\n{question}")
+
+
+def self_translate():
+    """The policy's own base model (MODEL, e.g. Qwen3-4B) translates the gsm8k-mt3k English questions into Swahili:
+    non-thinking mode, greedy, whole question at once. Same QC as NLLB (numbers, length ratio, loops) plus the training
+    language check (lid_fraction >= LID_MIN), so no external MT system and no gold label is used. Output
+    MT_FILES['gsm8k-st3k'] (model-specific), same schema as the NLLB file."""
+    from vllm import LLM, SamplingParams
+    from ..paths import MODEL
+    from ..utils import read_jsonl
+    from .grpo import LID_MIN, lid_fraction
+    src = list(read_jsonl(MT_FILES["gsm8k-mt3k"]))   # same 3000 questions, qid, gold, answer_en
+    out_f = MT_FILES["gsm8k-st3k"]
+    llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.85, seed=0, max_model_len=4096)
+    tok = llm.get_tokenizer()
+    prompts = [tok.apply_chat_template([{"role": "user", "content": SELF_PROMPT.format(question=r["question_en"])}],
+                                       tokenize=False, add_generation_prompt=True, enable_thinking=False) for r in src]
+    res = llm.generate(prompts, SamplingParams(n=1, temperature=0.0, max_tokens=768))
+    recs = []
+    for r, o in zip(src, res):
+        sw = o.outputs[0].text.strip()
+        ok, why = qc(r["question_en"], sw, "swa")
+        lid = lid_fraction(sw, "swa")
+        if lid < LID_MIN:
+            ok, why = False, why + [f"lid {lid:.2f}"]
+        recs.append({"qid": r["qid"], "question_en": r["question_en"], "question_sw": sw, "lang": "swa", "gold": r["gold"],
+                     "answer_en": r["answer_en"], "lid": lid, "qc_ok": ok, "qc_fail": why,
+                     "nllb_qc_ok": r["qc_ok"]})
+    out_f.parent.mkdir(parents=True, exist_ok=True)
+    write_jsonl(out_f, recs)
+    n_ok = sum(r["qc_ok"] for r in recs)
+    write_json(out_f.with_suffix(".meta.json"), {
+        "model": MODEL, "prompt": SELF_PROMPT, "decoding": "greedy, non-thinking, max_tokens 768", "qc": qc.__doc__,
+        "lid_min": LID_MIN, "items": len(recs), "qc_ok": n_ok, "versions": versions(),
+        "created": datetime.now().isoformat(timespec="seconds")})
+    log.info(f"self-translation QC passed {n_ok}/{len(recs)} (NLLB passed {sum(r['qc_ok'] for r in src)}); "
+             f"failures: {Counter(w.split()[0] for r in recs for w in r['qc_fail'])}")
+    return recs
