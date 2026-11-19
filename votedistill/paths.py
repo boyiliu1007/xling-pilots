@@ -13,6 +13,8 @@ COPSD_DIR = Path(os.environ.get("COPSD_DIR", USER_DATA / "ext" / "COPSD"))
 COPSD_COMMIT = "4f4410730e9b"
 # LoRA checkpoints are large and live outside the repo.
 CKPT_ROOT = Path(os.environ.get("CKPT_ROOT", USER_DATA / "votedistill_ckpt"))
+# Downloaded resources that are not Hugging Face models or datasets (SDRRL: FreeDict dictionaries, MAFAND parallel text).
+CACHE = Path(os.environ.get("VOTEDISTILL_CACHE", USER_DATA / "votedistill_cache"))
 
 MODEL = os.environ.get("BASE_MODEL", "Qwen/Qwen3-1.7B")
 

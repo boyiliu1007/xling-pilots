@@ -130,6 +130,46 @@ its `eval_config.json`, so a new protocol needs a new `--run_dir` (pointing `--c
   so a teacher with neither English question nor reference has exactly the student's prompt (training it is a no-op).
 - **Experiment 3 (adaptive):** per-problem choice of the above, driven by consensus vote shares.
 
+## SDRRL baseline (Experiment 2, `votedistill/sdrrl/`)
+
+Translated self-distillation SFT (Zhang et al., 2024), label-free: the model's own voted English traces,
+machine-translated into Swahili, as an offline supervised baseline on the same questions and the same English votes
+as the Experiment 2 GRPO runs (PREREGISTRATION 2026-11-19 SDRRL entry). Runs are an Experiment 2 context, so
+training, evaluation and `logs/sp3f_compare.py` treat them like every other Qwen3-4B run.
+
+```bash
+sbatch --export=ALL,BASE_MODEL=Qwen/Qwen3-4B,SEED=42 slurm/sdrrl.sbatch     # all stages; resubmit to resume
+# or stage by stage (data stages are shared by all seeds: results/exp2_qwen3-4b/sdrrl/gsm8k-mt3k/):
+export BASE_MODEL=Qwen/Qwen3-4B
+$PY -m votedistill.consensus merge --out results/exp2_qwen3-4b/consensus --names gsm8k3k_en_thinking --k 12  # if missing
+$PY -m votedistill.sdrrl translate --data gsm8k-mt3k                  # NLLB-200-3.3B, beam 4, sentence by sentence
+$COMET_PY -m votedistill.sdrrl.quality --out results/exp2_qwen3-4b/sdrrl/gsm8k-mt3k   # CometKiwi, separate env
+$PY -m votedistill.sdrrl build --data gsm8k-mt3k --n_parallel 200     # sft_data.jsonl, build_report.txt
+$PY -m votedistill.exp2 train      --name sdrrl__gsm8k-mt3k__exact__s42       # variant: __ep<k>__ (epochs, default 4)
+$PY -m votedistill.exp2 eval-final --name sdrrl__gsm8k-mt3k__exact__s42       # TEST, default + repetition penalty 1.1
+```
+
+- **Questions and votes:** the 2,783 `gsm8k-mt3k` questions with a QC-passing NLLB Swahili question and an English
+  thinking-mode vote (share ≥ 5/8), the same set as the GRPO runs. Per question the shortest finished English sample
+  that agrees with the vote is the reference (thinking and final answer).
+- **Data:** English/Swahili question × English/Swahili reference. Only the reference is translated here; a translation
+  is used only if every sentence kept its math, the text is Swahili, and its mean sentence CometKiwi score is ≥ 0.8.
+- **Prompt format:** identical to the evaluation prompt (thinking mode, think prefix in the answer's language).
+- **Setup once:** the CometKiwi stage needs its own environment (see `requirements.txt`); `Unbabel/wmt22-cometkiwi-da`
+  is gated (accept its license, `hf auth login`).
+
+Deviations from Zhang et al. (2024), whose code is no longer public:
+
+| SDRRL paper | Here | Why |
+|---|---|---|
+| Half gold answers, half model responses | Voted model traces only | Label-free, like the method it is compared with |
+| NLLB translates questions and answers | NLLB translates references only | The questions are Experiment 2's NLLB translations |
+| Whole answer translated and scored | Sentence by sentence, with inline math masked as `[M1]` and display math copied | NLLB corrupts raw LaTeX (`$ l $` → `$ 1 $`); CometKiwi reads at most 512 tokens |
+| CLD3 removes off-target translations | Swahili function-word check | Same heuristic as the evaluation's `language` column |
+| MUSE dictionaries | FreeDict eng-swh merged with inverted swh-eng (about 1,800 words each way) | MUSE has no Swahili |
+| 1,000 OPUS-100 pairs per 52k instructions | 200 MAFAND-MT pairs (`--n_parallel`), about the same share of ~10k examples | OPUS-100 has no English–Swahili |
+| LLaMA-Factory full recipe | Same LoRA as every run (r64, α128), 4 epochs, lr 5e-5, batch 32 | Same adapter capacity as the other methods |
+
 ## Models
 
 LoRA adapters of the gold-COPSD run (rank 64, alpha 128, all attention and MLP projections) at steps 10–60 are

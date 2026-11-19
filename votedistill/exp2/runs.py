@@ -36,6 +36,27 @@ SFT_STEPS_DATA = {"gsm8k-mt3k": 100}   # large self-SFT ablation (PREREGISTRATIO
 
 GRPO_CONTEXT = "grpo"   # RL with verifiable rewards (grpo.py; PREREGISTRATION 2026-11-15 ~17:00): grpo__<data>__exact__<reward>__sN
 
+# SDRRL baseline (votedistill/sdrrl; PREREGISTRATION 2026-11-19 SDRRL entry): offline SFT on the model's own voted
+# English traces, NLLB-translated, in four question/answer language combinations, code-switched questions and a little
+# parallel text. sdrrl__<data>__exact[__ep<k>]__sN; the data folder (sdrrl.exp2_data_dir) is shared by all seeds.
+SDRRL_CONTEXT = "sdrrl"
+SDRRL_EPOCHS = 4
+_SDRRL_VARIANT = re.compile(r"ep(\d+)$")
+
+
+def sdrrl_epochs(name):
+    parts = name.split("__")
+    return int(_SDRRL_VARIANT.match(parts[3]).group(1)) if len(parts) == 5 else SDRRL_EPOCHS
+
+
+def sdrrl_final_step(name):
+    """Last checkpoint of an SDRRL run, from its config.json (the step count depends on the built data set)."""
+    from ..utils import read_json
+    cfg = read_json(RUNS / name / "config.json")
+    if not cfg or "final_step" not in cfg.get("sft", {}):
+        raise SystemExit(f"{name}: no config.json with sft.final_step yet; train the run first")
+    return cfg["sft"]["final_step"]
+
 
 def sft_steps(name):
     return SFT_STEPS_DATA.get(name.split("__")[1], SFT_STEPS)
@@ -123,6 +144,8 @@ def parse_variant(v):
         return None, OFFICIAL_CLIP
     if v in OBJECTIVE_VARIANTS:
         return None, None
+    if _SDRRL_VARIANT.match(v):   # SDRRL epochs; no distillation loss, so no clip
+        return None, None
     from .grpo import parse_variant as grpo_variant
     if grpo_variant(v) is not None:
         return None, None
@@ -153,8 +176,10 @@ def parse_name(name):
         clip = parse_variant(v)[1]
     else:
         raise SystemExit(f"bad run name {name}")
-    if (context not in TEACHER_CONTEXTS and context not in (SFT_CONTEXT, GRPO_CONTEXT)) or data not in DATASETS:
+    if (context not in TEACHER_CONTEXTS and context not in (SFT_CONTEXT, GRPO_CONTEXT, SDRRL_CONTEXT)) or data not in DATASETS:
         raise SystemExit(f"bad run name {name}")
+    if context == SDRRL_CONTEXT and len(parts) == 5 and not _SDRRL_VARIANT.match(parts[3]):
+        raise SystemExit(f"bad SDRRL variant {parts[3]} (expected ep<k>)")
     return context, data, layout, int(s[1:]), clip
 
 
@@ -177,6 +202,9 @@ def eval_steps(name, max_steps=MAX_STEPS):
     if name.split("__")[0] == GRPO_CONTEXT:
         from .grpo import SAVE_EVERY as G_EVERY, parse_kind
         return [f"step{s}" for s in range(G_EVERY, parse_kind(name.split("__")[3])["steps"] + 1, G_EVERY)]
+    if name.split("__")[0] == SDRRL_CONTEXT:   # sdrrl/train.py saves every SAVE_EVERY steps and at the last step
+        last = sdrrl_final_step(name)
+        return [f"step{s}" for s in sorted(set(range(SAVE_EVERY, last + 1, SAVE_EVERY)) | {last})]
     init = init_of(name)
     first = init[1] if init else SAVE_EVERY
     return [f"step{s}" for s in range(first, max_steps + 1, SAVE_EVERY)]
@@ -188,6 +216,8 @@ def final_step(name, max_steps=MAX_STEPS):
     if name.split("__")[0] == GRPO_CONTEXT:
         from .grpo import parse_kind
         return parse_kind(name.split("__")[3])["steps"]
+    if name.split("__")[0] == SDRRL_CONTEXT:
+        return sdrrl_final_step(name)
     return sft_steps(name) if name.split("__")[0] == SFT_CONTEXT else max_steps
 
 
@@ -231,6 +261,19 @@ def train_run(name, max_steps=MAX_STEPS):
     if context == SFT_CONTEXT:
         from .selfsft import train_sft
         return train_sft(name, data, layout, seed, rollout_pen_of(name), filter_of(name))
+    if context == SDRRL_CONTEXT:
+        from ..sdrrl import exp2_data_dir
+        from ..sdrrl.train import train as sdrrl_train
+        if layout != "exact":
+            raise SystemExit("SDRRL runs use the exact layout")
+        dd = exp2_data_dir(data)
+        if not (dd / "sft_data.jsonl").exists():
+            raise SystemExit(f"{dd / 'sft_data.jsonl'} missing: run the SDRRL data stages first (slurm/sdrrl.sbatch, "
+                             f"or python -m votedistill.sdrrl translate/build --data {data})")
+        # The CLI passes MAX_STEPS when --max_steps is not given; SDRRL's length is set by epochs, so only a
+        # different value is a cap (smoke tests).
+        cap = max_steps if max_steps != MAX_STEPS else None
+        return sdrrl_train(rd, ck, epochs=sdrrl_epochs(name), seed=seed, max_steps=cap, data_dir=dd, run_name=name)
     from ..copsd.styles import apply_style
     apply_style(style_of(name))
     rows, desc = training_rows(data, context)

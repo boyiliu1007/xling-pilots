@@ -10,3 +10,5 @@ numpy==2.3.5
 pytest
 sacrebleu==2.6.0
 lingua-language-detector==2.1.1
+# SDRRL translation-quality stage only, in a SEPARATE environment (its pins conflict with vLLM):
+#   uv venv envs/comet --python 3.11 && uv pip install -p envs/comet unbabel-comet "setuptools<81"

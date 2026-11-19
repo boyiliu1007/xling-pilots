@@ -635,3 +635,31 @@ Primary contrast: D(self-translated) − D(NLLB), Swahili acc (LID) on AfriMGSM 
 Claim if the CI of D(self) − base+pen excludes 0 and D(self) − D(NLLB) CI includes 0 or is positive: the method needs
 only unlabeled English questions and the model itself (no gold answers, no gold rationales, no MT system, no judge,
 no SFT stage) — the separation from SP3F. Report translation QC pass rate vs NLLB (2805/3000).
+
+## 2026-11-19 — PREREGISTERED (Person C): SDRRL baseline, translated self-distillation SFT (before any SDRRL run)
+
+Purpose: the supervised, offline baseline of the proposal (SDRRL, Zhang et al. 2024) and the main-conference plan's
+"SFT on NLLB-translated solutions" slot, on the same questions and the same English votes as our method (D).
+Data: the 2783 vote-accepted gsm8k-mt3k questions (QC-passing NLLB Swahili question; Qwen3-4B English thinking-mode
+vote, share >= 5/8; vote = gold on 2687, 96.6%). Reference per question = the shortest finished English sample that
+agrees with the vote (thinking + final answer). NLLB-200-3.3B (beam 4) translates it sentence by sentence with math
+masked; the translation is used only if all math survives, it reads as Swahili (function-word check) and its mean
+sentence CometKiwi (wmt22-cometkiwi-da) is >= 0.8. SFT set per question: {English, Swahili} question x {English
+reference, Swahili reference if accepted}; questions code-switched with FreeDict (p = 0.15 per dictionary word); plus
+200 MAFAND-MT sentence pairs as translation and completion instructions. No gold answers, gold rationales or judge.
+Training: Qwen3-4B, LoRA r64 / alpha 128 on all projections (as every run), cross-entropy on the assistant turn, AdamW
+lr 5e-5, linear schedule with 10% warmup, batch 32, 4 epochs, examples over 4096 tokens dropped, s42
+(`sdrrl__gsm8k-mt3k__exact__s42`; seeds 43/44 only if s42 is informative). Compute is not matched to D: SDRRL's
+recipe sets the step count (~1300 steps of SFT vs 300 RL steps); both are reported in the write-up.
+Evaluation as every Qwen3-4B run: AfriMGSM TEST (200 x 12), final checkpoint only, default decoding and repetition
+penalty 1.1; primary metric Swahili accuracy (LID >= 0.7, lingua over all languages), also any-language mean_acc;
+paired bootstrap over items (logs/sp3f_compare.py). Reported with it: translation acceptance rate and CometKiwi
+distribution (build_report.txt), share of TEST outputs that think in English.
+Contrasts: SDRRL − base+pen (does translated SFT beat penalty decoding?); D − SDRRL (on-policy RL with the model's
+own votes vs the MT-based SFT recipe, same votes); C − SDRRL; SDRRL − RFT (two offline SFTs: own Swahili samples vs
+translated English traces).
+Reading: D − SDRRL with the CI excluding 0 in D's favour = the method beats the standard translate-and-fine-tune
+baseline without needing an MT system for the solutions. SDRRL >= D = the write-up must state what RL adds over
+translated SFT. Note: the tgt_en subset trains Swahili questions -> English answers, so SDRRL may lose Swahili accuracy
+(LID) while gaining any-language accuracy; both are reported and the primary metric stays Swahili accuracy.
+Prediction: <Person C fills this in before the first SDRRL run starts>
