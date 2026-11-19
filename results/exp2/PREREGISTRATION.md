@@ -599,3 +599,21 @@ any-language +6.7 [+5.0, +8.5]; B (gold) 59.6.
 | our method (D), 600 | 65.1 | 65.3 | 99.7 |
 
 Paired bootstrap (items), Swahili acc: D − base+pen +20.9 [19.1, 22.8]; D600 − base+pen +23.8 [21.7, 26.1] (any-language +9.5 [7.4, 11.6]); C − G +31.9 [29.8, 33.9]; D − B +2.7 [1.0, 4.3]; D600 − D300 +2.9 [1.2, 4.5]; **H − D −2.7 [−4.2, −1.1]** — the step-credit gain on AfriMGSM (+2.5) does NOT replicate on MSVAMP; claim 3 (step credit) is downgraded to "mixed" pending seeds. G has the highest any-language accuracy (66.7) but answers mostly in English, as on AfriMGSM.
+
+## 2026-11-18 ~23:30 — EXPLORATORY: why does the own-English-vote reward match gold? (logs/why_vote.py, CPU only)
+
+- The labels are almost gold. English thinking-mode vote (Qwen3-4B, n=8): accepts 2783/2805 GSM8K-mt3k questions
+  (99.2%) and equals gold on 96.6% of them; on the COPSD olympiad set it accepts 487/500, 89.9% equal gold. Selection
+  is not the mechanism (B also trains 99.3% on vote-accepted questions).
+- Same answer signal: share of groups where the answer reward varies is 32.7/32.5/32.0% (B) vs 32.8/31.9/32.0% (D)
+  for steps 1–100/101–300/301–600; Swahili gold accuracy of rollouts is 16.8→28.7 (B) vs 17.4→28.4 (D).
+- Wrong votes are resisted: on the 3.4% vote-wrong questions D rewards only 7–12% of rollouts (vs 18–29% on
+  vote-right ones); gold accuracy there is 4–7%, i.e. these are hard questions.
+- The own-solution reference is NOT a better shaping signal than the gold rationale: in mixed groups, the
+  highest-ref_f1 rollout is gold-correct 78.7/82.6/85.4% (D) vs 80.1/86.1/88.0% (B).
+- TEST step 300 (s42): A 23.5, B 26.1, C 25.0, D 25.2 Swahili acc — D ≈ B at 300; D > B appears at 600 (32.5 vs
+  30.1) and on MSVAMP (+2.7 [1.0, 4.3]).
+Reading: "self-vote beats gold" is the wrong claim. The defensible claim is that the model's English competence
+(96.6% vote accuracy vs ~17% Swahili accuracy at step 1) is a near-gold label source, so gold answers, gold
+rationales and translated SFT (SP3F's supervision) are replaceable; the Swahili check is what makes it work.
+Implication for a round-2 vote: on GSM8K at most 3.4% of labels can change, so round 2 vs D600 is expected null.
