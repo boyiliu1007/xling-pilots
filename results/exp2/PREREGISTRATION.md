@@ -679,3 +679,34 @@ keep pace with gold at the end), and the shape of both curves. Overfitting check
 2026-11-20 00:04 — logistics only: D1200 runs from step 600 inside the interactive neulab-mini allocation 11217934
 (A6000; ~187 s/step) while preempt job 11212778 is held; when the allocation ends, 11212778 is released and resumes from
 the latest checkpoint. Hardware may differ across segments (A6000 / RTX PRO 6000); design unchanged.
+
+## 2026-11-20 — PREREGISTERED: can the model judge its own Swahili answers? (offline test, before any RL)
+Scope (advisor, 2026-11-20): half analysis (COPSD failure; does the model understand Swahili questions), half a gold-free
+RL method that must be novel. Candidate novel piece: the model as its own privileged judge — SP3F's judge (GPT-4o-mini
++ gold English solution) replaced by Qwen3-4B + its own English voted solution. Step 1 tests the judge offline; RL
+only if it passes. Decisions taken with the user, one by one:
+- Questions: 200 vote-accepted gsm8k-mt3k training questions, random.Random(2026).sample (the RL judge works on training
+  questions; D300 has seen them in training).
+- Answers: 8 Swahili answers per question from each policy — untrained Qwen3-4B and D step 300
+  (votelidref-lr5e-6-q16-steps300__s42) — sampled exactly like RL rollouts (student prompt, thinking mode, T 1.0,
+  top-p 1.0, 2048 tokens). Labels from gold (never shown to the judge): correct = finished AND gold-correct AND lid_ok;
+  wrong = finished AND wrong AND lid_ok. Unfinished answers: separate easy group only.
+- Judge format: POINTWISE. Non-thinking chat prompt (English instructions): Swahili problem, [reference: own English
+  voted solution, text after </think>], one answer; "Are the reasoning and the final answer correct? Reply with one
+  word: Yes or No." Score = P(Yes)/(P(Yes)+P(No)) from the first generated token (one forward pass, temperature 0).
+  Pairwise judging was considered and dropped (cost; user decision).
+- Pairs (SP3F Table 3 analogues; up to 4 per type per question and policy, seeded):
+  P1 correct vs wrong (real answers)  — the go-rule pair type;
+  P2 correct vs wrong-reasoning-with-gold-number (a wrong answer whose final number is replaced by gold);
+  P3 correct-reasoning-with-wrong-number (a correct answer whose final number is replaced by a wrong answer's) vs that
+     same wrong answer (both end in the same number; only the reasoning differs);
+  P0 correct vs unfinished (easy group, reported separately).
+  Splice: replace the \boxed{} content and the old final number in the text after </think>.
+  A pair is judged right if the better answer gets the higher score (tie = 0.5).
+- Conditions (2×2×2): judge ∈ {untrained 4B, D300}; reference ∈ {own English solution, none};
+  answer text ∈ {full (thinking + solution), final solution only}.
+- Go rule (untrained 4B judge, own solution): P1 accuracy ≥ 65% AND P1 accuracy(with solution) − (without) has a
+  question-clustered bootstrap 95% CI above 0, for full OR final-only input. RL uses the input with higher P1 accuracy
+  (final-only if within 2 points). D300-as-judge results are analysis only (does Swahili RL make a better judge?).
+- If the rule fails: no judge RL; report as a comprehension result. Not decided yet: in RL, frozen vs current-policy judge.
+Code: votedistill/exp2/judge.py (sample / score / report). Output: results/exp2_qwen3-4b/judge/.
