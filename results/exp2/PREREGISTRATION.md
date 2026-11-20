@@ -676,3 +676,6 @@ saved steps 350/400/450/500/550 so B and D curves are paired at every 50 steps f
 Readings (Swahili acc LID, paired bootstrap): D1200 − D600 (does it keep improving), D1200 − B1200 (does gold-free
 keep pace with gold at the end), and the shape of both curves. Overfitting check: training reward vs TEST trend.
 "Plateau" = last three evals within ±1.5 points. Single seed; no claim beyond description.
+2026-11-20 00:04 — logistics only: D1200 runs from step 600 inside the interactive neulab-mini allocation 11217934
+(A6000; ~187 s/step) while preempt job 11212778 is held; when the allocation ends, 11212778 is released and resumes from
+the latest checkpoint. Hardware may differ across segments (A6000 / RTX PRO 6000); design unchanged.
