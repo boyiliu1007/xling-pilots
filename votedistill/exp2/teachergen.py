@@ -26,10 +26,15 @@ from .screen import _prompt_ids
 
 log = logging.getLogger("votedistill.exp2.teachergen")
 OUT = EXP2_RESULTS / "teachergen"
-CONTEXTS = ("L0-same", "L1", "L2-gold", "L3-gold", "L3-shuffled-gold")
+CONTEXTS = ("L0-same", "L1", "L2-gold", "L3-gold", "L3-shuffled-gold", "L3-vote")
+# Vote contexts use only the sampled problems whose English vote was accepted (trainsets.voted_references).
+VOTE_CONTEXTS = ("L3-vote",)
 BUDGETS = {"train": dict(temperature=OFFICIAL["temperature"], top_p=OFFICIAL["top_p"], top_k=OFFICIAL["top_k"],
                          max_tokens=OFFICIAL["max_completion_length"]),
            "eval": dict(temperature=1.0, top_p=0.95, top_k=-1, max_tokens=4096)}
+# Same budgets with the repetition penalty that removes most loops in the student (L0-reppen1.1): does the teacher,
+# once it finishes, actually answer correctly?
+BUDGETS.update({f"{b}-rp": {**BUDGETS[b], "repetition_penalty": 1.1} for b in ("train", "eval")})
 N_PROBLEMS, N_SAMPLES, SEED = 100, 4, 42
 
 
@@ -42,18 +47,25 @@ def run(contexts=CONTEXTS, budgets=("train",)):
     idx = sorted(random.Random(SEED).sample(range(len(rows)), N_PROBLEMS))
     llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.4, max_model_len=12288, seed=SEED)
     for c in contexts:
-        trows, flags = teacher_rows(rows, c)
+        ix, crows = idx, rows
+        if c in VOTE_CONTEXTS:
+            from .trainsets import voted_references
+            refs = voted_references("copsd")
+            crows = [{**r, "vote_solution": refs[i][0] if i in refs else None,
+                      "vote_answer": refs[i][1] if i in refs else None} for i, r in enumerate(rows)]
+            ix = [i for i in idx if i in refs]
+        trows, flags = teacher_rows(crows, c)
         col = make_collator(tok, OFFICIAL["max_length"], **flags)
         key = "student" if c == "L0-same" else "teacher"
-        prompts = [_prompt_ids(col, trows[i], key) for i in idx]
+        prompts = [_prompt_ids(col, trows[i], key) for i in ix]
         for b in budgets:
             p = OUT / f"{c}_{b}.jsonl"
             if p.exists():
                 continue
-            sps = [SamplingParams(n=N_SAMPLES, min_p=0.0, seed=SEED * 1_000_003 + i, **BUDGETS[b]) for i in idx]
+            sps = [SamplingParams(n=N_SAMPLES, min_p=0.0, seed=SEED * 1_000_003 + i, **BUDGETS[b]) for i in ix]
             outs = llm.generate([{"prompt_token_ids": q} for q in prompts], sps, use_tqdm=False)
             recs = []
-            for i, o in zip(idx, outs):
+            for i, o in zip(ix, outs):
                 gold = str(rows[i]["Answer"])
                 for j, x in enumerate(o.outputs):
                     s, pp = extract_pred(x.text, thinking=True)

@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-RESULTS = REPO / "results"
+RESULTS = Path(os.environ.get("VOTEDISTILL_RESULTS", REPO / "results"))   # override: a separate results tree
 SPLIT_FILE = RESULTS / "splits" / "afrimgsm_swa_dev50_test200.json"
 
 USER_DATA = Path(os.environ.get("USER_DATA", f"/data/user_data/{getpass.getuser()}"))

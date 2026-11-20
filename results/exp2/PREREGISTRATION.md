@@ -635,3 +635,60 @@ Primary contrast: D(self-translated) − D(NLLB), Swahili acc (LID) on AfriMGSM 
 Claim if the CI of D(self) − base+pen excludes 0 and D(self) − D(NLLB) CI includes 0 or is positive: the method needs
 only unlabeled English questions and the model itself (no gold answers, no gold rationales, no MT system, no judge,
 no SFT stage) — the separation from SP3F. Report translation QC pass rate vs NLLB (2805/3000).
+- 2026-11-15 ~22:00, penalised-teacher COPSD ("tp"; Person C, written before any run of this variant exists).
+  Known: teacher generation (results/exp2/teachergen/report.txt, Qwen3-1.7B, 100 COPSD training problems x 4,
+  4096 tokens) shows the teacher's raw distribution loops: L3-gold acc 0.307 (finished 0.345); sampled with
+  repetition penalty 1.1 it reaches 0.855 (finished 0.985, acc|finished unchanged ~0.87); L2-gold 0.115 -> 0.777;
+  L1 0.043 -> 0.357; L3-shuffled-gold 0.037 -> 0.233; L0-same 0.020 -> 0.160. COPSD never samples the teacher: it
+  distils the raw (looping) distribution, and every earlier penalty variant (rp) penalised only the student's
+  rollouts. Hypothesis: the teacher's repetition bias, not missing information, blocks transfer.
+  Method: COPSD unchanged (official hyperparameters, clip 0.05, exact layout, unpenalised student rollouts, 100
+  steps) except that the teacher's logits in the loss get the repetition penalty 1.1 (vLLM rule: positive logits
+  / 1.1, negative x 1.1) for every token already generated earlier in the same completion; prompt tokens are not
+  counted (vLLM counts them, which pushed penalised teachers into English: 15-44% English outputs). Code:
+  copsd/train.py penalize_seen; run variant "tp".
+  Arms (copsd data, seeds 42/43): L3-vote (gold-free method), L0-same (no English: penalised self-target =
+  loop removal only; 500 rows as in the earlier teacher-free controls), L3-shuffled-vote (placebo reference),
+  L3-gold (oracle). Evaluation: selection-free, TEST at step 100, default decoding and penalty-1.1 decoding
+  (exp2_evalfinal).
+  Outcomes (mean_acc primary, maj@12 and pass@12 reported; paired bootstrap, per seed): T1 = L3-vote-tp - L0-same-tp
+  (English adds beyond loop removal); T2 = L3-vote-tp - L3-shuffled-vote-tp (the right reference matters); T3 =
+  L3-vote-tp - L3-vote (official); P = L3-vote-tp - base + penalty 1.1 (L0-reppen1.1); O = L3-gold-tp - L3-vote-tp.
+  Transfer is supported only if T1 > 0 and T2 > 0 in both seeds with CIs excluding 0. Predictions: T3 > 0; T1, T2
+  small (a few points at most at 1.7B, where the student loops on 77% of samples); P <= 0.
+  Result (2026-11-16): not supported. TEST mean_acc (default decoding) L3-vote-tp 0.033 / 0.038, L0-same-tp
+  0.069 / 0.068, L3-shuffled-vote-tp 0.045 / 0.039, L3-gold-tp 0.039 / 0.050; base + penalty 0.081. T1 -3.5
+  [-5.4, -1.9] / -3.0 [-4.6, -1.5]; T2 -1.1 / -0.1; T3 -0.3 / -0.1; P -4.8 / -4.3. Truncation fell to 2-5%, but
+  outputs became fluent-looking non-Swahili word salad (acc|finished ~0.04): a penalty built into the training
+  target penalises every recurring subword piece, which Swahili needs constantly.
+- 2026-11-16 ~21:45, three follow-ups (Person C; user asked to try all three; written before any of these runs).
+  (a) Teacher-written self-SFT (sequence-level self-distillation; exp2/teacherwrite.py). The base model generates
+  from a teacher context with the student pool's sampling and vLLM repetition penalty 1.1 on the vote-accepted
+  GSM8K-MT 3k questions (2752); keep finished, Swahili, answer = target, <= 2 per question, subsample (seed 1234)
+  to 751 = Jeff's student-written arm size; SFT exactly as selfsft (100 steps) from the Swahili-only prompt. Arms:
+  rp-twvote (L3-vote context, vote filter; the method), rp-twl1 (L1 context, vote filter), rp-twgold (L3-gold,
+  gold filter; oracle); seeds 42/43. Comparison arm: Jeff's student-written rp-vote (same size, steps, seeds;
+  committed TEST outputs). Known before the runs (5-question smoke test): the L3-vote teacher pool is 0.83 correct
+  but its Swahili is poor, it copies English sentences and often refers to "the reference solution"; no filter
+  for that is added (reported instead). Outcomes: S1 = twvote - rp-vote (where the text comes from), S2 = twvote -
+  base + penalty 1.1, S3 = twgold - twvote, S4 = twvote - twl1. Success = S1 > 0 in both seeds, CIs excluding 0.
+  (b) De-looped teacher (option 3; exp2/deloop.py). Rerun Jeff's rp-vote s42 arm in a separate results tree
+  (VOTEDISTILL_RESULTS; also a reproduction check of Jeff's number), merge its step-100 LoRA into the base
+  weights, run official COPSD with that model as student start and teacher: L3-vote and L3-shuffled-vote, copsd
+  data, seeds 42/43. Outcomes: D1 = L3-vote(D) - D itself (step 100 of the rerun, TEST), D2 = L3-vote(D) -
+  L3-shuffled-vote(D). Success = D1 > 0 and D2 > 0 in both seeds, CIs excluding 0.
+  (c) Extrapolated teacher (option 4; variant x2): target logits b + 2 (t - b), b = frozen base on the student
+  prompt; official COPSD otherwise; L3-vote and L3-shuffled-vote, copsd data, seeds 42/43. Outcomes: E1 = L3-vote-x2
+  - L3-vote (official), E2 = L3-vote-x2 - L3-shuffled-vote-x2, E3 = L3-vote-x2 - base + penalty. Success = E2 > 0 in
+  both seeds, CIs excluding 0. Predictions: (a) S1 > 0 is the only one of the three I expect to have a chance; (b)
+  and (c) D2, E2 ~ 0 like every earlier token-level arm. All evaluation: TEST at the final step, default and
+  penalty-1.1 decoding (exp2_evalfinal).
+  Result (2026-11-17): none of the three passes. TEST mean_acc, default decoding, s42 / s43.
+  (a) Teacher pools (2752 q x 8): L3-vote acc 0.75 (kept 751 answers on 701 questions, 0.95 correct), L1 0.56,
+  L3-gold 0.88; 46% of L3-vote teacher answers refer to "the reference". twvote 0.040 / 0.033, twl1 0.071 / 0.075,
+  twgold 0.050 / 0.046, Jeff student-written vote 0.070 / 0.074 (rerun s42 0.077: reproduces, +0.7 [-0.3, +1.7]).
+  S1 twvote - vote -3.0 [-5.0, -1.3] / -4.2 [-6.2, -2.4]; S2 -4.1 / -4.8; S3 +1.0 / +1.4; S4 twvote - twl1 -3.1 /
+  -4.2. twvote students truncate more (0.36-0.38 vs 0.20) and no student output mentions a reference. Post hoc
+  (not preregistered): twl1 - vote mean_acc +0.1 / +0.0, maj@12 +2.5 [-0.5, +6.0] / +4.0 [+0.0, +8.5].
+  (b) L3-vote(D) 0.035 / 0.044, L3-shuffled-vote(D) 0.049 / 0.045, D 0.077: D1 -4.2 / -3.3, D2 -1.4 / -0.1.
+  (c) L3-vote-x2 0.009 / 0.011, L3-shuffled-vote-x2 0.013 / 0.015: E1 -2.8 / -2.8, E2 -0.4 / -0.4, E3 -7.2 / -7.0.

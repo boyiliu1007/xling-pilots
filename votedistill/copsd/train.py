@@ -86,9 +86,29 @@ def unpad(ids, pad):
     return keep
 
 
+def penalize_seen(logits, comp, pen):
+    """Repetition penalty (vLLM / CTRL rule: positive logits divided by pen, negative ones multiplied) on logits of
+    shape [1, L, V], where position j predicts comp[j]. At position j a token is penalised iff it occurs in comp[:j],
+    i.e. among the *generated* tokens before it. Unlike vLLM's repetition_penalty, prompt tokens do not count, so
+    numbers and words of the question or the English reference are not discouraged. Returns float32 logits."""
+    import torch
+    out = logits.float()
+    ids = torch.as_tensor(comp, device=out.device, dtype=torch.long)
+    n = min(ids.numel(), out.shape[1])
+    ids = ids[:n]
+    uniq, inv = torch.unique(ids, return_inverse=True)
+    pos = torch.arange(n, device=out.device)
+    first = torch.full((uniq.numel(),), n, device=out.device, dtype=torch.long).scatter_reduce(0, inv, pos, reduce="amin")
+    seen = pos[:, None] > first[None, :]                      # [n, U]: token uniq[u] already generated before j
+    sub = out[0, :n][:, uniq]
+    out[0, :n, uniq] = torch.where(seen, torch.where(sub > 0, sub / pen, sub * pen), sub)
+    return out
+
+
 def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
                        seed=SEED, layout="official", data_desc=None, reference_desc=None,
-                       clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None, rollout_rep_pen=1.0):
+                       clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None, rollout_rep_pen=1.0,
+                       teacher_rep_pen=1.0, teacher_extrap=None):
     write_json(run_dir / "config.json", {
         "model": MODEL, "language": lang, "official": OFFICIAL,
         "ours": {"gpus": 1, "micro_batch": MICRO_BS, "grad_accum": GA, "effective_batch": MICRO_BS * GA,
@@ -96,7 +116,8 @@ def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, i
                  "attn": "sdpa", "checkpoint_dir": str(ckpt_dir), "seed": seed,
                  "layout": {"name": layout, "description": LAYOUTS[layout]},
                  "loss_token_clip": clip, "objective": objective, "teacher_temperature": teacher_temp,
-                 "rollout_repetition_penalty": rollout_rep_pen},
+                 "rollout_repetition_penalty": rollout_rep_pen,
+                 "teacher_repetition_penalty": teacher_rep_pen, "teacher_extrapolation": teacher_extrap},
         "data": data_desc or "COPSD released training set (500 rows)",
         "teacher_context": {"include_problem_en": include_problem_en, "reference_solution": (
             (reference_desc or "gold COPSD `solution`") if include_reference_solution_en else "none")},
@@ -106,9 +127,15 @@ def write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, i
 def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_after=0, no_save=False,
           include_problem_en=True, include_reference_solution_en=True, seed=SEED, layout="official", rows=None,
           data_desc=None, reference_desc=None, clip=OFFICIAL["jsd_token_clip"], objective="copsd", teacher_temp=None,
-          rollout_rep_pen=1.0):
+          rollout_rep_pen=1.0, teacher_rep_pen=1.0, teacher_extrap=None):
     """rollout_rep_pen: vLLM repetition penalty for the student's rollouts (1.0 = official; >1 = penalty-rollout
     variant: the student still samples its own rollouts, but with a decoding-time guard against loops).
+    teacher_rep_pen: repetition penalty applied to the teacher's logits inside the loss (1.0 = official; >1 =
+    penalised-teacher variant, see penalize_seen): the distillation target becomes the teacher that, when sampled,
+    does not loop.
+    teacher_extrap: a (None = official): the target logits become b + a * (t - b), with b the frozen base model on
+    the *student* prompt and t the teacher; a = 1 is official COPSD, a > 1 amplifies only what the teacher's extra
+    context changes (biases shared by both prompts, such as the repetition bias, are not amplified).
     objective: "copsd" (distillation from the teacher prompt; teacher_temp, if set, replaces the loss temperature
     for the teacher's logits only, e.g. a hotter copy of the base model = an entropy-raising target), or
     "unlikelihood" (no teacher: -log(1 - p_student(y)) at positions whose token continues a verbatim 8-token repeat
@@ -131,7 +158,8 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
         raise ValueError(f"layout {layout}; known: {list(LAYOUTS)}")
     if not no_save:
         write_train_config(run_dir, ckpt_dir, lang, max_steps, include_problem_en, include_reference_solution_en,
-                           seed, layout, data_desc, reference_desc, clip, objective, teacher_temp, rollout_rep_pen)
+                           seed, layout, data_desc, reference_desc, clip, objective, teacher_temp, rollout_rep_pen,
+                           teacher_rep_pen, teacher_extrap)
     wait_for_gpu()
     torch.manual_seed(seed)
     random.seed(seed)
@@ -241,6 +269,14 @@ def train(run_dir, ckpt_dir, lang="swa", max_steps=OFFICIAL["max_steps"], stop_a
                             t_logits = model(input_ids=t_ids, attention_mask=(t_ids != pad).long(), logits_to_keep=L + 1).logits[:, :-1, :]
                         if teacher_temp:   # the loss divides both by temp: teacher effectively at teacher_temp
                             t_logits = t_logits.float() * (temp / teacher_temp)
+                        if teacher_extrap:   # target = base + a * (teacher - base): amplify what the context adds
+                            with torch.no_grad(), model.disable_adapter():
+                                b_logits = model(input_ids=s_ids, attention_mask=(s_ids != pad).long(),
+                                                 logits_to_keep=L + 1).logits[:, :-1, :].float()
+                            t_logits = b_logits + teacher_extrap * (t_logits.float() - b_logits)
+                            del b_logits
+                        if teacher_rep_pen != 1.0:
+                            t_logits = penalize_seen(t_logits, mc[i], teacher_rep_pen)
                         per = generalized_jsd_loss(s_logits, t_logits, labels=lab, beta=OFFICIAL["beta"], temperature=temp,
                                                    reduction="sum", token_clip=clip)
                 loss_i = per / max(n_tokens, 1)

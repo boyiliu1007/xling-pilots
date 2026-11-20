@@ -52,6 +52,27 @@ OBJECTIVE_VARIANTS = {"hot1.5": ("copsd", 1.5), "hot2.5": ("copsd", 2.5), "ul": 
 ROLLOUT_PREFIX, ROLLOUT_PEN = "rp", 1.1
 
 
+# Penalised-teacher variant "tp" (PREREGISTRATION 2026-11-15 penalised-teacher entry): the teacher's logits in the
+# loss get repetition penalty TEACHER_PEN over the tokens already generated (copsd.train.penalize_seen). Student
+# rollouts, clip and everything else official.
+TEACHER_PEN_VARIANT, TEACHER_PEN = "tp", 1.1
+
+
+def teacher_pen_of(name):
+    parts = name.split("__")
+    return TEACHER_PEN if len(parts) == 5 and parts[3] == TEACHER_PEN_VARIANT else 1.0
+
+
+# Extrapolated-teacher variant "x<a>" (PREREGISTRATION 2026-11-16 entry): target logits b + a * (t - b), b = frozen
+# base model on the student prompt (copsd.train teacher_extrap). Everything else official.
+EXTRAP_VARIANTS = {"x2": 2.0}
+
+
+def teacher_extrap_of(name):
+    parts = name.split("__")
+    return EXTRAP_VARIANTS.get(parts[3]) if len(parts) == 5 else None
+
+
 def _strip_rp(v):
     head, _, rest = v.partition("-")
     return (True, rest) if head == ROLLOUT_PREFIX else (False, v)
@@ -62,6 +83,20 @@ def _strip_rp(v):
 SFT_FILTERS = ("vote", "swvote", "nofilter", "gold", "lidvote")
 # "lidvote" (PREREGISTRATION 2026-11-17 ~22:00): offline rejection-sampling fine-tuning with arm C's reward = agrees
 # with the English vote AND passes the LID check (grpo.lid_fraction >= LID_MIN); not equalised with the other arms.
+
+
+# Teacher-written self-SFT arms (teacherwrite.py; PREREGISTRATION 2026-11-16 entry): variant "rp-<arm>" on the
+# selfsft-vote context, e.g. selfsft-vote__gsm8k-mt3k__exact__rp-twvote__s42. arm -> (teacher context, filter).
+TW_ARMS = {"twvote": ("L3-vote", "vote"), "twl1": ("L1", "vote"), "twgold": ("L3-gold", "gold")}
+
+
+def tw_of(name):
+    parts = name.split("__")
+    if len(parts) == 5:
+        v = _strip_rp(parts[3])[1]
+        if v in TW_ARMS:
+            return v
+    return None
 
 
 ROUND2 = "-r2"   # round 2 of self-SFT (PREREGISTRATION 2026-11-14 ~23:45): "rp-<filter>-r2"
@@ -118,6 +153,8 @@ def style_of(name):
 def parse_variant(v):
     """-> (init (source context, step) or None, clip). A leading style token (e.g. "enthink", "enthink-noclip")
     selects the prompt style; it is stripped here and read by style_of. So is a leading "rp" (rollout_pen_of)."""
+    if v == TEACHER_PEN_VARIANT or v in EXTRAP_VARIANTS:
+        return None, OFFICIAL_CLIP
     rp, v = _strip_rp(v)
     if rp and not v:
         return None, OFFICIAL_CLIP
@@ -126,7 +163,7 @@ def parse_variant(v):
     from .grpo import parse_variant as grpo_variant
     if grpo_variant(v) is not None:
         return None, None
-    if _strip_round(v) in SFT_FILTERS:
+    if _strip_round(v) in SFT_FILTERS or v in TW_ARMS:
         return None, OFFICIAL_CLIP
     head, _, rest = v.partition("-")
     if head in STYLE_VARIANTS:
@@ -245,7 +282,8 @@ def train_run(name, max_steps=MAX_STEPS):
     train(rd, ck, "swa", max_steps, include_problem_en=flags["include_problem_en"],
           include_reference_solution_en=flags["include_reference_solution_en"], seed=seed, layout=layout, rows=trows,
           data_desc=desc, reference_desc=f"{context}: {TEACHER_CONTEXTS[context]['note']}", clip=clip,
-          objective=objective, teacher_temp=teacher_temp, rollout_rep_pen=rollout_pen_of(name))
+          objective=objective, teacher_temp=teacher_temp, rollout_rep_pen=rollout_pen_of(name),
+          teacher_rep_pen=teacher_pen_of(name), teacher_extrap=teacher_extrap_of(name))
 
 
 STYLE_BASE_LEVEL = {"copsd": "L0", "en-think-sw": "L0-enthink-sw"}

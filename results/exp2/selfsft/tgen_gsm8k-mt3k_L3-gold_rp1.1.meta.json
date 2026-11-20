@@ -1,0 +1,28 @@
+{
+  "doc": "Teacher-written self-SFT: sequence-level self-distillation (PREREGISTRATION 2026-11-16 entry).\n\nJeff's penalty-decoded self-SFT (selfsft.py) samples the base model from the *student's* prompt (Swahili question\nonly), so it can only learn from questions the model already solves in Swahili (1.7B, GSM8K-MT 3k: 751 kept answers\non 498 of 2805 questions). Here the same base model *generates* from a *teacher* context (Swahili question + English\nquestion [+ reference], teacher_rows / the COPSD collator), with the student pool's sampling (T 1.1, top-p 0.95,\ntop-k 20, 2048 tokens, vLLM repetition penalty 1.1, n = GEN_N, same seed rule). A sample is kept when it finished,\nhas a final answer after </think>, is in Swahili and its answer equals the arm's target; at most PER_Q per question;\nthe kept set is subsampled (FILTER_SEED) to N_TARGET, the size of Jeff's student-written arms, so arms differ in\nwhere the text comes from, not in how much. Each kept record carries the *student* prompt ids: the student is\nfine-tuned (selfsft.train_sft, unchanged) to produce the teacher's answer from the Swahili question alone.\n\nArms (runs.TW_ARMS): twvote = L3-vote context (the model's own English majority-vote solution), filter = vote\n(gold-free; the method); twl1 = L1 context (English question only), filter = vote (gold-free); twgold = L3-gold\ncontext, filter = gold (oracle). Questions: the vote-accepted ones (source_rows(data, True)) for every arm.\n",
+  "context": "L3-gold",
+  "questions": 2752,
+  "gen_n": 8,
+  "seed": 42,
+  "repetition_penalty": 1.1,
+  "samples": 22016,
+  "finished": 20533,
+  "acc_vs_gold": 0.879860101744186,
+  "acc_vs_gold_finished": 0.942726342960113,
+  "lang": {
+    "sw": 20721,
+    "en": 1294,
+    "other": 1
+  },
+  "generation_s": 3936,
+  "versions": {
+    "python": "3.11.17",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  },
+  "created": "2026-11-17T01:34:00"
+}

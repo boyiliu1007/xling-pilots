@@ -260,7 +260,7 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
     rd, ck = paths(name)
     rd.mkdir(parents=True, exist_ok=True)
     ck.mkdir(parents=True, exist_ok=True)
-    from .runs import round1_of
+    from .runs import round1_of, tw_of
     r1 = round1_of(name)
     if r1:   # round K >= 2: pool sampled from the previous round's checkpoint in a separate process
         import subprocess
@@ -268,6 +268,10 @@ def train_sft(name, data, layout, seed, rep_pen=1.0, filt=None):
         if not (rd / "round2_pool.jsonl").exists():
             subprocess.run([sys.executable, "-m", "votedistill.exp2", "selfsft-gen-r2", "--name", name], check=True)
         recs = read_jsonl(rd / "round2_pool.jsonl")
+    elif tw_of(name):   # teacher-written pool (teacherwrite.py)
+        from .teacherwrite import kept
+        recs = kept(data, tw_of(name))
+        filt = f"teacher-written {tw_of(name)}"
     elif filt is None:
         recs = [r for r in generate(data, rep_pen) if r["keep"]]
     elif filt == "lidvote":   # C's reward, offline: own-sample answers agreeing with the English vote AND in Swahili

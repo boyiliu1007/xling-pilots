@@ -3,11 +3,35 @@ Teacher generation: base model sampled from each context's prompt; 100 COPSD tra
 ## budget train: {'temperature': 1.1, 'top_p': 0.95, 'top_k': 20, 'max_tokens': 2048}
   context               acc  pass@4  finished  closed   loop  acc|fin    sw    en  median chars
   L0-same             0.025   0.070     0.165   0.170  0.905    0.152  0.98  0.02          4578
-  L1                  0.018   0.050     0.070   0.087  0.930    0.250  0.96  0.04          4682
-  L2-gold             0.098   0.270     0.113   0.155  0.935    0.844  0.97  0.02          4708
-  L3-gold             0.318   0.730     0.357   0.390  0.765    0.867  0.95  0.05          4554
-  L3-shuffled-gold    0.043   0.160     0.240   0.275  0.873    0.177  0.94  0.06          4644
+  L1                  0.037   0.090     0.092   0.115  0.920    0.405  0.95  0.04          4674
+  L2-gold             0.133   0.410     0.142   0.188  0.927    0.877  0.97  0.03          4670
+  L3-gold             0.300   0.680     0.345   0.390  0.760    0.870  0.94  0.06          4530
+  L3-shuffled-gold    0.033   0.110     0.210   0.242  0.877    0.155  0.94  0.06          4651
+  L3-vote             0.281   0.636     0.489   0.344  0.619    0.570  0.93  0.07          4192
 
 ## budget eval: {'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_tokens': 4096}
   context               acc  pass@4  finished  closed   loop  acc|fin    sw    en  median chars
+  L0-same             0.020   0.060     0.130   0.147  0.922    0.154  0.99  0.01          9226
+  L1                  0.043   0.150     0.080   0.090  0.950    0.531  0.98  0.02          9353
+  L2-gold             0.115   0.400     0.115   0.165  0.958    0.978  0.98  0.02          9434
+  L3-gold             0.307   0.670     0.345   0.378  0.770    0.877  0.94  0.05          9113
+  L3-shuffled-gold    0.037   0.130     0.233   0.270  0.858    0.161  0.93  0.07          9283
+
+## budget train-rp: {'temperature': 1.1, 'top_p': 0.95, 'top_k': 20, 'max_tokens': 2048, 'repetition_penalty': 1.1}
+  context               acc  pass@4  finished  closed   loop  acc|fin    sw    en  median chars
+  L0-same             0.092   0.210     0.748   0.785  0.247    0.120  0.86  0.14          2526
+  L1                  0.210   0.410     0.570   0.613  0.275    0.368  0.73  0.27          3966
+  L2-gold             0.458   0.830     0.593   0.672  0.385    0.768  0.82  0.18          3832
+  L3-gold             0.655   0.940     0.762   0.785  0.328    0.856  0.88  0.12          2688
+  L3-shuffled-gold    0.163   0.390     0.677   0.723  0.390    0.236  0.79  0.21          3144
+  L3-vote             0.562   0.898     0.872   0.648  0.224    0.645  0.86  0.14          1869
+
+## budget eval-rp: {'temperature': 1.0, 'top_p': 0.95, 'top_k': -1, 'max_tokens': 4096, 'repetition_penalty': 1.1}
+  context               acc  pass@4  finished  closed   loop  acc|fin    sw    en  median chars
+  L0-same             0.160   0.320     0.943   0.950  0.147    0.170  0.79  0.21          2592
+  L1                  0.357   0.630     0.907   0.797  0.128    0.394  0.56  0.44          3972
+  L2-gold             0.777   0.980     0.932   0.927  0.095    0.834  0.72  0.28          3491
+  L3-gold             0.855   0.940     0.985   0.935  0.058    0.865  0.85  0.15          2521
+  L3-shuffled-gold    0.233   0.460     0.968   0.907  0.115    0.240  0.76  0.24          2976
+  L3-vote             0.668   0.909     0.986   0.753  0.028    0.677  0.85  0.15          1870
 
