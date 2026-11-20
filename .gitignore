@@ -21,3 +21,5 @@ results/exp2/teachergen/*.jsonl
 # large generations (over GitHub's 100 MB limit); kept on disk, backed up in /data/user_data/$USER/xling_bigfiles_backup
 results/*/selfsft/gen_*.jsonl
 results/*/consensus/gsm8k3k_en_thinking.jsonl
+# secrets: Bedrock API key for votedistill.judge (never commit)
+.bedrock_env
