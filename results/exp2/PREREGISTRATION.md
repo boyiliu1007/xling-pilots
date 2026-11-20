@@ -711,3 +711,22 @@ only if it passes. Decisions taken with the user, one by one:
   (final-only if within 2 points). D300-as-judge results are analysis only (does Swahili RL make a better judge?).
 - If the rule fails: no judge RL; report as a comprehension result. Not decided yet: in RL, frozen vs current-policy judge.
 Code: votedistill/exp2/judge.py (sample / score / report). Output: results/exp2_qwen3-4b/judge/.
+
+## 2026-11-20 ~14:40 — self-judge offline test: RESULTS (results/exp2_qwen3-4b/judge/report.txt)
+Answers: base 223 correct / 884 wrong / 370 unfinished / 123 not Swahili; D300 413 / 1087 / 81 / 19 (of 1600 each).
+Pairs: P1 495, P2 495, P3 495, P0 214. Pair accuracy, untrained 4B judge, with own English solution vs without:
+- P1 correct vs wrong: full 99.0 vs 67.6 (+31.4 [+25.9, +37.2]); final-only 99.4 vs 69.1 (+30.3 [+24.3, +36.4]).
+- P2 correct vs wrong-reasoning-with-gold-number: full 97.6 vs 98.4; final 93.3 vs 97.0.
+- P3 correct-reasoning-with-wrong-number vs the wrong answer with that number: full 41.6 vs 7.3; final 57.4 vs 8.5.
+- P0 correct vs unfinished: full 97.7 vs 99.1; final 59.8 vs 90.7.
+- D300 as judge: within ~±5 of the untrained judge everywhere (e.g. P3 final 58.8, P1 99.4).
+GO RULE: PASS (full 99.0%, final 99.4%; own-none CIs > 0); preregistered RL input = final.
+Exploratory (not preregistered), base judge with own solution: P(Yes) for correct answers 0.91 (final) / 0.97 (full),
+for wrong answers 0.003 / 0.11; 100% (final) / 75% (full) of wrong answers get P(Yes) < 0.01. Among the 439 wrong
+answers, Spearman(P(Yes), intermediate-step F1 vs the GOLD rationale) = +0.12 for both inputs.
+Reading: with its own English solution the judge checks whether the final answer matches the reference — the same
+information vote_ok already gives — and is near chance (P3) at crediting correct reasoning that ends in a wrong number.
+Without the reference it judges correctness at 68-72% (partial comprehension of Swahili solutions) and flags answers
+whose box contradicts their own reasoning (P2 ~98%, P3 ~8%). In all-wrong groups (52-64% of RL groups) the judge gives
+almost no spread, so a judge reward would mostly duplicate vote_ok. The go rule passed, but it was specified on P1,
+which measures answer matching; judge RL is NOT launched pending a decision with the user.

@@ -1,0 +1,25 @@
+Judge test (PREREGISTRATION 2026-11-20). Pair accuracy = P(better answer scored higher), ties 0.5.
+Pairs: P1=495 P2=495 P3=495 P0=214
+
+judge=base  input=full  P1  own:  99.0 [ 97.8, 100.0]  none:  67.6 [ 61.9,  73.1]  own-none +31.4 [+25.9, +37.2]
+judge=base  input=full  P2  own:  97.6 [ 96.0,  98.8]  none:  98.4 [ 97.0,  99.4]  own-none  -0.8 [ -2.4,  +0.8]
+judge=base  input=full  P3  own:  41.6 [ 35.2,  48.0]  none:   7.3 [  4.4,  10.5]  own-none +34.3 [+28.5, +40.2]
+judge=base  input=full  P0  own:  97.7 [ 95.0,  99.5]  none:  99.1 [ 97.6, 100.0]  own-none  -1.4 [ -3.5,  +0.5]
+
+judge=base  input=final P1  own:  99.4 [ 98.2, 100.0]  none:  69.1 [ 63.2,  74.9]  own-none +30.3 [+24.3, +36.4]
+judge=base  input=final P2  own:  93.3 [ 90.0,  96.3]  none:  97.0 [ 95.1,  98.6]  own-none  -3.6 [ -7.0,  -0.6]
+judge=base  input=final P3  own:  57.4 [ 51.2,  63.3]  none:   8.5 [  5.1,  12.4]  own-none +48.9 [+42.0, +55.5]
+judge=base  input=final P0  own:  59.8 [ 49.3,  69.5]  none:  90.7 [ 84.6,  95.8]  own-none -30.8 [-41.0, -21.1]
+
+judge=d300  input=full  P1  own:  99.0 [ 97.4, 100.0]  none:  69.1 [ 63.4,  74.7]  own-none +29.9 [+24.1, +35.7]
+judge=d300  input=full  P2  own:  97.6 [ 95.9,  99.0]  none:  98.4 [ 97.0,  99.4]  own-none  -0.8 [ -2.6,  +0.8]
+judge=d300  input=full  P3  own:  46.3 [ 40.0,  52.6]  none:   8.7 [  5.4,  12.5]  own-none +37.6 [+31.8, +43.6]
+judge=d300  input=full  P0  own:  97.7 [ 95.0,  99.5]  none:  99.1 [ 97.6, 100.0]  own-none  -1.4 [ -3.5,  +0.5]
+
+judge=d300  input=final P1  own:  99.4 [ 98.2, 100.0]  none:  71.7 [ 66.1,  77.2]  own-none +27.7 [+22.1, +33.3]
+judge=d300  input=final P2  own:  93.1 [ 89.9,  96.0]  none:  96.9 [ 94.5,  98.8]  own-none  -3.7 [ -7.2,  -0.4]
+judge=d300  input=final P3  own:  58.8 [ 52.5,  64.7]  none:   7.7 [  4.4,  11.5]  own-none +51.1 [+44.5, +57.5]
+judge=d300  input=final P0  own:  61.7 [ 51.1,  71.5]  none:  89.7 [ 83.6,  95.0]  own-none -28.0 [-38.5, -18.2]
+
+GO RULE (base judge, own solution, P1 >= 65% and own-none CI > 0): full: 99.0% PASS  final: 99.4% PASS
+=> GO; RL judge input: final
