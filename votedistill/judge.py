@@ -40,7 +40,7 @@ Auth: a Bedrock API key in AWS_BEARER_TOKEN_BEDROCK and AWS_REGION, read from th
   E=results/exp2/decode/<run>/eval/step100_test.jsonl
   $PY -m votedistill.judge run $E --items 20 --samples 1 --dry-run   # plan and first prompt, sends nothing
   $PY -m votedistill.judge run $E --items 20 --samples 1             # pilot: measured cost per judgment
-  $PY -m votedistill.judge run $E --budget 20                        # all 200 items x 1 sample, stops at $20
+  $PY -m votedistill.judge run $E --budget 20                        # all 200 items x 3 samples, stops at $20
   $PY -m votedistill.judge report results/judge/<run>/step100_test.jsonl
   $PY -m votedistill.judge compare <baseline judged.jsonl> <method judged.jsonl>
   $PY -m votedistill.judge run $E --items 40 --samples 1 --out results/judge/<run>/step100_test.retest.jsonl
@@ -661,7 +661,7 @@ def main(argv=None):
                                  "the reference. Without it: gold answer only")
     r.add_argument("--bench", choices=["afrimgsm", "msvamp"], default="afrimgsm")
     r.add_argument("--items", type=int, default=0, help="seeded random subset of items (0 = all)")
-    r.add_argument("--samples", type=int, default=1, help="first K samples per item (default 1; 0 = all)")
+    r.add_argument("--samples", type=int, default=3, help="first K samples per item (default 3; 0 = all)")
     r.add_argument("--seed", type=int, default=42)
     r.add_argument("--budget", type=float, default=20.0, help="stop sending once this many USD are spent (list price)")
     r.add_argument("--model", default=DEFAULT_MODEL, help="Bedrock model id, e.g. anthropic.claude-sonnet-5-5")
