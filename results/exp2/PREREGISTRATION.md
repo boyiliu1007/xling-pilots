@@ -701,7 +701,8 @@ only if it passes. Decisions taken with the user, one by one:
   P3 correct-reasoning-with-wrong-number (a correct answer whose final number is replaced by a wrong answer's) vs that
      same wrong answer (both end in the same number; only the reasoning differs);
   P0 correct vs unfinished (easy group, reported separately).
-  Splice: replace the \boxed{} content and the old final number in the text after </think>.
+  Splice: replace the \boxed{} content after </think> only. (Amended before any judge score existed: replacing the
+  old number everywhere after </think> also rewrote the solution's arithmetic, e.g. "68 - 4 = 220".)
   A pair is judged right if the better answer gets the higher score (tie = 0.5).
 - Conditions (2×2×2): judge ∈ {untrained 4B, D300}; reference ∈ {own English solution, none};
   answer text ∈ {full (thinking + solution), final solution only}.

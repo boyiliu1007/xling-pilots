@@ -95,14 +95,13 @@ def sample():
 
 # ---------------------------------------------------------------- 2. build pairs (incl. spliced answers)
 def splice(text, old, new):
-    """Replace the final number: the \\boxed{} content and the old number elsewhere after </think>."""
+    """Replace only the final answer (the \\boxed{} content after </think>); the reasoning stays as written.
+    (Replacing the old number everywhere after </think> also rewrote the solution's arithmetic, e.g. '68 - 4 = 220'.)"""
     head, sep, tail = text.partition("</think>")
-    if not sep:
+    if not sep or not re.search(r"\\boxed\{", tail):
         return None
-    tail = re.sub(r"\\boxed\{[^{}]*\}", lambda m: "\\boxed{" + str(new) + "}", tail)
-    if old:
-        tail = re.sub(r"(?<![\d.])" + re.escape(str(old)) + r"(?![\d])", str(new), tail)
-    return head + sep + tail
+    new_tail = re.sub(r"\\boxed\{(?:[^{}]|\{[^{}]*\})*\}", lambda m: "\\boxed{" + str(new) + "}", tail)
+    return None if new_tail == tail else head + sep + new_tail
 
 
 def build_items_and_pairs():
