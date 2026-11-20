@@ -749,3 +749,16 @@ GO RULE 2 (per judge variant: B-base, B-d300, D-{base,d300}-{full,final}): P4 ac
 bootstrap 95% CI lower bound > 50%, AND P1 >= 90%. If several pass, the RL candidate is the one with the highest P4.
 Six variants are tested, so a pass with CI lower bound in 50-52% is treated as weak. P3 (credits correct reasoning
 with a wrong number) reported for all.
+
+## 2026-11-20 ~15:15 — second judge test: RESULTS (results/exp2_qwen3-4b/judge/report2.txt)
+Pairs: P1 495, P3 495, P4 137 (wrong vs wrong). Pair accuracy (question-clustered 95% CI):
+- B reasoning-only likelihood: P1 87.3 / 87.9 (base / D300 judge), P3 88.1 / 87.3, P4 54.0 [45.0, 63.3] / 51.1 [40.4, 61.8].
+- D masked reference: P1 83.2-91.3, P3 13.9-18.8, P4 52.9-61.3 (best D-base-final 61.3 [49.6, 72.5]).
+- Comparators: yes/no judge P4 53.3-59.9; number overlap (D's current term) P1 86.0, P3 83.5, P4 90.9 [85.5, 95.5].
+GO RULE 2: no variant passes (no P4 CI above 50%). No judge RL.
+Caveat: the P4 label (intermediate-number F1 vs the gold rationale) is itself a number-overlap measure, so number
+overlap's 90.9% is partly by construction; P4 cannot show that a judge is worse than number overlap at real partial
+correctness, only that neither self-judge tracks this proxy. Reading: the model, used as its own judge, recognises
+correct answers (B credits correct reasoning even when the written number is wrong: P3 88%; the yes/no judge matches
+final answers: P1 99%), but no cheap self-judge ranks wrong answers above chance. Masking the reference's final number
+makes the judge reward answers whose box agrees with their own reasoning (P3 14-19%), not reasoning quality.
