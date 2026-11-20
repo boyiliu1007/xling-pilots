@@ -262,8 +262,161 @@ def report():
     print(txt)
 
 
+# ================================================================ second test (PREREGISTRATION 2026-11-20 ~15:30)
+P4_SEED, P4_MIN_GAP = 11, 0.25
+
+
+def _gold_solutions():
+    from .trainsets import _gsm8k_rows
+    return {r["qid"]: r["solution"] for r in _gsm8k_rows("gsm8k-mt3k")}
+
+
+def p4_pairs(items, qinfo):
+    """Wrong vs wrong: 'better' = higher intermediate-step F1 vs the gold rationale (gap >= P4_MIN_GAP)."""
+    from .grpo import step_f1
+    gold = _gold_solutions()
+    rng = random.Random(P4_SEED)
+    wrong = [it for it in items if it["kind"] == "wrong"]
+    for it in wrong:
+        it["step_f1_gold"] = step_f1(it["text"], gold[it["qid"]], qinfo[it["qid"]]["question"])
+    pairs = []
+    for key, grp in itertools.groupby(sorted(wrong, key=lambda it: (it["policy"], it["qid"], it["id"])),
+                                      key=lambda it: (it["policy"], it["qid"])):
+        cand = [(a, b) if a["step_f1_gold"] > b["step_f1_gold"] else (b, a)
+                for a, b in itertools.combinations(list(grp), 2)
+                if abs(a["step_f1_gold"] - b["step_f1_gold"]) >= P4_MIN_GAP]
+        for a, b in rng.sample(cand, min(PAIRS_PER_TYPE, len(cand))):
+            pairs.append({"type": "P4", "policy": key[0], "qid": key[1], "better": a["id"], "worse": b["id"]})
+    return pairs
+
+
+def mask_ref(ref, vote):
+    """Own English solution with the boxed answer and every standalone occurrence of the vote number hidden."""
+    t = re.sub(r"\\boxed\{(?:[^{}]|\{[^{}]*\})*\}", lambda m: "\\boxed{?}", ref)
+    v = str(vote)
+    alts = {v, v.rstrip("0").rstrip(".") if "." in v else v, f"{float(v):,.0f}" if re.fullmatch(r"\d+", v) else v}
+    for a in sorted(alts, key=len, reverse=True):
+        t = re.sub(r"(?<![\d.,])" + re.escape(a) + r"(?![\d]|\.\d|,\d)", lambda m: "?", t)
+    return t
+
+
+def judge_score2():
+    """Judges B (reasoning-only likelihood) and D (masked reference) for every item in pairs + P4 pairs."""
+    from transformers import AutoTokenizer
+    from vllm import LLM, SamplingParams
+    from vllm.lora.request import LoRARequest
+    from ..copsd.collator import make_collator
+    from ..copsd.config import OFFICIAL
+    from ..gpu import wait_for_gpu
+    from ..paths import MODEL
+    from .grpo import question_rows
+    from .screen import _prompt_ids
+    out = OUT / "scores2.jsonl"
+    if out.exists():
+        log.info(f"[skip] {out} exists")
+        return
+    items = list(read_jsonl(OUT / "items.jsonl"))
+    qinfo = {q["qid"]: q for q in json.load(open(OUT / "questions.json"))}
+    pairs = list(read_jsonl(OUT / "pairs.jsonl")) + p4_pairs(items, qinfo)
+    write_jsonl(OUT / "pairs2.jsonl", pairs)
+    log.info("pairs: " + " ".join(f"{t}={sum(p['type'] == t for p in pairs)}" for t in ("P1", "P2", "P3", "P0", "P4")))
+    need = sorted({p["better"] for p in pairs} | {p["worse"] for p in pairs})
+    tok = AutoTokenizer.from_pretrained(MODEL)
+    col = make_collator(tok, OFFICIAL["max_length"], False, False)
+    rows = {r["qid"]: r for r in question_rows("gsm8k-mt3k", "votelidref")}
+    student = {qid: _prompt_ids(col, rows[qid], "student") for qid in qinfo}
+
+    def b_ids(it):
+        """(full token ids, number of target tokens) for judge B."""
+        think = it["text"].split("</think>", 1)[0]
+        ctx = student[it["qid"]] + tok(think + "</think>\n\n$\\boxed{", add_special_tokens=False)["input_ids"]
+        tgt = tok(str(qinfo[it["qid"]]["vote"]) + "}", add_special_tokens=False)["input_ids"]
+        return ctx + tgt, len(tgt)
+
+    def d_prompt(it, inp):
+        q = qinfo[it["qid"]]
+        ans = it["text"] if inp == "full" else (final_text(it["text"], True) or "").strip()
+        body = PROMPT_REF.format(question=q["question"], ref=mask_ref(q["ref"], q["vote"]), answer=ans)
+        return tok.apply_chat_template([{"role": "user", "content": body}], tokenize=False,
+                                       add_generation_prompt=True, enable_thinking=False)
+    wait_for_gpu()
+    llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.85, enable_lora=True, max_lora_rank=64,
+              max_loras=1, max_model_len=6144, enable_prefix_caching=True, seed=0)
+    recs = []
+    for ji, (judge, adapter) in enumerate(JUDGES.items()):
+        lora = LoRARequest(judge, ji + 1, str(adapter)) if adapter else None
+        enc = [b_ids(items[i]) for i in need]
+        outs = llm.generate([{"prompt_token_ids": ids} for ids, _ in enc],
+                            SamplingParams(max_tokens=1, temperature=0.0, prompt_logprobs=0), lora_request=lora)
+        for i, (ids, k), o in zip(need, enc, outs):
+            lp = sum(o.prompt_logprobs[j][ids[j]].logprob for j in range(len(ids) - k, len(ids)))
+            recs.append({"item": i, "judge": judge, "variant": "B", "input": "think", "score": lp})
+        log.info(f"scored B judge={judge}")
+        for inp in INPUTS:
+            outs = llm.generate([d_prompt(items[i], inp) for i in need],
+                                SamplingParams(max_tokens=1, temperature=0.0, logprobs=20), lora_request=lora)
+            for i, o in zip(need, outs):
+                recs.append({"item": i, "judge": judge, "variant": "D", "input": inp,
+                             "score": p_yes(o.outputs[0].logprobs[0])})
+            log.info(f"scored D judge={judge} input={inp}")
+    write_jsonl(out, recs)
+
+
+def report2():
+    from .grpo import ref_f1
+    items = {it["id"]: it for it in read_jsonl(OUT / "items.jsonl")}
+    qinfo = {q["qid"]: q for q in json.load(open(OUT / "questions.json"))}
+    pairs = list(read_jsonl(OUT / "pairs2.jsonl"))
+    S = {}
+    for r in read_jsonl(OUT / "scores2.jsonl"):
+        S[(r["variant"], r["judge"], r["input"], r["item"])] = r["score"]
+    for r in read_jsonl(OUT / "scores.jsonl"):
+        if r["ref"] == "own":
+            S[("yesno", r["judge"], r["input"], r["item"])] = r["p_yes"]
+    for i, it in items.items():
+        S[("numF1", "-", "full", i)] = ref_f1(it["text"], qinfo[it["qid"]]["ref"])
+    variants = [("B", j, "think") for j in JUDGES] + [("D", j, x) for j in JUDGES for x in INPUTS] + \
+               [("yesno", j, x) for j in JUDGES for x in INPUTS] + [("numF1", "-", "full")]
+
+    def acc(v, ptype):
+        by_q = {}
+        for p in pairs:
+            if p["type"] == ptype and (*v, p["better"]) in S:
+                b, w = S[(*v, p["better"])], S[(*v, p["worse"])]
+                by_q.setdefault((p["policy"], p["qid"]), []).append(1.0 if b > w else 0.5 if b == w else 0.0)
+        return {k: np.array(x) for k, x in by_q.items()}
+    lines = ["Second judge test (PREREGISTRATION 2026-11-20 ~15:30). Pair accuracy, ties 0.5; CI = question-clustered.",
+             "Pairs: " + " ".join(f"{t}={sum(p['type'] == t for p in pairs)}" for t in ("P1", "P2", "P3", "P0", "P4")),
+             "", f"{'variant':24s} " + "  ".join(f"{t:>20s}" for t in ("P1", "P3", "P4", "P4 ties")) + "   P4 - numF1"]
+    num = acc(("numF1", "-", "full"), "P4")
+    res = {}
+    for v in variants:
+        cells = []
+        for t in ("P1", "P3", "P4"):
+            m, lo, hi = _boot_ci(list(acc(v, t).values()))
+            cells.append(f"{100 * m:5.1f} [{100 * lo:4.1f},{100 * hi:5.1f}]")
+            res[(v, t)] = (m, lo)
+        a4 = acc(v, "P4")
+        ties = np.mean(np.concatenate(list(a4.values())) == 0.5)
+        d, lo, hi = _boot_ci([a4[k] - num[k] for k in a4])
+        lines.append(f"{'-'.join(v):24s} " + "  ".join(f"{c:>20s}" for c in cells) + f"  {100 * ties:17.1f}%"
+                     + f"   {100 * d:+5.1f} [{100 * lo:+5.1f},{100 * hi:+5.1f}]")
+    lines.append("")
+    passing = [v for v in variants if v[0] in ("B", "D") and res[(v, "P4")][0] >= 0.60 and res[(v, "P4")][1] > 0.50
+               and res[(v, "P1")][0] >= 0.90]
+    lines.append("GO RULE 2 (B/D variants: P4 >= 60%, CI lo > 50%, P1 >= 90%): "
+                 + (", ".join(f"{'-'.join(v)} PASS (P4 {100 * res[(v, 'P4')][0]:.1f}, lo {100 * res[(v, 'P4')][1]:.1f})"
+                              for v in passing) or "no variant passes"))
+    if passing:
+        best = max(passing, key=lambda v: res[(v, "P4")][0])
+        lines.append(f"=> RL candidate: {'-'.join(best)}" + (" (weak: CI lo < 52%)" if res[(best, 'P4')][1] < 0.52 else ""))
+    txt = "\n".join(lines)
+    (OUT / "report2.txt").write_text(txt + "\n")
+    print(txt)
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1]
     OUT.mkdir(parents=True, exist_ok=True)
     setup_logging(OUT / "logs" / f"{cmd}.log")
-    {"sample": sample, "score": judge_score, "report": report}[cmd]()
+    {"sample": sample, "score": judge_score, "report": report, "score2": judge_score2, "report2": report2}[cmd]()

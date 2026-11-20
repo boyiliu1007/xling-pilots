@@ -730,3 +730,22 @@ Without the reference it judges correctness at 68-72% (partial comprehension of 
 whose box contradicts their own reasoning (P2 ~98%, P3 ~8%). In all-wrong groups (52-64% of RL groups) the judge gives
 almost no spread, so a judge reward would mostly duplicate vote_ok. The go rule passed, but it was specified on P1,
 which measures answer matching; judge RL is NOT launched pending a decision with the user.
+
+## 2026-11-20 ~15:30 — PREREGISTERED: second judge test — can a self-judge rank WRONG answers?
+Motivation: the yes/no judge with its own English solution only matches the final number (wrong answers P(Yes)
+~0.003). The user wants the limit of self-judging tested. Same 200 questions, same sampled answers and pairs, plus a new
+pair type. Judges (user choices; cheap one-forward-pass judges only):
+- B reasoning-only likelihood: context = the policy's student prompt + the answer's thinking (text up to </think>;
+  all of it if unfinished) + "</think>\n\n$\boxed{"; score = log P(own vote answer + "}") (prompt logprobs, no
+  generation). Uses the vote, not the English solution text. Judges: untrained 4B, D300.
+- D masked reference: the yes/no judge (PROMPT_REF) with the own English solution's \boxed{} answer and every
+  standalone occurrence of the vote number replaced by "?". Judges: untrained 4B, D300; inputs full, final.
+- Comparators scored on the same pairs (no GPU): the first test's yes/no judge, and number overlap ref_f1 vs the own
+  English solution (D's current term, full text).
+New pair type P4 wrong vs wrong: two real wrong answers (finished, Swahili, wrong) to the same question from the same
+policy; "better" = higher intermediate-step F1 vs the GOLD rationale (step_f1, question numbers excluded; gold only
+labels), pairs only if the F1 difference >= 0.25; up to 4 per question and policy (seed 11).
+GO RULE 2 (per judge variant: B-base, B-d300, D-{base,d300}-{full,final}): P4 accuracy >= 60% with question-clustered
+bootstrap 95% CI lower bound > 50%, AND P1 >= 90%. If several pass, the RL candidate is the one with the highest P4.
+Six variants are tested, so a pass with CI lower bound in 50-52% is treated as weak. P3 (credits correct reasoning
+with a wrong number) reported for all.
