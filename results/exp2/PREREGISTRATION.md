@@ -762,3 +762,24 @@ correctness, only that neither self-judge tracks this proxy. Reading: the model,
 correct answers (B credits correct reasoning even when the written number is wrong: P3 88%; the yes/no judge matches
 final answers: P1 99%), but no cheap self-judge ranks wrong answers above chance. Masking the reference's final number
 makes the judge reward answers whose box agrees with their own reasoning (P3 14-19%), not reasoning quality.
+
+## 2026-11-20 ~15:40 — PREREGISTERED: third judge test — stronger self-judges, independent wrong-vs-wrong labels
+User choices: judges A, C, E, F (below); wrong-vs-wrong labels from Qwen3-8B (thinking) with the gold solution, used
+ONLY to label evaluation pairs. Same 200 questions and sampled answers. All judges: untrained Qwen3-4B (D300 was within
+~±5 of it in both earlier tests), own English voted solution as reference, final solution only (median ~100 words;
+cheaper; the yes/no judge was no worse on it).
+- A graded: non-thinking; "how much of the reasoning is correct, 0 (nothing) to 9 (fully correct)? one digit";
+  score = expected digit from the first token's top-20 logprobs.
+- C pairwise: non-thinking; "which answer is closer to a fully correct solution? A or B"; P(A) normalised; both
+  orders; preference for the better answer = mean of P(better) over the two orders; right if > 0.5.
+- E translate-then-judge: the 4B translates the final solution into English (non-thinking, greedy, <= 1024 tokens),
+  then judge A's graded prompt on the English translation (same reference).
+- F thinking judge: judge A's question in thinking mode (T 0.6, top-p 0.95, top-k 20, <= 3072 new tokens), ending
+  "Score: k"; score = expected digit at the token after the last "Score:" (top-20 logprobs).
+Labels P5 (wrong vs wrong): up to 3 random pairs of real wrong answers per question and policy (seed 13). Qwen3-8B,
+thinking mode (T 0.6, top-p 0.95, top-k 20, <= 6144 tokens), sees the Swahili problem, the GOLD English solution and
+both final solutions, and answers "Verdict: A/B" = more correct reasoning before the first mistake. Both orders; a pair
+is kept only if both orders agree (agreement rate reported).
+Evaluated: P1, P3, P4 (gold-number label), P5 (8B label). Comparators on the same pairs: number overlap, yes/no-final,
+B, D-final. GO RULE 3 (A, C, E, F): P5 accuracy >= 60% with question-clustered 95% CI lower bound > 50%, AND P1 >= 90%.
+Four variants tested; a pass with CI lower bound < 52% is weak. RL cost noted: E and F need generation per answer.
