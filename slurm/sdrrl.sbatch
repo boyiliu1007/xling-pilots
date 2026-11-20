@@ -27,6 +27,7 @@ PY=${PY:-/data/user_data/$USER/envs/vllm_pilot/bin/python}
 COMET_PY=${COMET_PY:-/data/user_data/$USER/envs/comet/bin/python}   # separate env: uv pip install unbabel-comet "setuptools<81"
 export BASE_MODEL=${BASE_MODEL:-Qwen/Qwen3-4B}
 export HF_HOME=${HF_HOME:-/data/user_data/$USER/hf_cache}            # the comet env does not import votedistill.paths
+export PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}
 DATA=${DATA:-gsm8k-mt3k}
 NAME=sdrrl__${DATA}__exact${VARIANT:+__$VARIANT}__s${SEED:-42}
 echo "host $(hostname) job ${SLURM_JOB_ID:-none} gpu $(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) model $BASE_MODEL run $NAME git $(git rev-parse --short HEAD)$(git diff --quiet HEAD -- votedistill slurm || echo '+dirty')"
