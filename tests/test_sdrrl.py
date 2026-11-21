@@ -187,3 +187,12 @@ def test_gsm8k_question_rows_match_consensus_ids():
     assert len(rows) == 2805                                         # NLLB QC passes (Experiment 2)
     q, r = next(iter(rows.items()))
     assert isinstance(q, int) and r["problem"] and r["problem_translated"] and r["qid"] == q
+
+
+def test_grpo_warm_start_variant():
+    from votedistill.exp2.grpo import parse_variant
+    from votedistill.exp2.runs import parse_name
+    v = parse_variant("votelidref-lr5e-6-q16-steps300-initsdrrl")
+    assert v["kind"] == "votelidref" and v["steps"] == 300 and v["init"] == "sdrrl" and v["lr"] == 5e-6
+    assert parse_variant("votelidref-lr5e-6-q16-steps300")["init"] is None          # Jeff's runs unchanged
+    assert parse_name("grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initsdrrl__s42")[0] == "grpo"

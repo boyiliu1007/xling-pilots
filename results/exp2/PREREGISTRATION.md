@@ -664,3 +664,17 @@ translated SFT. Note: the tgt_en subset trains Swahili questions -> English answ
 (LID) while gaining any-language accuracy; both are reported and the primary metric stays Swahili accuracy.
 Prediction: none recorded. Person C chose (2026-11-19, before any SDRRL training or evaluation) to run the paper's
 design as specified without a directional prediction; the contrasts and reading rule above are fixed.
+
+## 2026-11-21 — EXPLORATORY (Person C): SDRRL warm start, then our method's RL (chosen after seeing SDRRL s42)
+
+SDRRL s42 (TEST, default decoding): Swahili accuracy (LID) 48.8 vs D 25.2 (D − SDRRL −23.6 [−29.0, −18.1]); of its
+finished Swahili outputs 78.6% are correct (D 26.2%); 34.5% of its outputs hit the 4096-token limit (long Swahili
+solutions, 1.3% loops). Question: does our method's RL add anything on top of translated SFT?
+Run `grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initsdrrl__s42`: D exactly (votelidref, lr 5e-6, q16,
+300 steps, 2048-token rollouts, fresh AdamW, s42), except that the LoRA adapter starts from SDRRL s42's final
+checkpoint (step 1108) and step 1 samples from it. Known before training: under the 2048-token rollout cap SDRRL
+finishes only 35.7% of TEST samples (median finished length 1962 tokens vs D's 1004), so the answer reward is 0 for
+most early rollouts and the RL will push towards shorter outputs; the cap is kept to change one thing only.
+Evaluation as every Qwen3-4B run (TEST, final checkpoint, default + penalty 1.1). Contrasts: SDRRL→D − SDRRL (what RL
+adds on top), SDRRL→D − D (what the warm start adds), both on Swahili accuracy (LID) and any-language accuracy, with the
+finish / Swahili / correct-when-finished breakdown. Descriptive: one seed, chosen post hoc; no prediction recorded.

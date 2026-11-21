@@ -153,7 +153,26 @@ def ref_f1(text, ref):
 
 
 _VARIANT = re.compile(r"(?P<kind>[a-z]+)(?:-lr(?P<lr>[0-9.]+(?:e-?[0-9]+)?))?(?:-q(?P<q>[0-9]+))?(?:-steps(?P<steps>[0-9]+))?"
-                      r"(?:-lid(?P<lid>0\.[0-9]+))?(?:-det(?P<det>sw2|wl))?(?:-cor(?P<cor>0\.[0-9]+))?")
+                      r"(?:-lid(?P<lid>0\.[0-9]+))?(?:-det(?P<det>sw2|wl))?(?:-cor(?P<cor>0\.[0-9]+))?"
+                      r"(?:-init(?P<init>[a-z0-9]+))?")
+
+# Warm start (-init<tag>; PREREGISTRATION 2026-11-21 SDRRL -> GRPO entry): the LoRA adapter starts from another run's
+# final checkpoint instead of from zero; optimizer, schedule and everything else as without it. tag -> that run's name
+# for this run's data and seed.
+INITS = {"sdrrl": lambda data, seed: f"sdrrl__{data}__exact__s{seed}"}
+
+
+def init_adapter(init, data, seed):
+    """(run name, step, adapter dir) of a warm start's source checkpoint."""
+    from .runs import final_step, paths
+    if init not in INITS:
+        raise SystemExit(f"unknown -init {init}; known {list(INITS)}")
+    src = INITS[init](data, seed)
+    step = final_step(src)
+    d = paths(src)[1] / f"step-{step}"
+    if not (d / "COMPLETE").exists():
+        raise SystemExit(f"warm start: {d} is not a complete checkpoint (train {src} first)")
+    return src, step, d / "adapter"
 
 
 def parse_variant(variant):
@@ -166,7 +185,7 @@ def parse_variant(variant):
     return dict(kind=m["kind"], lr=float(m["lr"]) if m["lr"] else LR,
                 questions_per_step=int(m["q"]) if m["q"] else QUESTIONS_PER_STEP,
                 steps=int(m["steps"]) if m["steps"] else STEPS, lid=float(m["lid"]) if m["lid"] else None,
-                det=m["det"], cor=float(m["cor"]) if m["cor"] else 0.0)
+                det=m["det"], cor=float(m["cor"]) if m["cor"] else 0.0, init=m["init"])
 
 
 def parse_kind(variant):
@@ -352,8 +371,10 @@ def train_grpo(name, data, seed, kind):
     if v["cor"]:
         rows = corrupt_votes(rows, v["cor"])
     sched = schedule(len(rows), seed, n_steps, per_step)
+    init = init_adapter(v["init"], data, seed) if v["init"] else None
     write_json(rd / "config.json", {
         "model": MODEL, "method": "GRPO (grpo.py)", "doc": __doc__, "reward": kind, "data": data, "ablation": v,
+        "init": {"run": init[0], "step": init[1], "adapter": str(init[2])} if init else None,
         "questions": len(rows), "steps": n_steps, "questions_per_step": per_step, "group": GROUP,
         "max_tokens": MAX_TOKENS, "lr": lr, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
         "lora": {k: OFFICIAL[k] for k in ("lora_r", "lora_alpha", "lora_target_modules")}, "versions": versions(),
@@ -390,6 +411,9 @@ def train_grpo(name, data, seed, kind):
             keep = [l for l in rf.read_text().splitlines() if json.loads(l)["step"] <= start]
             rf.write_text("".join(l + "\n" for l in keep))
         log.info(f"RESUMED from {d}")
+    elif init:   # warm start: adapter weights only; fresh optimizer, as for a run from zero
+        set_peft_model_state_dict(model, load_file(str(init[2] / "adapter_model.safetensors")))
+        log.info(f"WARM START: LoRA adapter from {init[0]} step {init[1]} ({init[2]})")
     if not log_csv.exists():
         log_csv.write_text(LOG_HEADER)
     sync_dir = Path(f"/tmp/votedistill_grpo_adapter_{os.environ.get('SLURM_JOB_ID', os.getpid())}")
@@ -398,7 +422,7 @@ def train_grpo(name, data, seed, kind):
     for step in range(start + 1, n_steps + 1):
         t0 = time.time()
         lora = None
-        if step > 1:
+        if step > 1 or init:   # step 1 samples the base model, unless the adapter was warm-started
             if sync_dir.exists():
                 shutil.rmtree(sync_dir)
             model.save_pretrained(str(sync_dir))
