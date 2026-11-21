@@ -657,10 +657,127 @@ def report3():
     (OUT / "report3.txt").write_text(txt + "\n")
     print(txt)
 
+# ================================================================ fourth test (PREREGISTRATION 2026-11-20 ~19:50)
+LW_SEED, LW_SIZE, LW_REPEATS = 17, 4, 3
+LISTWISE = HEAD + "{answers}\n\nWhich answer is closest to a fully correct solution? Reply with one letter."
+
+
+def _lists(ids, rng):
+    """Random lists of size <= LW_SIZE so every id appears about LW_REPEATS times."""
+    ids = list(ids)
+    if len(ids) <= LW_SIZE:
+        return [rng.sample(ids, len(ids)) for _ in range(LW_REPEATS)]
+    out = []
+    for _ in range(LW_REPEATS):
+        perm = rng.sample(ids, len(ids))
+        chunks = [perm[k:k + LW_SIZE] for k in range(0, len(perm), LW_SIZE)]
+        if len(chunks[-1]) < LW_SIZE:                     # top up the last list with other ids
+            chunks[-1] += rng.sample([i for i in ids if i not in chunks[-1]], LW_SIZE - len(chunks[-1]))
+        out += chunks
+    return out
+
+
+def score4():
+    from transformers import AutoTokenizer
+    from vllm import LLM, SamplingParams
+    from ..gpu import wait_for_gpu
+    from ..paths import MODEL
+    out = OUT / "scores4.jsonl"
+    if out.exists():
+        log.info(f"[skip] {out} exists")
+        return
+    items = list(read_jsonl(OUT / "items.jsonl"))
+    qinfo = {q["qid"]: q for q in json.load(open(OUT / "questions.json"))}
+    pairs = [p for p in read_jsonl(OUT / "pairs2.jsonl") if p["type"] in ("P1", "P3")] + \
+        list(read_jsonl(OUT / "pairs5.jsonl"))
+    groups = {}
+    for p in pairs:
+        groups.setdefault((p["policy"], p["qid"]), set()).update([p["better"], p["worse"]])
+    rng = random.Random(LW_SEED)
+    lists = [(k, lst) for k, ids in sorted(groups.items()) for lst in _lists(sorted(ids), rng)]
+    tok = AutoTokenizer.from_pretrained(MODEL)
+    L = "ABCDEFGH"
+
+    def prompt(qid, lst):
+        q = qinfo[qid]
+        ans = "\n\n".join(f"Answer {L[j]}:\n{_final(items[i])}" for j, i in enumerate(lst))
+        body = LISTWISE.format(question=q["question"], ref=q["ref"], answers=ans)
+        return tok.apply_chat_template([{"role": "user", "content": body}], tokenize=False,
+                                       add_generation_prompt=True, enable_thinking=False)
+    wait_for_gpu()
+    llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.85, max_model_len=8192,
+              enable_prefix_caching=True, seed=0)
+    outs = llm.generate([prompt(k[1], lst) for k, lst in lists], SamplingParams(max_tokens=1, temperature=0.0, logprobs=20))
+    recs = []
+    for (k, lst), o in zip(lists, outs):
+        p = np.zeros(len(lst))
+        for lp in o.outputs[0].logprobs[0].values():
+            t = (lp.decoded_token or "").strip()
+            if len(t) == 1 and t in L[:len(lst)]:
+                p[L.index(t)] += float(np.exp(lp.logprob))
+        p = p / p.sum() if p.sum() > 0 else np.full(len(lst), 1 / len(lst))
+        for j, i in enumerate(lst):
+            recs.append({"item": i, "policy": k[0], "qid": k[1], "pos": j, "size": len(lst), "score": float(p[j] * len(lst))})
+    write_jsonl(out, recs)
+    log.info(f"scored LW: {len(lists)} lists, {len(recs)} appearances")
+
+
+def report4():
+    from .grpo import ref_f1
+    items = {it["id"]: it for it in read_jsonl(OUT / "items.jsonl")}
+    qinfo = {q["qid"]: q for q in json.load(open(OUT / "questions.json"))}
+    pairs = [p for p in read_jsonl(OUT / "pairs2.jsonl") if p["type"] in ("P1", "P3")] + \
+        list(read_jsonl(OUT / "pairs5.jsonl"))
+    app = {}
+    for r in read_jsonl(OUT / "scores4.jsonl"):
+        app.setdefault(r["item"], []).append(r["score"])
+    LW = {i: float(np.mean(v)) for i, v in app.items()}
+    C = {(r["better"], r["worse"]): r["pref_better"] for r in read_jsonl(OUT / "scores3.jsonl") if r["variant"] == "C"}
+
+    def acc(kind, ptype):
+        by_q = {}
+        for p in pairs:
+            if p["type"] != ptype:
+                continue
+            if kind == "LW":
+                b, w = LW[p["better"]], LW[p["worse"]]
+            elif kind == "C":
+                b, w = C[(p["better"], p["worse"])], 0.5
+            else:
+                b, w = (ref_f1(items[x]["text"], qinfo[p["qid"]]["ref"]) for x in (p["better"], p["worse"]))
+            by_q.setdefault((p["policy"], p["qid"]), []).append(1.0 if b > w else 0.5 if b == w else 0.0)
+        return {k: np.array(v) for k, v in by_q.items()}
+    pos = {}
+    for r in read_jsonl(OUT / "scores4.jsonl"):
+        if r["size"] == LW_SIZE:
+            pos.setdefault(r["pos"], []).append(r["score"])
+    lines = ["Fourth judge test (PREREGISTRATION 2026-11-20 ~19:50): listwise multiple choice, untrained 4B, own English "
+             "solution, final solutions. Pair accuracy [question-clustered 95% CI].",
+             "Mean score by position (1 = chance): " + " ".join(f"{'ABCD'[k]} {np.mean(v):.2f}" for k, v in sorted(pos.items())),
+             ""]
+    res = {}
+    for kind in ("LW", "C", "numF1"):
+        cells = []
+        for t in ("P1", "P3", "P5"):
+            m, lo, hi = _boot_ci(list(acc(kind, t).values()))
+            res[(kind, t)] = (m, lo)
+            cells.append(f"{t} {100 * m:5.1f} [{100 * lo:4.1f},{100 * hi:5.1f}]")
+        lines.append(f"{kind:6s} " + "   ".join(cells))
+    a, c = acc("LW", "P5"), acc("C", "P5")
+    d, lo, hi = _boot_ci([a[k] - c[k] for k in a])
+    lines.append(f"\nP5: LW - C = {100 * d:+.1f} [{100 * lo:+.1f}, {100 * hi:+.1f}]")
+    ok = res[("LW", "P5")][0] >= 0.60 and res[("LW", "P5")][1] > 0.50 and res[("LW", "P1")][0] >= 0.90
+    lines.append(f"GO RULE 4: {'PASS' if ok else 'fail'}; replacement rule (LW - C >= -3): "
+                 + ("LW replaces C as RL candidate" if ok and d >= -0.03 else "C stays the RL candidate"))
+    txt = "\n".join(lines)
+    (OUT / "report4.txt").write_text(txt + "\n")
+    print(txt)
+
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
     OUT.mkdir(parents=True, exist_ok=True)
     setup_logging(OUT / "logs" / f"{cmd}.log")
     {"sample": sample, "score": judge_score, "report": report, "score2": judge_score2, "report2": report2,
-     "label3": label3, "score3": score3, "report3": report3}[cmd]()
+     "label3": label3, "score3": score3, "report3": report3,
+     "score4": score4, "report4": report4}[cmd]()

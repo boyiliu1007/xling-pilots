@@ -799,3 +799,12 @@ and at least one is right on 91% — complementary signals. C has a strong posit
 answer is first, 0.12 when second), removed by averaging both orders. Thinking (F) and translation (E) make the judge
 credit correct reasoning with a wrong number (P3 88.5 / 80.8 vs 55-57 for one-pass judges) but rank wrong answers no
 better than pairwise.
+
+## 2026-11-20 ~19:50 — PREREGISTERED: fourth judge test — listwise multiple choice (user choice)
+Judge LW: untrained 4B, own English solution, final solutions only, non-thinking. For each (policy, question), the items
+in any P1/P3/P5 pair of that group are put into random lists of 4 (A-D; fewer if the group has < 4 items) so each item
+appears ~3 times at random positions (seed 17); prompt = test 3's header + the answers + "Which answer is closest to a
+fully correct solution? Reply with one letter." Item score = mean over its appearances of P(its letter) x list size
+(1 = chance), letters renormalised over the list's letters from the first token's top-20 logprobs.
+Same pairs and 8B labels. GO RULE 4: P5 >= 60% with CI lower bound > 50%, AND P1 >= 90%. Replacement rule: if LW passes
+and LW − C on P5 >= −3 points (point estimate), LW replaces C as the RL candidate (~10x fewer judge passes).
