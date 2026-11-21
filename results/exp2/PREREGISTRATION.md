@@ -783,3 +783,19 @@ is kept only if both orders agree (agreement rate reported).
 Evaluated: P1, P3, P4 (gold-number label), P5 (8B label). Comparators on the same pairs: number overlap, yes/no-final,
 B, D-final. GO RULE 3 (A, C, E, F): P5 accuracy >= 60% with question-clustered 95% CI lower bound > 50%, AND P1 >= 90%.
 Four variants tested; a pass with CI lower bound < 52% is weak. RL cost noted: E and F need generation per answer.
+
+## 2026-11-20 ~19:30 — third judge test: RESULTS (results/exp2_qwen3-4b/judge/report3.txt)
+P5 labels: Qwen3-8B (thinking, gold solution), 285 wrong-vs-wrong candidates, both verdicts parsed 281, agreed 189.
+Untrained 4B judge, own English solution, final solution only. Pair accuracy [question-clustered 95% CI]:
+           P1 correct-vs-wrong   P3 correct reasoning+wrong number   P5 wrong-vs-wrong (8B label)
+A graded   97.8                  74.1                                57.7 [50.5, 65.2]
+C pairwise 99.6                  55.4                                70.9 [64.1, 77.7]
+E transl.  94.9                  80.8                                62.4 [54.0, 70.7]
+F thinking 95.4                  88.5                                60.7 [53.2, 68.1]  (1.7% unparsed scores)
+yes/no 64.6, B 50.3, D-masked 63.0, number overlap 70.1 [64.2, 75.8] (15% ties) on P5.
+GO RULE 3: C PASS (70.9, lo 64.1); E PASS (62.4, lo 54.0); F PASS (60.7, lo 53.2); A fails. RL candidate: C.
+Exploratory: C − number overlap on P5 = +0.8 [−7.1, +8.9] (no difference); the two agree on only 61% of untied pairs,
+and at least one is right on 91% — complementary signals. C has a strong position bias (P("A") 0.58 when the better
+answer is first, 0.12 when second), removed by averaging both orders. Thinking (F) and translation (E) make the judge
+credit correct reasoning with a wrong number (P3 88.5 / 80.8 vs 55-57 for one-pass judges) but rank wrong answers no
+better than pairwise.
