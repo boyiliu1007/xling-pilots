@@ -448,7 +448,7 @@ def _expected_digit(lps):
     p = np.zeros(10)
     for lp in lps.values():
         t = (lp.decoded_token or "").strip()
-        if len(t) == 1 and t.isdigit():
+        if len(t) == 1 and t in "0123456789":
             p[int(t)] += float(np.exp(lp.logprob))
     return float((p * np.arange(10)).sum() / p.sum()) if p.sum() > 0 else float("nan")
 
@@ -565,7 +565,7 @@ def score3():
         if m:
             digit_at = think_end + m[-1].end()                     # char index of the score digit
             pos = int(np.searchsorted(starts, digit_at, side="right") - 1)
-            if pos < len(c.logprobs) and toks[pos].strip()[:1].isdigit():
+            if pos < len(c.logprobs) and toks[pos].strip()[:1] in list("0123456789"):
                 score = _expected_digit(c.logprobs[pos])
         recs.append({"variant": "F", "item": i, "score": score, "finished": c.finish_reason == "stop",
                      "tail": c.text[-200:]})
