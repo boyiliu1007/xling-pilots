@@ -808,3 +808,8 @@ fully correct solution? Reply with one letter." Item score = mean over its appea
 (1 = chance), letters renormalised over the list's letters from the first token's top-20 logprobs.
 Same pairs and 8B labels. GO RULE 4: P5 >= 60% with CI lower bound > 50%, AND P1 >= 90%. Replacement rule: if LW passes
 and LW − C on P5 >= −3 points (point estimate), LW replaces C as the RL candidate (~10x fewer judge passes).
+
+## 2026-11-20 ~19:35 — fourth judge test: RESULTS (results/exp2_qwen3-4b/judge/report4.txt)
+Listwise (1110 lists of 4): P1 87.7 [83.7, 91.5], P3 41.4, P5 59.3 [51.4, 66.8]; LW − C on P5 = −11.6 [−21.4, −2.1].
+GO RULE 4: fail; C stays the RL candidate. Strong position bias: mean score by position A 0.03, B 1.68, C 0.82,
+D 1.47 (1 = chance) — the 4B judge almost never picks the first answer, and random positions only partly average it out.
