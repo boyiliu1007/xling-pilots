@@ -813,3 +813,19 @@ and LW − C on P5 >= −3 points (point estimate), LW replaces C as the RL cand
 Listwise (1110 lists of 4): P1 87.7 [83.7, 91.5], P3 41.4, P5 59.3 [51.4, 66.8]; LW − C on P5 = −11.6 [−21.4, −2.1].
 GO RULE 4: fail; C stays the RL candidate. Strong position bias: mean score by position A 0.03, B 1.68, C 0.82,
 D 1.47 (1 = chance) — the 4B judge almost never picks the first answer, and random positions only partly average it out.
+
+## 2026-11-21 ~01:15 — PREREGISTERED: RL with the pairwise self-judge (J), plus overnight seeds/evals
+User: "do all overnight". The four judge-RL design choices were left to Claude's recommended defaults (to be reviewed
+by the user): (1) ADD the judge to D's reward (exploratory: judge and number overlap agree on only 61% of
+wrong-vs-wrong pairs); (2) judge ONLY groups where no rollout matches the English vote (52-64% of groups, where the
+answer reward carries no signal); (3) judge = the FROZEN untrained model (no LoRA; the D300 judge was within ~±5);
+(4) three seeds at once (42/43/44), as B/C/D have.
+J `grpo__gsm8k-mt3k__exact__votelidrefpw-lr5e-6-q16-steps300__s{42,43,44}`: reward = vote_ok + lid_ok + ref_f1
+(= D) + win rate of the pairwise self-judge (judge test 3's judge C: PAIRWISE prompt, own English voted solution,
+final solutions truncated to 3000 chars, both orders, P(A) renormalised over A/B) among the group's finished rollouts;
+unfinished rollouts get 0; groups with < 2 finished rollouts are not judged. Everything else identical to D.
+Smoke test (2 steps, deleted): 11-12 of 16 groups judged per step, ~+10 s per step.
+Primary: J − D, Swahili accuracy (LID) on AfriMGSM TEST at step 300, paired bootstrap on 3-seed item means. Also J − B,
+J − C, and MSVAMP (3 seeds) once evaluated. Claim "the self-judge helps" only if the J − D CI excludes 0.
+Also launched tonight: MSVAMP evals of B/C/D/G seeds 43/44 (3-seed MSVAMP table); Qwen3-8B B and D seed 43 (the 8B
+"matches gold" comparison had one seed).
