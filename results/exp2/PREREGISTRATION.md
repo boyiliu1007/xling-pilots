@@ -858,3 +858,9 @@ where those groups dominate. Three runs, all with J exactly as in the 2026-11-21
 3. Scale: Qwen3-8B J s42 and s43 (8B judges itself, frozen). Contrasts J − D and J − B on 2-seed item means (8B D/B
    s42+s43 exist). Prediction: J − D > 0 (point estimate).
 No other variants (user: no more ablations).
+
+## 2026-11-22 — EXPLORATORY (post hoc, not preregistered): where J's Swahili gain comes from
+TEST items binned by the untrained model's any-language accuracy (3-seed item means, Swahili acc by LID):
+base 0% (n=103): D 4.9, J 6.5, J − D +1.6 [+0.5, +2.9]; base 1-33% (n=70): D 33.3, J 37.3, +4.0 [+0.6, +7.6];
+base > 33% (n=27): D 84.2, J 84.3, +0.1 [−3.7, +3.6]. The gain is on hard items; none on easy ones.
+Training: 58% of J's groups were judged (62% in steps 1-50, 52-56% in steps 251-300).
