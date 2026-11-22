@@ -873,3 +873,20 @@ Qwen3-8B TEST Swahili acc: J 47.3/47.4 (mean 47.4, any 52.1) vs D 49.0, B 50.1. 
 Diagnostic (post hoc): only 29-30% of 8B groups are judged (4B: 58%), and the 8B win-rate spread is smaller (sd 0.17-0.18
 vs 0.25). Consistent with the mechanism reading (the judge adds signal where the answer reward has none, and 8B has
 far fewer such groups), but this is an after-the-fact explanation; the write-up reports 8B as a negative result.
+
+## 2026-11-22 — PREREGISTERED: our RL on COPSD's own training set (user: "yes"; before any of these runs)
+Purpose: rule out "the RL beats COPSD only because it trains on GSM8K". Same data, same eval as the existing COPSD runs.
+Data: the released COPSD set (500 OpenThoughts olympiad problems, COPSD's Swahili translation); Qwen3-4B English
+thinking-mode vote accepts 487/500 (89.9% = gold); D / J train on those 487. Code change: grpo.question_rows loads
+`copsd` via trainsets._copsd_rows (answers compared with the evaluation's equivalence check, as before).
+Matched to the COPSD runs (L1 / L3-vote, results/exp2_qwen3-4b/runs/*__copsd__exact__s{42,43}): rollout length 2048
+(= COPSD max_completion_length), lr 5e-6 (= COPSD), problem draws 16 x 200 steps = 3200 (= COPSD 32 x 100 steps).
+Everything else as D / J on GSM8K (8 rollouts, Dr. GRPO, LoRA r64, frozen untrained judge for J).
+Runs: `grpo__copsd__exact__{votelidref,votelidrefpw}-lr5e-6-q16-steps200__s{42,43}`.
+Evaluation: AfriMGSM Swahili TEST (200 x 12, max 4096 new tokens), final checkpoint, as the COPSD runs (scored the same
+day with the same scorer: L1 s42/s43 Swahili acc 7.0/7.6, any 20.4/20.0, pass@12 51.0/53.5; L3-vote 7.3/8.2,
+8.9/10.5, 37.5/45.5). Metrics: Swahili accuracy (primary), any-language accuracy, pass@12 (COPSD's metric).
+Predictions: (1) D − COPSD-L1 > 0 and D − COPSD-L3-vote > 0 on Swahili accuracy, 2-seed item means, CI excluding 0.
+(2) J − D on this set > +2.2 (the GSM8K gain): olympiad problems leave more groups with no vote-matching rollout.
+Smoke test (J, 2 steps, deleted): 41% of rollouts finish within 2048 tokens; 11 and 5 of 16 groups judged; ~4.5 min/step on A6000.
+Reported either way; no other variants.

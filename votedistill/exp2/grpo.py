@@ -289,8 +289,8 @@ def reward(kind, s):
 
 
 def question_rows(data, kind):
-    from .trainsets import _gsm8k_rows, voted_references
-    rows = _gsm8k_rows(data)
+    from .trainsets import _copsd_rows, _gsm8k_rows, voted_references
+    rows = _copsd_rows() if data == "copsd" else _gsm8k_rows(data)   # copsd: COPSD's 500 olympiad problems
     if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly",
                 "votelidstep", "votelidrefanc", "votelidrefpw"):
         refs = voted_references(data)
