@@ -890,3 +890,9 @@ Predictions: (1) D − COPSD-L1 > 0 and D − COPSD-L3-vote > 0 on Swahili accur
 (2) J − D on this set > +2.2 (the GSM8K gain): olympiad problems leave more groups with no vote-matching rollout.
 Smoke test (J, 2 steps, deleted): 41% of rollouts finish within 2048 tokens; 11 and 5 of 16 groups judged; ~4.5 min/step on A6000.
 Reported either way; no other variants.
+
+### 2026-11-22 ~16:20 — COPSD-setup J: judge-prompt overflow fix (no change to design)
+J s43 crashed at step 69 (vLLM: judge prompt 4097 > max_model_len 4096; olympiad problem + two 3000-char solutions).
+Fix: if a judge prompt exceeds 4000 tokens, both solutions are shortened by 20% steps until it fits. Prompts that already fit
+are byte-identical, so all GSM8K/Zulu/8B J runs are unaffected (none ever overflowed). J s43 resumed from step-50
+(train 11248959, eval 11248960); J s42 requeued onto the fixed code from its step-50 checkpoint. Predictions unchanged.

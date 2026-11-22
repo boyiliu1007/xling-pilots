@@ -333,6 +333,7 @@ def schedule(n_rows, seed, steps=STEPS, per_step=QUESTIONS_PER_STEP):
 
 
 PW_MAX_CHARS = 3000    # final solutions are truncated to this many characters in the judge prompt
+PW_MAX_PROMPT_TOKENS = 4000   # and further, only if the whole judge prompt would not fit max_model_len 4096
 
 
 LANG_NAME = {"swa": "Swahili", "zul": "Zulu", "yor": "Yoruba", "sna": "Shona", "sot": "Sotho"}
@@ -355,9 +356,16 @@ def judge_all_wrong(llm, tok, qs, groups, recs, step):
             continue
         for (i, ti), (j, tj) in itertools.permutations(fins, 2):
             name = LANG_NAME[q.get("language", "swa")]   # "Swahili" for swa: the Swahili J prompt is unchanged
-            body = PAIRWISE.replace("Swahili", name).format(question=q["problem_translated"], ref=q["vote_ref"], a=ti, b=tj)
-            prompts.append(tok.apply_chat_template([{"role": "user", "content": body}], tokenize=False,
-                                                   add_generation_prompt=True, enable_thinking=False))
+            cap = PW_MAX_CHARS
+            while True:   # long (olympiad) prompts: shrink both solutions until the prompt fits the 4096 context
+                body = PAIRWISE.replace("Swahili", name).format(question=q["problem_translated"], ref=q["vote_ref"],
+                                                                a=ti[:cap], b=tj[:cap])
+                prompt = tok.apply_chat_template([{"role": "user", "content": body}], tokenize=False,
+                                                 add_generation_prompt=True, enable_thinking=False)
+                if cap < 200 or len(tok(prompt, add_special_tokens=False).input_ids) <= PW_MAX_PROMPT_TOKENS:
+                    break
+                cap = int(cap * 0.8)
+            prompts.append(prompt)
             jobs.append((gi, i, j))
     if not prompts:
         return 0
