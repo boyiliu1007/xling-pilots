@@ -678,3 +678,43 @@ most early rollouts and the RL will push towards shorter outputs; the cap is kep
 Evaluation as every Qwen3-4B run (TEST, final checkpoint, default + penalty 1.1). Contrasts: SDRRL→D − SDRRL (what RL
 adds on top), SDRRL→D − D (what the warm start adds), both on Swahili accuracy (LID) and any-language accuracy, with the
 finish / Swahili / correct-when-finished breakdown. Descriptive: one seed, chosen post hoc; no prediction recorded.
+## 2026-11-19 03:50 — self-translation run STOPPED (before any evaluation)
+Qwen3-4B's own Swahili translations fail QC on 1954/3000 questions (loops 1662, length 1429, numbers 1144, LID 276;
+reasons overlap), and a manual read of QC-passing ones shows changed meaning ("twice" -> "kumi" (ten), "three times
+more" -> "tano" (five)), so the English vote no longer answers the Swahili question. The training run (step 75) and
+its eval were cancelled; no TEST result exists. Finding: at 4B the model cannot replace the MT system, so NLLB stays
+an outside component (stated as a caveat).
+
+## 2026-11-19 03:50 — wave-2 ablation results (TEST step 300, s42, Swahili acc LID / any-language; D = 25.2 / 26.1)
+lid threshold 0.9: 24.2 / 24.2 · Swahili-vs-English-only detector (detsw2): 23.6 / 29.6 · word-list detector (detwl):
+24.3 / 29.0 · 40% of votes replaced by another question's vote (cor0.4): 23.6 / 24.4. 8B gold answer + gold solution:
+20.2 -> 49.8 / 52.7. Seed 44: goldlid 25.5, lidonly 5.0. CIs to be computed with the seed analysis.
+
+## 2026-11-19 ~12:30 — seed, 8B, Zulu and cor0.2 results (TEST step 300; Swahili acc LID / any-language)
+4B, three seeds (s42/s43/s44; mean):
+B gold 26.1/27.5/26.5 = 26.7 (any 28.3) · C votelid 25.0/24.7/23.4 = 24.4 (25.2) · D votelidref (ours)
+25.2/26.2/25.0 = 25.5 (26.6) · G voteonly 10.0/5.0/6.5 = 7.2 (33.2).
+Paired item bootstrap on the 3-seed item means (5000 resamples, unadjusted 95%):
+D − B −1.2 [−2.5, +0.2] · D − C +1.2 [−0.0, +2.4] · D − G +18.4 [+15.0, +21.9].
+Reading: at 300 steps the gold-free method is within ~1 point of gold answers + gold rationales (CI includes 0);
+the single-seed D600 > B600 (+2.4 [−0.3, +5.1]) is not evidence that it beats gold. Claim is "matches gold".
+The language check is the robust effect (+18, all seeds). The reference term (D vs C) is marginal.
+Qwen3-8B (s42): base 20.2/28.5 · B 49.8/52.7 · D 47.6/52.1 · F selfvotelid 41.2/43.2 · G 14.5/60.7 · C pending.
+Same ordering as 4B (B ≳ D > F; G best any-language but drifts to English).
+cor0.2 (20% of votes replaced): 25.7/26.7, = D.
+Zulu (AfriMGSM zul TEST, LID=Zulu): base 2.2 · Zulu-only D 6.0 · Zulu-only G 6.0/6.5 · Swahili+Zulu D 6.0. Negative:
+Qwen3-4B cannot produce Zulu math, so no reward helps; a stated limit (method needs some base competence).
+D learning curve (s42, TEST): 50 18.5 · 100 22.6 · 200 24.8 · 300 25.2 · 400 26.3 · 500 32.1 · 600 32.5;
+the same model in English scores 94.9 on these questions, so the Swahili ceiling is far above 32.5.
+
+## 2026-11-19 ~13:30 — PREREGISTERED: where does the gain stop? D and B continued to 1200 steps (s42)
+Motivation: D's TEST curve (s42) 25.2 @300 → 32.1 @500 → 32.5 @600; the same model scores 94.9 on these questions in
+English, so the Swahili ceiling is far away. Training is descriptive (step count chosen after seeing the curve).
+Runs: `grpo__gsm8k-mt3k__exact__{votelidref,goldlidref}-lr5e-6-q16-steps1200__s42`, exact continuations of the
+600-step runs: step-600 adapter + optimizer/RNG state copied, constant LR, the 1200-step question order starts with
+the 600-step order (verified). Note: 600 steps ≈ 3.4 passes over the ~2.8k questions, 1200 ≈ 6.9.
+Evaluation: TEST every 100 steps (700…1200) for both, default decoding (+ penalty 1.1 via eval-final), and B600's
+saved steps 350/400/450/500/550 so B and D curves are paired at every 50 steps from 300 to 600.
+Readings (Swahili acc LID, paired bootstrap): D1200 − D600 (does it keep improving), D1200 − B1200 (does gold-free
+keep pace with gold at the end), and the shape of both curves. Overfitting check: training reward vs TEST trend.
+"Plateau" = last three evals within ±1.5 points. Single seed; no claim beyond description.

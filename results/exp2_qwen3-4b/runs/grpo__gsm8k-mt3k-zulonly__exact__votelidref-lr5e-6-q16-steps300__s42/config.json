@@ -1,0 +1,48 @@
+{
+  "model": "Qwen/Qwen3-4B",
+  "method": "GRPO (grpo.py)",
+  "doc": "On-policy RL with verifiable rewards on Swahili GSM8K-MT (PREREGISTRATION 2026-11-15 ~17:00).\n\nGRPO in its simplest on-policy form (one optimizer step per batch of rollouts, so the importance ratio is 1 and\nPPO-style clipping is inactive; no KL penalty). Advantage = reward - mean reward of the question's group, without\ndividing by the group's standard deviation; loss = -sum_i A_i * sum_t log p(y_it) / (number of rollouts *\nMAX_TOKENS), a constant normaliser (Dr. GRPO, Liu et al. 2025). Groups whose rewards are all equal carry no\ngradient and are skipped in the backward pass.\n\nRollouts: the student's Swahili prompt (COPSD style, thinking mode), sampled from the current policy with vLLM at\ntemperature 1.0, top-p 1.0, no repetition penalty (pure on-policy: earlier penalty-decoded data drifted to English).\n\nRewards (run variant, `REWARDS`), all 0/1:\n  gold     the final answer (after </think>, finished) is equivalent to the gold answer   (ceiling; any language)\n  goldsw   gold AND the whole output (thinking included) is Swahili by copsd.evaluate.language_of\n  votesw   the final answer equals the model's own English majority vote AND the whole output is Swahili\n           (gold-free; questions the vote did not accept are skipped)\n  goldswv  goldsw + 0.5 x (answer equals the English vote AND whole output Swahili)  (gold plus English signal)\n  goldswr  gold AND hack-resistant Swahili (`robust_sw`): goldsw at lr 5e-5 learned to pass language_of by repeating\n           one Swahili function word (\"jibu\" was 51% of all test-output words), so this counts DISTINCT Swahili\n           function words (>= SW_MIN_TYPES, and more than distinct English ones) and caps the most frequent word's share\n",
+  "reward": "votelidref",
+  "data": "gsm8k-mt3k-zulonly",
+  "ablation": {
+    "kind": "votelidref",
+    "lr": 5e-06,
+    "questions_per_step": 16,
+    "steps": 300,
+    "lid": null,
+    "det": null,
+    "cor": 0.0
+  },
+  "questions": 1120,
+  "steps": 300,
+  "questions_per_step": 16,
+  "group": 8,
+  "max_tokens": 2048,
+  "lr": 5e-06,
+  "max_grad_norm": 1.0,
+  "temperature": 1.0,
+  "seed": 42,
+  "lora": {
+    "lora_r": 64,
+    "lora_alpha": 128,
+    "lora_target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "versions": {
+    "python": "3.11.16",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  },
+  "created": "2026-11-19T01:23:15"
+}

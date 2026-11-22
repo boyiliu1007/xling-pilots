@@ -1,0 +1,13 @@
+{
+  "what": "Qwen3-4B's own English majority votes for the 3000 GSM8K-train questions of gsm8k-mt3k (the gold-free labels of our method). Compact extract of gsm8k3k_en_thinking.jsonl (179 MB, raw samples incl. thinking; kept on the cluster, not in git).",
+  "generation": "Qwen/Qwen3-4B, thinking mode, 8 samples per original English question, max 16384 tokens (see config.json in this folder)",
+  "join": "qid = GSM8K train row index = qid in results/exp2/data/gsm8k_swa_mt3k.jsonl (Swahili questions, NLLB-200 3.3B)",
+  "training_set": "rows with accepted=true AND translation qc ok -> 2783 questions",
+  "fields": {
+    "preds": "the 8 extracted English answers", "vote_counts": "answer -> count", "majority_answer": "most frequent answer",
+    "vote_share": "count of majority / 8", "accepted": "vote_share >= 0.625 (5/8) and a finished sample agrees (votedistill.exp2.trainsets.voted_references)",
+    "vote_answer": "label used by the vote_ok reward", "vote_solution": "text after </think> of the first finished agreeing sample; reference for ref_f1",
+    "majority_correct": "majority vs GSM8K gold; analysis only, never used in training"
+  },
+  "license": "questions: GSM8K (MIT); votes/solutions: Qwen3 outputs (Apache-2.0)"
+}
