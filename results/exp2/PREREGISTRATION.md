@@ -829,3 +829,16 @@ Primary: J − D, Swahili accuracy (LID) on AfriMGSM TEST at step 300, paired bo
 J − C, and MSVAMP (3 seeds) once evaluated. Claim "the self-judge helps" only if the J − D CI excludes 0.
 Also launched tonight: MSVAMP evals of B/C/D/G seeds 43/44 (3-seed MSVAMP table); Qwen3-8B B and D seed 43 (the 8B
 "matches gold" comparison had one seed).
+
+## 2026-11-22 — RESULTS: overnight runs (1200-step curves, MSVAMP 3 seeds, 8B s43, judge RL J)
+Judge RL J (3 seeds, TEST step 300, Swahili accuracy by LID): J 28.0 / 26.5 / 28.7 (mean 27.8; any-language 29.8,
+LID 94.9, truncated 0.5) vs D 25.5, B 26.7, C 24.3. Paired bootstrap on 3-seed item means:
+J − D = +2.2 [+0.8, +3.8] (any-language +3.2 [+1.8, +4.7]) — PRIMARY: CI excludes 0, "the self-judge helps" holds.
+J − B = +1.1 [−0.3, +2.6] (any-language +1.5 [+0.1, +3.0]); J − C = +3.4 [+2.0, +4.9].
+MSVAMP for J not yet run.
+1200-step curves (s42, TEST Swahili acc, D / B): 600 32.5/30.1, 700 32.6/32.0, 800 30.2/33.2, 900 33.1/33.0,
+1000 33.2/33.4, 1100 36.1/33.4, 1200 34.5/35.9. D − B CI includes 0 at every step except 800 (−3.1 [−6.0, −0.2]).
+Slow gain of ~2-4 points after step 600; no divergence between gold and vote rewards.
+MSVAMP 3 seeds (Swahili acc): B 59.6/61.8/61.5, C 55.9/58.6/56.2, D 62.3/60.2/59.9, G 24.0/13.5/17.5.
+D − B = −0.2 [−1.1, +0.8]; D − C = +3.9 [+3.0, +4.9]; D − G = +42.5 [+40.6, +44.2].
+Qwen3-8B s43: B 50.4, D 50.3; 2 seeds D − B = −1.1 [−3.2, +1.0].
