@@ -842,3 +842,19 @@ Slow gain of ~2-4 points after step 600; no divergence between gold and vote rew
 MSVAMP 3 seeds (Swahili acc): B 59.6/61.8/61.5, C 55.9/58.6/56.2, D 62.3/60.2/59.9, G 24.0/13.5/17.5.
 D − B = −0.2 [−1.1, +0.8]; D − C = +3.9 [+3.0, +4.9]; D − G = +42.5 [+40.6, +44.2].
 Qwen3-8B s43: B 50.4, D 50.3; 2 seeds D − B = −1.1 [−3.2, +1.0].
+
+## 2026-11-22 ~00:30 — PREREGISTERED: exploit the self-judge (user: "yes do them"; before any of these runs)
+Reading of J: the gain comes from groups with no vote-matching rollout (no answer signal), so the judge should help most
+where those groups dominate. Three runs, all with J exactly as in the 2026-11-21 ~01:15 entry:
+1. MSVAMP Swahili (1000 x 4) for J s42/43/44 (logs/bench_eval.py). Contrasts J − D, J − B on 3-seed item means.
+   Prediction: J − D > 0 (point estimate); no CI requirement stated in advance beyond reporting it.
+2. Zulu mechanism test: `grpo__gsm8k-mt3k-zulonly__exact__votelidrefpw-lr5e-6-q16-steps300__s42` vs the existing D run
+   `grpo__gsm8k-mt3k-zulonly__exact__votelidref-lr5e-6-q16-steps300__s42` (same data, seed, settings). Code change: the
+   judge prompt names the training language (PAIRWISE with "Swahili" -> "Zulu"; identical for Swahili). Smoke test
+   (2 steps, deleted): 14-15 of 16 groups judged per step (Swahili: 11-12). Primary: J − D, Zulu accuracy by LID on
+   AfriMGSM Zulu TEST, paired bootstrap over items. PREDICTION: J − D (Zulu) > +2.2 (the Swahili 3-seed gain).
+   Single seed: reported as one seed; if J − D (Zulu) <= 0, the write-up states the judge does not rescue a language
+   the 4B model barely reads (a limitation, consistent with the comprehension analysis).
+3. Scale: Qwen3-8B J s42 and s43 (8B judges itself, frozen). Contrasts J − D and J − B on 2-seed item means (8B D/B
+   s42+s43 exist). Prediction: J − D > 0 (point estimate).
+No other variants (user: no more ablations).

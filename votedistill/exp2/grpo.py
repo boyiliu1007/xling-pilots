@@ -335,6 +335,9 @@ def schedule(n_rows, seed, steps=STEPS, per_step=QUESTIONS_PER_STEP):
 PW_MAX_CHARS = 3000    # final solutions are truncated to this many characters in the judge prompt
 
 
+LANG_NAME = {"swa": "Swahili", "zul": "Zulu", "yor": "Yoruba", "sna": "Shona", "sot": "Sotho"}
+
+
 def judge_all_wrong(llm, tok, qs, groups, recs, step):
     """Adds the pairwise self-judge win rate to the rewards of groups with no vote-matching rollout. The judge is the
     frozen untrained model (no LoRA request). Rollout records get a 'pw' field. Returns the number of judged groups."""
@@ -351,7 +354,8 @@ def judge_all_wrong(llm, tok, qs, groups, recs, step):
         if len(fins) < 2:
             continue
         for (i, ti), (j, tj) in itertools.permutations(fins, 2):
-            body = PAIRWISE.format(question=q["problem_translated"], ref=q["vote_ref"], a=ti, b=tj)
+            name = LANG_NAME[q.get("language", "swa")]   # "Swahili" for swa: the Swahili J prompt is unchanged
+            body = PAIRWISE.replace("Swahili", name).format(question=q["problem_translated"], ref=q["vote_ref"], a=ti, b=tj)
             prompts.append(tok.apply_chat_template([{"role": "user", "content": body}], tokenize=False,
                                                    add_generation_prompt=True, enable_thinking=False))
             jobs.append((gi, i, j))
