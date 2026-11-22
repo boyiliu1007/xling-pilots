@@ -864,3 +864,12 @@ TEST items binned by the untrained model's any-language accuracy (3-seed item me
 base 0% (n=103): D 4.9, J 6.5, J − D +1.6 [+0.5, +2.9]; base 1-33% (n=70): D 33.3, J 37.3, +4.0 [+0.6, +7.6];
 base > 33% (n=27): D 84.2, J 84.3, +0.1 [−3.7, +3.6]. The gain is on hard items; none on easy ones.
 Training: 58% of J's groups were judged (62% in steps 1-50, 52-56% in steps 251-300).
+
+## 2026-11-22 — RESULTS: MSVAMP for J (3 seeds) and Qwen3-8B J (2 seeds)
+MSVAMP Swahili acc: J 61.6/62.3/62.1 (mean 62.0, any 63.5) vs D 60.8, B 61.0. J − D = +1.2 [+0.2, +2.2]
+(any +2.2 [+1.3, +3.2]); J − B = +1.0 [+0.0, +2.0]. Prediction J − D > 0: HOLDS (and its CI excludes 0).
+Qwen3-8B TEST Swahili acc: J 47.3/47.4 (mean 47.4, any 52.1) vs D 49.0, B 50.1. J − D = −1.6 [−3.3, −0.0]
+(any −1.1 [−2.7, +0.5]); J − B = −2.8 [−4.6, −0.9]. Prediction J − D > 0: FAILS.
+Diagnostic (post hoc): only 29-30% of 8B groups are judged (4B: 58%), and the 8B win-rate spread is smaller (sd 0.17-0.18
+vs 0.25). Consistent with the mechanism reading (the judge adds signal where the answer reward has none, and 8B has
+far fewer such groups), but this is an after-the-fact explanation; the write-up reports 8B as a negative result.
