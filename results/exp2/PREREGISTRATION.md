@@ -896,3 +896,15 @@ J s43 crashed at step 69 (vLLM: judge prompt 4097 > max_model_len 4096; olympiad
 Fix: if a judge prompt exceeds 4000 tokens, both solutions are shortened by 20% steps until it fits. Prompts that already fit
 are byte-identical, so all GSM8K/Zulu/8B J runs are unaffected (none ever overflowed). J s43 resumed from step-50
 (train 11248959, eval 11248960); J s42 requeued onto the fixed code from its step-50 checkpoint. Predictions unchanged.
+
+## 2026-11-23 — RESULTS: our RL on COPSD's own setup (TEST AfriMGSM Swahili, 2 seeds, default decoding)
+Swahili acc (correct AND LID >= 0.7) s42 / s43; any-language; truncation:
+D 21.5 / 21.6 (any 23.2, trunc 0.2%); J 21.0 / 23.7 (any 23.9, trunc 0.5%);
+COPSD L1 7.0 / 7.6 (any 20.2, trunc 39%); COPSD L3-vote 7.3 / 8.2 (any 9.7, trunc 15%).
+Paired bootstrap, 2-seed item means, 200 items:
+(1) D − L1 +14.3 [+11.3, +17.4]; D − L3-vote +13.8 [+10.7, +17.1]  -> PREDICTION (1) MET.
+    (any-language: D − L1 +2.9 [+0.3, +5.6], D − L3-vote +13.4 [+10.3, +16.6]; Swahili pass@12 D − L1 +18.8, D − L3 +13.5)
+(2) J − D +0.7 [−0.5, +2.0]  -> PREDICTION (2) NOT MET (J ties D on this set).
+Zulu J: the default eval of the run is the Swahili test; the Zulu test eval (logs/lang_eval.py, job 11256564) was
+not queued with the training and was submitted now. Zulu J − D is reported when it finishes.
+Script: logs/exp2_copsd_setup_numbers.py.
