@@ -914,3 +914,18 @@ Zulu acc (correct AND LID Zulu >= 0.7): base 2.2, D 6.0, G 6.0, J 7.0 (any-langu
 J − D +1.1 [−0.3, +2.5] -> preregistered prediction (J − D > +2.2) NOT MET (direction positive, CI includes 0).
 J − base +4.9 [+3.0, +7.0]; D − base +3.8 [+2.0, +5.8]. Zulu pass@12 (Zulu outputs): J − D +5.0 [+0.0, +10.5].
 Script: logs/exp2_zulu_numbers.py.
+
+## 2026-11-23 — PREREGISTERED: does number ORDER matter for the number-matching judge? (offline, CPU; teammate's idea)
+Question: the number-overlap judge (numF1: F1 between the SETS of numbers in a candidate and in the model's own
+English vote solution) ignores order. Two wrong answers often use the same numbers combined differently.
+Variants, same items/pairs/labels/CI as the third judge test (report3; P1, P3, P4, P5), full text vs own reference:
+- numF1   existing set F1 (comparator, unchanged)
+- numLCS  numbers as ordered sequences (first occurrence of each value kept, so the multiset equals numF1's sets
+          and only ORDER differs); score = 2 * LCS / (len a + len b)
+- numMix  0.5 * numF1 + 0.5 * numLCS (order as a tie-breaker / partial credit)
+Primary: P5 (wrong vs wrong, independent Qwen3-8B label) accuracy, numLCS − numF1 and numMix − numF1, paired per
+pair, question-clustered bootstrap (5000, seed 0). Secondary: P1/P3/P4, P5 tie rate, each vs pairwise LLM judge C.
+Prediction: numMix − numF1 > 0 on P5 with CI lower bound > 0 (fewer ties); numLCS − numF1 ≥ 0; P1 stays ≥ 85%.
+Decision rule fixed now: an RL run with a number-matching reward is proposed only if the best order-aware variant
+reaches P5 ≥ C (70.9) with P1 ≥ 90%; otherwise it is reported as one analysis line and nothing more is run.
+Caveat: P4's label is itself number-based (gold numbers), so P4 favours number judges; P5 is the fair test.
