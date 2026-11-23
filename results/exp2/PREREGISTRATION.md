@@ -908,3 +908,9 @@ Paired bootstrap, 2-seed item means, 200 items:
 Zulu J: the default eval of the run is the Swahili test; the Zulu test eval (logs/lang_eval.py, job 11256564) was
 not queued with the training and was submitted now. Zulu J − D is reported when it finishes.
 Script: logs/exp2_copsd_setup_numbers.py.
+
+## 2026-11-23 ~10:35 — RESULT: Zulu J (AfriMGSM Zulu TEST, s42, Zulu-only training, step 300)
+Zulu acc (correct AND LID Zulu >= 0.7): base 2.2, D 6.0, G 6.0, J 7.0 (any-language 7.1; trunc 0.2%).
+J − D +1.1 [−0.3, +2.5] -> preregistered prediction (J − D > +2.2) NOT MET (direction positive, CI includes 0).
+J − base +4.9 [+3.0, +7.0]; D − base +3.8 [+2.0, +5.8]. Zulu pass@12 (Zulu outputs): J − D +5.0 [+0.0, +10.5].
+Script: logs/exp2_zulu_numbers.py.
