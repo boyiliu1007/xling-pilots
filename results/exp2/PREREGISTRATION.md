@@ -929,3 +929,11 @@ Prediction: numMix − numF1 > 0 on P5 with CI lower bound > 0 (fewer ties); num
 Decision rule fixed now: an RL run with a number-matching reward is proposed only if the best order-aware variant
 reaches P5 ≥ C (70.9) with P1 ≥ 90%; otherwise it is reported as one analysis line and nothing more is run.
 Caveat: P4's label is itself number-based (gold numbers), so P4 favours number judges; P5 is the fair test.
+
+### 2026-11-23 — RESULT: number order (results/exp2_qwen3-4b/judge/report_numorder.txt)
+P5 (wrong vs wrong, 8B label): numF1 70.1, numLCS 62.4, numMix 66.9, pairwise C 70.9.
+numLCS − numF1 −7.7 [−13.7, −1.4]; numMix − numF1 −3.2 [−7.1, +0.3]. Ties fall (15.3% -> 11.6% / 10.1%), but the
+broken ties are decided wrongly more often than rightly. P1 also drops (86.0 -> 74.8 / 81.9).
+PREDICTION NOT MET: enforcing number order hurts. Decision rule: no RL run. Likely reason (not tested): a candidate
+and the reference reach the same numbers in different orders (restating givens, different but valid step order),
+so order penalises correct structure more than it separates wrong answers.

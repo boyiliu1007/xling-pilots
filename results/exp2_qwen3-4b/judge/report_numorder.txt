@@ -1,0 +1,21 @@
+Order-aware number judge (PREREGISTRATION 2026-11-23). Pair accuracy, ties 0.5, question-clustered 95% CI.
+Pairs: P1=495 P3=495 P4=137 P5=189
+
+judge                      P1                    P3                    P4                    P5   P5 ties
+numF1       86.0 [81.6, 90.0]     83.5 [79.6, 87.4]     90.9 [85.5, 95.5]     70.1 [64.2, 75.8]    15.3%
+numLCS      74.8 [69.3, 80.2]     70.5 [64.8, 76.0]     78.5 [68.5, 87.1]     62.4 [55.8, 68.8]    11.6%
+numMix      81.9 [76.9, 86.5]     80.4 [75.6, 85.0]     86.5 [78.0, 93.7]     66.9 [60.5, 73.1]    10.1%
+C           99.6 [99.0,100.0]     55.4 [49.2, 61.4]     63.5 [53.5, 73.7]     70.9 [64.1, 77.7]     0.0%
+
+P5 numLCS - numF1:  -7.7 [-13.7,  -1.4]  (189 pairs)
+P5 numMix - numF1:  -3.2 [ -7.1,  +0.3]  (189 pairs)
+P5 numMix - C:  -4.0 [-12.3,  +3.8]  (189 pairs)
+P5 numLCS - C:  -8.5 [-17.1,  -0.3]  (189 pairs)
+P1 numLCS - numF1: -11.1 [-16.1,  -6.3]  (495 pairs)
+P1 numMix - numF1:  -4.0 [ -7.5,  -0.7]  (495 pairs)
+P1 numMix - C: -17.7 [-22.6, -13.0]  (495 pairs)
+P1 numLCS - C: -24.7 [-30.2, -19.3]  (495 pairs)
+P3 numLCS - numF1: -13.0 [-18.8,  -7.6]  (495 pairs)
+P3 numMix - numF1:  -3.1 [ -7.0,  +0.6]  (495 pairs)
+P3 numMix - C: +25.1 [+17.8, +32.4]  (495 pairs)
+P3 numLCS - C: +15.2 [ +7.0, +23.1]  (495 pairs)
