@@ -937,3 +937,29 @@ broken ties are decided wrongly more often than rightly. P1 also drops (86.0 -> 
 PREDICTION NOT MET: enforcing number order hurts. Decision rule: no RL run. Likely reason (not tested): a candidate
 and the reference reach the same numbers in different orders (restating givens, different but valid step order),
 so order penalises correct structure more than it separates wrong answers.
+
+## 2026-11-23 — DESIGN SELECTION (exploratory, offline): a gated self-judge (J-gate)
+Motivation: J beats D at 4B/GSM8K but is −1.6 at 8B and ties on Zulu / COPSD data; the judge is right on ~71% of
+wrong-vs-wrong pairs and every comparison counts equally. Idea: use a judge comparison only where it is trustworthy,
+else fall back to D (no signal). Offline on the third judge test's pairs (scores3 C records: P(A) in both orders):
+per pair, pref = 0.5 (P(A|better first) + 1 − P(A|better second)); confidence = |pref − 0.5|; order-consistent = both
+orders pick the same answer; agree = numF1 ranks the pair the same way (strict). Report accuracy and coverage on
+P1/P3/P5 for confidence thresholds 0/0.1/0.2/0.3/0.4, with/without order consistency and numF1 agreement.
+The gate for RL is chosen from this table by a rule fixed now: the setting with the highest P5 accuracy among those
+keeping >= 40% of P5 pairs and P1 >= 95%. This selection is exploratory; the RL predictions are preregistered after it.
+The on-policy / refreshed judge is not pursued (trained D300 judge was within ±5 of base offline; feedback-loop risk).
+
+### 2026-11-23 — gate selection RESULT and PREREGISTERED RL runs (before any training of these)
+Offline (results/exp2_qwen3-4b/judge/report_gate.txt): judge confidence alone barely helps (P5 70.1 -> 75.2 at
+|pref−0.5| >= 0.4, coverage 47%). Agreement with number overlap does: P5 88.5 [81.7, 94.2] at 54% coverage, P1 99.8,
+P3 87.5. Selected by the fixed rule: "conf >= 0 + numF1 agree" (no confidence threshold).
+Runs (same as J otherwise: lr 5e-6, 16 questions/step, 300 steps, GSM8K-MT 3k, eval-final on AfriMGSM-swa TEST):
+- J-gate  votelidrefpwg: J, but a judge comparison counts only where it ranks the pair the same way as ref_f1
+          (strictly); a group with no such comparison keeps exactly D's reward. Qwen3-4B s42/43/44, Qwen3-8B s42/43.
+- D-more  votelidrefmore: D + 8 extra rollouts (same sampling) for groups with no vote-matching rollout; no judge.
+          Compute control (8 x 2048-token rollouts cost more than J's 1-token judge calls). Qwen3-4B s42/43/44.
+Predictions (Swahili accuracy, paired bootstrap, seeds averaged per item, vs existing D/J runs of the same seeds):
+(1) 4B: J-gate − D > 0, CI excludes 0.  (2) 4B: J-gate − J >= 0 (not worse; point estimate).
+(3) 8B: J-gate − D >= −0.5 (point estimate; J was −1.6): the gate removes J's harm at 8B.
+(4) 4B: J-gate − D-more > 0 and J − D-more > 0 (the judge beats just sampling more).
+Secondary: MSVAMP for the 4B runs; share of judged groups and kept comparisons per step from the train logs.

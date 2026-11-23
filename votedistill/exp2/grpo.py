@@ -42,7 +42,7 @@ log = logging.getLogger("votedistill.exp2.grpo")
 
 REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlidref", "votelid", "votelidref",
            "lidonly", "selfvotelid", "voteonly",
-           "votelidstep", "votelidrefanc", "votelidrefpw")
+           "votelidstep", "votelidrefanc", "votelidrefpw", "votelidrefpwg", "votelidrefmore")
 # Self-play transfer design (PREREGISTRATION 2026-11-16 ~10:30), SP3F-style (Sutawika et al., ACL 2026) rewards:
 #   goldlid     correct (gold)         + lid_ok                         A: gold ceiling
 #   goldlidref  correct (gold)         + lid_ok + ref_f1 (gold English solution)          B: SP3F-like, gold privilege
@@ -60,6 +60,10 @@ REWARDS = ("gold", "goldsw", "votesw", "goldswv", "goldswr", "goldlid", "goldlid
 #               (PREREGISTRATION 2026-11-21): the frozen untrained model compares the final solutions of every pair
 #               of finished rollouts (both orders) given the Swahili problem and its own English solution
 #               (judge.PAIRWISE); win rate in [0, 1]; unfinished rollouts get 0                 J: self-judge
+#   votelidrefpwg J, but a comparison counts only where the judge agrees with the ref_f1 ranking (strict); a group
+#               with no such comparison gets no judge term, i.e. exactly D (PREREGISTRATION 2026-11-23)  J-gate
+#   votelidrefmore D + GROUP extra rollouts for groups with no vote-matching rollout (same sampling); compute
+#               control for J (the extra rollouts cost more than the judge's 1-token calls)   D-more
 # lid_ok: >= LID_MIN of the prose (chunks with >= 3 words; math/LaTeX removed) is Swahili by lingua over ALL languages
 # (a Swahili-vs-English-only detector passes the "jibu"-spam outputs; the all-language one passes 13% of them, 86% of
 # base outputs). ref_f1: F1 between the sets of numbers in the rollout and in the English reference (a judge-free
@@ -280,7 +284,7 @@ def reward(kind, s):
         return float(s["vote_ok"]) + float(s["lid_ok"]) + s["ref_f1"]
     if kind == "selfvotelid":   # score() was called with vote = the group's Swahili majority answer
         return float(s["vote_ok"]) + float(s["lid_ok"])
-    if kind == "votelidrefpw":   # + the judge win rate, added in train_grpo for all-wrong groups
+    if kind in ("votelidrefpw", "votelidrefpwg", "votelidrefmore"):   # + the judge win rate, added in train_grpo for all-wrong groups
         return float(s["vote_ok"]) + float(s["lid_ok"]) + s["ref_f1"]
     if kind in ("goldlid", "goldlidref", "votelid", "votelidref"):
         ok = s["correct"] if kind.startswith("gold") else s["vote_ok"]
@@ -292,15 +296,15 @@ def question_rows(data, kind):
     from .trainsets import _copsd_rows, _gsm8k_rows, voted_references
     rows = _copsd_rows() if data == "copsd" else _gsm8k_rows(data)   # copsd: COPSD's 500 olympiad problems
     if kind in ("votesw", "goldswv", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly",
-                "votelidstep", "votelidrefanc", "votelidrefpw"):
+                "votelidstep", "votelidrefanc", "votelidrefpw", "votelidrefpwg", "votelidrefmore"):
         refs = voted_references(data)
         rows = [{**r, "vote_answer": refs[r["qid"]][1] if r["qid"] in refs else None,
                  "vote_ref": refs[r["qid"]][0] if r["qid"] in refs else None} for r in rows]
         if kind in ("votesw", "votelid", "votelidref", "lidonly", "selfvotelid", "voteonly",
-                    "votelidstep", "votelidrefanc", "votelidrefpw"):   # same questions as C
+                    "votelidstep", "votelidrefanc", "votelidrefpw", "votelidrefpwg", "votelidrefmore"):   # same questions as C
             rows = [r for r in rows if r["vote_answer"] is not None]
     for r in rows:   # privileged reference for the ref_f1 term
-        r["ref"] = r.get("vote_ref") if kind in ("votelidref", "votelidstep", "votelidrefanc", "votelidrefpw") else r["solution"] if kind == "goldlidref" else None
+        r["ref"] = r.get("vote_ref") if kind in ("votelidref", "votelidstep", "votelidrefanc", "votelidrefpw", "votelidrefpwg", "votelidrefmore") else r["solution"] if kind == "goldlidref" else None
     return rows
 
 
@@ -339,7 +343,7 @@ PW_MAX_PROMPT_TOKENS = 4000   # and further, only if the whole judge prompt woul
 LANG_NAME = {"swa": "Swahili", "zul": "Zulu", "yor": "Yoruba", "sna": "Shona", "sot": "Sotho"}
 
 
-def judge_all_wrong(llm, tok, qs, groups, recs, step):
+def judge_all_wrong(llm, tok, qs, groups, recs, step, gate=False):
     """Adds the pairwise self-judge win rate to the rewards of groups with no vote-matching rollout. The judge is the
     frozen untrained model (no LoRA request). Rollout records get a 'pw' field. Returns the number of judged groups."""
     from vllm import SamplingParams
@@ -372,13 +376,24 @@ def judge_all_wrong(llm, tok, qs, groups, recs, step):
     outs = llm.generate(prompts, SamplingParams(max_tokens=1, temperature=0.0, logprobs=20), use_tqdm=False)
     pa = {(gi, i, j): _p_letter(o.outputs[0].logprobs[0]) for (gi, i, j), o in zip(jobs, outs)}
     judged = sorted({gi for gi, _, _ in jobs})
+    n_judged = 0
     for gi in judged:
         g = groups[gi][1]
         win = np.zeros(len(g))
         members = sorted({i for (h, i, _) in jobs if h == gi})
-        for i in members:
-            prefs = [0.5 * (pa[(gi, i, j)] + 1 - pa[(gi, j, i)]) for j in members if j != i]
-            win[i] = float(np.mean(prefs))
+        pref = {(i, j): 0.5 * (pa[(gi, i, j)] + 1 - pa[(gi, j, i)]) for i in members for j in members if j != i}
+        if gate:   # keep a comparison only where the judge and the number-overlap score rank the pair the same way
+            f = {i: g[i][2]["ref_f1"] for i in members}
+            keep = {k for k, v in pref.items() if f[k[0]] != f[k[1]] and v != 0.5 and (v > 0.5) == (f[k[0]] > f[k[1]])}
+            if not keep:
+                continue   # no trusted comparison: the group keeps D's reward
+            for i in members:
+                prefs = [pref[(i, j)] for j in members if j != i and (i, j) in keep]
+                win[i] = float(np.mean(prefs)) if prefs else 0.5
+        else:
+            for i in members:
+                win[i] = float(np.mean([pref[(i, j)] for j in members if j != i]))
+        n_judged += 1
         for k in range(len(g)):
             comp, r, s = g[k]
             g[k] = (comp, r + float(win[k]), {**s, "pw": float(win[k])})
@@ -386,7 +401,7 @@ def judge_all_wrong(llm, tok, qs, groups, recs, step):
         for k in range(len(g)):
             recs[base + k]["pw"] = float(win[k])
             recs[base + k]["reward"] += float(win[k])
-    return len(judged)
+    return n_judged
 
 
 def _rec_index(recs, step, qid):
@@ -523,8 +538,29 @@ def train_grpo(name, data, seed, kind):
                     if ok:
                         groups[i][1].append((comp, reward(kind, sa), sa))
 
-        if kind == "votelidrefpw":    # pairwise self-judge in groups with no vote-matching rollout
-            n_judged = judge_all_wrong(llm, tok, qs, groups, recs, step)
+        n_extra = 0
+        if kind == "votelidrefmore":   # GROUP extra rollouts for groups with no vote-matching rollout
+            dead = [i for i, (_, g) in enumerate(groups) if not any(x[2]["vote_ok"] for x in g)]
+            if dead:
+                x_sps = [SamplingParams(n=GROUP, temperature=TEMPERATURE, top_p=1.0, top_k=-1, min_p=0.0,
+                                        max_tokens=MAX_TOKENS, seed=seed * 1_000_003 + step * 1000 + 500 + i) for i in dead]
+                x_outs = llm.generate([{"prompt_token_ids": p_ids[i]} for i in dead], x_sps, lora_request=lora,
+                                      use_tqdm=False)
+                for i, o in zip(dead, x_outs):
+                    q = qs[i]
+                    for c in o.outputs:
+                        s = score(c.text, c.finish_reason, q["Answer"], q.get("vote_answer"), q.get("ref"),
+                                  q.get("problem_translated"), q.get("language", "swa"))
+                        groups[i][1].append((list(c.token_ids), reward(kind, s), s))
+                        n_extra += 1
+                        recs.append({"step": step, "qid": q["qid"], "lang": q.get("language", "swa"), "extra": True,
+                                     "reward": reward(kind, s), "len": len(c.token_ids),
+                                     **{k: s[k] for k in ("pred", "finished", "sw", "correct", "vote_sw", "correct_swr",
+                                                          "vote_ok", "lid", "lid_ok", "correct_lid", "ref_f1", "step_f1")},
+                                     **({"text": c.text} if step % SAVE_TEXT_EVERY == 0 else {}), "_text": c.text})
+            t_gen = time.time() - t0
+        if kind in ("votelidrefpw", "votelidrefpwg"):    # pairwise self-judge in groups with no vote-matching rollout
+            n_judged = judge_all_wrong(llm, tok, qs, groups, recs, step, gate=kind == "votelidrefpwg")
         model.train()
         opt.zero_grad(set_to_none=True)
         norm = len(qs) * GROUP * MAX_TOKENS
@@ -564,7 +600,8 @@ def train_grpo(name, data, seed, kind):
         log.info(f"step {step}: reward {m('reward'):.3f} correct {m('correct'):.3f} sw {m('sw'):.3f} finished "
                  f"{m('finished'):.3f} signal {n_signal}/{len(qs)}"
                  + (f" anchors {sum(a['accepted'] for a in anchors)}/{n_tried}" if kind == "votelidrefanc" else "")
-                 + (f" judged {n_judged}" if kind == "votelidrefpw" else "")
+                 + (f" judged {n_judged}" if kind in ("votelidrefpw", "votelidrefpwg") else "")
+                 + (f" extra {n_extra}" if kind == "votelidrefmore" else "")
                  + f" grad_norm {gn:.3f} gen {t_gen:.0f}s train {t_all - t_gen:.0f}s")
         if step % SAVE_EVERY == 0:
             d = ck / f"step-{step}"
