@@ -747,3 +747,12 @@ alone), PASMR − PAM (what SRL adds), SDRRL − PASMR, PASMR − base and − b
 study: Qwen3-4B's own English translations of Swahili questions are mediocre (chrF++ 46.5) and solving from them is no
 better than from Swahili, so the self-generated pivot, and with it the reward, may be noisy.
 Prediction: none recorded. One seed (42) first.
+
+### 2026-11-24 — PASMR amendment: token caps fixed by a rule on the real PAM checkpoint (before SRL training)
+A length check with the 40-step smoke PAM (s1, 64 RL-half questions, T 1.0, 8192-token cap) found Swahili answers with
+median 5,866 tokens (8% within 2048, 30% within 4096) and pivot English answers with median 2,596 (78% within 4096):
+under the preregistered 2048-token Swahili cap nearly every SRL rollout would be a format error (reward 0), a limit the
+authors' short non-thinking outputs never met. Rule, fixed now, applied to the real PAM s42 checkpoint (same check,
+logs/pasmr_lendiag.py) before any SRL training: Swahili rollout cap = 2048 (D's) if >= 50% of its Swahili answers finish
+within 2048 tokens, else 4096 (the evaluation limit); English pivot cap = 4096 if >= 80% of its English answers finish
+within 4096, else 8192. The chosen caps are recorded in the SRL run's config.json.
