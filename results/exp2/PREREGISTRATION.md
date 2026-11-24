@@ -767,4 +767,7 @@ token-cap amendment above; -len<N> when it is not 2048). Differences that remain
 (fixed vote on the original English question vs online answer to the model's own pivot), the Swahili check (D only),
 group baseline vs batch-normalised REINFORCE++.
 Primary contrast: (PAM -> D's RL) − PASMR on Swahili accuracy (LID), paired bootstrap; also any-language accuracy, and
-each − PAM. Evaluation as every run. Prediction: to be recorded by Person C before the RL runs start, if any.
+each − PAM. Evaluation as every run. Prediction (Person C, 2026-11-24, before either RL run starts): (PAM -> D's RL) − PASMR > 0 on Swahili accuracy
+(LID), with the 95% CI excluding 0; on any-language accuracy the two are within ±5 points. Reasons: PASMR's reward
+has no language check (arm G, its reward alone, drifted to 72% English answers), and its English answer comes from
+the model's own pivot translation rather than the original English question (the vote is 96.6% correct).
