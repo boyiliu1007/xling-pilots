@@ -963,3 +963,12 @@ Predictions (Swahili accuracy, paired bootstrap, seeds averaged per item, vs exi
 (3) 8B: J-gate − D >= −0.5 (point estimate; J was −1.6): the gate removes J's harm at 8B.
 (4) 4B: J-gate − D-more > 0 and J − D-more > 0 (the judge beats just sampling more).
 Secondary: MSVAMP for the 4B runs; share of judged groups and kept comparisons per step from the train logs.
+
+### 2026-11-24 — RESULT (partial): J-gate at 8B (logs/exp2_jgate_numbers.py)
+Qwen3-8B, 2 seeds, AfriMGSM-swa TEST, Swahili acc: D 48.9 (47.6/50.3), J 47.4 (47.3/47.4), J-gate 47.6 (47.8/47.5).
+J-gate − D −1.4 [−3.1, +0.3]; J-gate − J +0.3 [−1.1, +1.7]; J − D −1.6 [−3.3, −0.0].
+Prediction (3) NOT MET (point −1.4 < −0.5): the gate does not remove J's 8B gap. Truncation drops (D 1.6% -> 0.2%).
+Judged groups/step: 8B J-gate 4.6-4.7 of 16; 4B J-gate 9.1-9.6 (J 4B ~9.3). The gate keeps comparisons in about as
+many 4B groups as J judges, so it mostly re-weights within groups rather than skipping them.
+4B predictions (1), (2), (4) pending: 4 of 6 4B trains done, evals queued (Priority); J-gate s43 / D-more s42 at
+steps ~212 / ~177.
