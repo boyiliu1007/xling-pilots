@@ -58,6 +58,19 @@ def sdrrl_final_step(name):
     return cfg["sft"]["final_step"]
 
 
+# PASMR baseline (votedistill/pasmr; PREREGISTRATION 2026-11-22 PASMR entry), two runs per seed:
+#   pasmr-pam__<data>__exact__sN   stage 1, PAM SFT (sdrrl/train.py on pasmr/data.py's set; final step from config.json)
+#   pasmr__<data>__exact[__q<n>-steps<n>]__sN   stage 2, SRL from that PAM checkpoint (pasmr/srl.py; variant = smoke)
+PAM_CONTEXT, PASMR_CONTEXT = "pasmr-pam", "pasmr"
+_PASMR_VARIANT = re.compile(r"q\d+-steps\d+$")
+
+
+def pasmr_steps(name):
+    from ..pasmr.srl import parse_variant as srl_variant
+    parts = name.split("__")
+    return srl_variant(parts[3] if len(parts) == 5 else "")["steps"]
+
+
 def sft_steps(name):
     return SFT_STEPS_DATA.get(name.split("__")[1], SFT_STEPS)
 
@@ -146,6 +159,8 @@ def parse_variant(v):
         return None, None
     if _SDRRL_VARIANT.match(v):   # SDRRL epochs; no distillation loss, so no clip
         return None, None
+    if _PASMR_VARIANT.match(v):   # PASMR SRL smoke-test size
+        return None, None
     from .grpo import parse_variant as grpo_variant
     if grpo_variant(v) is not None:
         return None, None
@@ -176,10 +191,15 @@ def parse_name(name):
         clip = parse_variant(v)[1]
     else:
         raise SystemExit(f"bad run name {name}")
-    if (context not in TEACHER_CONTEXTS and context not in (SFT_CONTEXT, GRPO_CONTEXT, SDRRL_CONTEXT)) or data not in DATASETS:
+    if (context not in TEACHER_CONTEXTS and context not in (SFT_CONTEXT, GRPO_CONTEXT, SDRRL_CONTEXT, PAM_CONTEXT,
+                                                            PASMR_CONTEXT)) or data not in DATASETS:
         raise SystemExit(f"bad run name {name}")
     if context == SDRRL_CONTEXT and len(parts) == 5 and not _SDRRL_VARIANT.match(parts[3]):
         raise SystemExit(f"bad SDRRL variant {parts[3]} (expected ep<k>)")
+    if context == PAM_CONTEXT and len(parts) == 5:
+        raise SystemExit(f"{name}: PAM runs take no variant")
+    if context == PASMR_CONTEXT and len(parts) == 5 and not _PASMR_VARIANT.match(parts[3]):
+        raise SystemExit(f"bad PASMR variant {parts[3]} (expected q<n>-steps<n>)")
     return context, data, layout, int(s[1:]), clip
 
 
@@ -202,9 +222,13 @@ def eval_steps(name, max_steps=MAX_STEPS):
     if name.split("__")[0] == GRPO_CONTEXT:
         from .grpo import SAVE_EVERY as G_EVERY, parse_kind
         return [f"step{s}" for s in range(G_EVERY, parse_kind(name.split("__")[3])["steps"] + 1, G_EVERY)]
-    if name.split("__")[0] == SDRRL_CONTEXT:   # sdrrl/train.py saves every SAVE_EVERY steps and at the last step
+    if name.split("__")[0] in (SDRRL_CONTEXT, PAM_CONTEXT):   # sdrrl/train.py: every SAVE_EVERY steps and the last
         last = sdrrl_final_step(name)
         return [f"step{s}" for s in sorted(set(range(SAVE_EVERY, last + 1, SAVE_EVERY)) | {last})]
+    if name.split("__")[0] == PASMR_CONTEXT:
+        from ..pasmr.srl import SAVE_EVERY as P_EVERY
+        last = pasmr_steps(name)
+        return [f"step{s}" for s in sorted(set(range(P_EVERY, last + 1, P_EVERY)) | {last})]
     init = init_of(name)
     first = init[1] if init else SAVE_EVERY
     return [f"step{s}" for s in range(first, max_steps + 1, SAVE_EVERY)]
@@ -216,8 +240,10 @@ def final_step(name, max_steps=MAX_STEPS):
     if name.split("__")[0] == GRPO_CONTEXT:
         from .grpo import parse_kind
         return parse_kind(name.split("__")[3])["steps"]
-    if name.split("__")[0] == SDRRL_CONTEXT:
+    if name.split("__")[0] in (SDRRL_CONTEXT, PAM_CONTEXT):
         return sdrrl_final_step(name)
+    if name.split("__")[0] == PASMR_CONTEXT:
+        return pasmr_steps(name)
     return sft_steps(name) if name.split("__")[0] == SFT_CONTEXT else max_steps
 
 
@@ -274,6 +300,20 @@ def train_run(name, max_steps=MAX_STEPS):
         # different value is a cap (smoke tests).
         cap = max_steps if max_steps != MAX_STEPS else None
         return sdrrl_train(rd, ck, epochs=sdrrl_epochs(name), seed=seed, max_steps=cap, data_dir=dd, run_name=name)
+    if context in (PAM_CONTEXT, PASMR_CONTEXT):
+        if layout != "exact":
+            raise SystemExit("PASMR runs use the exact layout")
+        from ..pasmr import data_dir as pasmr_dir
+        if not (pasmr_dir(data) / "sft_data.jsonl").exists():
+            raise SystemExit(f"{pasmr_dir(data)} has no PASMR data: run python -m votedistill.pasmr build --data {data}")
+        if context == PAM_CONTEXT:   # PAM: the SDRRL SFT recipe (the authors give no SFT settings)
+            from ..sdrrl.train import train as sdrrl_train
+            cap = max_steps if max_steps != MAX_STEPS else None
+            return sdrrl_train(rd, ck, epochs=SDRRL_EPOCHS, seed=seed, max_steps=cap, data_dir=pasmr_dir(data),
+                               run_name=name)
+        from ..pasmr.srl import train_srl
+        parts = name.split("__")
+        return train_srl(name, data, seed, parts[3] if len(parts) == 5 else "", f"{PAM_CONTEXT}__{data}__exact__s{seed}")
     from ..copsd.styles import apply_style
     apply_style(style_of(name))
     rows, desc = training_rows(data, context)

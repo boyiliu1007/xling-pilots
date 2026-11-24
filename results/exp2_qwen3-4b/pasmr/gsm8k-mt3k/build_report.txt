@@ -1,0 +1,4 @@
+PASMR data: gsm8k-mt3k
+  questions 2805: SFT half 1402, RL half 1403 (seed 1234)
+  PAM examples (SFT half with an accepted SDRRL translation): 774; rejected {'low_quality': 600, 'off_target_language': 6, 'math_lost': 8}
+  translations from /home/boyil2/xling_pilot_sdrrl/results/exp2_qwen3-4b/sdrrl/gsm8k-mt3k

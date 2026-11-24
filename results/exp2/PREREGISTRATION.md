@@ -718,3 +718,32 @@ saved steps 350/400/450/500/550 so B and D curves are paired at every 50 steps f
 Readings (Swahili acc LID, paired bootstrap): D1200 − D600 (does it keep improving), D1200 − B1200 (does gold-free
 keep pace with gold at the end), and the shape of both curves. Overfitting check: training reward vs TEST trend.
 "Plateau" = last three evals within ±1.5 points. Single seed; no claim beyond description.
+
+## 2026-11-22 — PREREGISTERED (Person C): PASMR baseline (before any PASMR training beyond a smoke test)
+
+PASMR (Zhao et al. 2026, "Align to the Pivot", arXiv 2601.17671): the published method that rewards a target-language
+answer for agreeing with the model's own English answer; D's novelty is argued against it. Arm G is its reward alone;
+this is the full method, adapted to Experiment 2 (code: votedistill/pasmr; authors' code github.com/Rover912/PASMR).
+Data: the 2,805 QC-passing gsm8k-mt3k questions split in disjoint halves (seed 1234: SFT 1,402 / RL 1,403), as the
+paper splits SFT and RL data. Stage 1 PAM (SFT): Swahili question -> "<translation_start> English question
+<translation_end>" + Swahili solution, inside the thinking after the Swahili think prefix (the evaluation prompt is
+fixed); the English question is the GSM8K original, the Swahili solution SDRRL's NLLB translation of the model's own
+voted English solution (CometKiwi >= 0.8): 774 examples (709 within 4096 tokens). Label-free: vote agreement replaces
+the paper's answer-correctness filter; NLLB replaces their Qwen2.5-32B translator. SFT recipe = SDRRL's (LoRA r64,
+lr 5e-5, batch 32, 4 epochs = 92 steps; the authors publish none). Stage 2 SRL: from PAM, 128 RL-half prompts x 1
+sample per step (the authors' n_samples_per_prompt 1, train batch 128), 300 steps (= D's 38,400 rollouts), Swahili
+rollouts T 1.0 / top-p 1.0 / 2048 tokens; the pivot English question is answered online by the current policy
+(thinking, T 1.0, 4096 tokens); reward 1 if the answers agree, 0.1 if not, 0 on a format error (no pivot, no finished
+boxed Swahili answer); REINFORCE++: batch-normalised reward, per-token KL penalty 0.01 to PAM, gamma 1.0, advantages
+whitened over the batch's tokens, LoRA lr 5e-6 (authors 5e-7 full fine-tuning), one update per batch. No language
+check in the reward (as the paper). Deviations from the paper, all decided before training: gamma 1.0 (0.99^L leaves
+early tokens of 1-2k-token thinking outputs no reward), boxed answers instead of '###', thinking mode, LoRA, Swahili
+only, NLLB, the lr and token limits above.
+Evaluation as every Qwen3-4B run: TEST final checkpoint, default + penalty 1.1, Swahili accuracy (LID >= 0.7) and
+any-language accuracy, paired bootstrap; PAM-only (the paper's "wo. SRL") evaluated too. Logged per step: pivot rate,
+format errors, agreement, English-answer finish rate, KL.
+Contrasts: D − PASMR (our method vs the published method on the same signal), PASMR − G (the full method vs its reward
+alone), PASMR − PAM (what SRL adds), SDRRL − PASMR, PASMR − base and − base+pen. Known risk, from Szu-Ju's reading
+study: Qwen3-4B's own English translations of Swahili questions are mediocre (chrF++ 46.5) and solving from them is no
+better than from Swahili, so the self-generated pivot, and with it the reward, may be noisy.
+Prediction: none recorded. One seed (42) first.
