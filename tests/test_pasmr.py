@@ -69,3 +69,13 @@ def test_variants_and_run_names():
     assert final_step("pasmr__gsm8k-mt3k__exact__s42") == 300
     with pytest.raises(SystemExit):
         parse_name("pasmr__gsm8k-mt3k__exact__noclip__s42")
+
+
+def test_grpo_pam_start_variant():
+    from votedistill.exp2.grpo import INITS, parse_variant
+    v = parse_variant("votelidref-lr5e-6-q16-steps300-initpasmrpam-len4096-rlhalf")
+    assert v["kind"] == "votelidref" and v["init"] == "pasmrpam" and v["max_tokens"] == 4096 and v["rlhalf"]
+    assert INITS["pasmrpam"]("gsm8k-mt3k", 42) == "pasmr-pam__gsm8k-mt3k__exact__s42"
+    d = parse_variant("votelidref-lr5e-6-q16-steps300")                      # D unchanged
+    assert d["max_tokens"] == 2048 and not d["rlhalf"] and d["init"] is None
+    assert parse_variant("votelidref-lr5e-6-q16-steps300-initpasmrpam-rlhalf")["max_tokens"] == 2048

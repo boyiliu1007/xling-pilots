@@ -756,3 +756,15 @@ authors' short non-thinking outputs never met. Rule, fixed now, applied to the r
 logs/pasmr_lendiag.py) before any SRL training: Swahili rollout cap = 2048 (D's) if >= 50% of its Swahili answers finish
 within 2048 tokens, else 4096 (the evaluation limit); English pivot cap = 4096 if >= 80% of its English answers finish
 within 4096, else 8192. The chosen caps are recorded in the SRL run's config.json.
+
+### 2026-11-24 — PREREGISTERED (Person C): PAM -> D's RL, the controlled PASMR comparison (before any RL from PAM)
+Both RL stages start from the same PAM s42 checkpoint, so PASMR's RL and our RL differ only in the RL stage. Run
+`grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initpasmrpam[-len<N>]-rlhalf__s42`: D exactly (votelidref
+reward with the English vote and the Swahili check, Dr. GRPO, groups of 8, 16 questions x 8 x 300 steps = 38,400
+rollouts = PASMR's budget, lr 5e-6, fresh AdamW), started from PAM's LoRA, on the vote-accepted questions of the PASMR
+RL half only (PAM never trained on them), with the same Swahili rollout cap as the PASMR SRL run (set by the rule of the
+token-cap amendment above; -len<N> when it is not 2048). Differences that remain belong to the methods: English signal
+(fixed vote on the original English question vs online answer to the model's own pivot), the Swahili check (D only),
+group baseline vs batch-normalised REINFORCE++.
+Primary contrast: (PAM -> D's RL) − PASMR on Swahili accuracy (LID), paired bootstrap; also any-language accuracy, and
+each − PAM. Evaluation as every run. Prediction: to be recorded by Person C before the RL runs start, if any.

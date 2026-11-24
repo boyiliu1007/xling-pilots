@@ -154,12 +154,15 @@ def ref_f1(text, ref):
 
 _VARIANT = re.compile(r"(?P<kind>[a-z]+)(?:-lr(?P<lr>[0-9.]+(?:e-?[0-9]+)?))?(?:-q(?P<q>[0-9]+))?(?:-steps(?P<steps>[0-9]+))?"
                       r"(?:-lid(?P<lid>0\.[0-9]+))?(?:-det(?P<det>sw2|wl))?(?:-cor(?P<cor>0\.[0-9]+))?"
-                      r"(?:-init(?P<init>[a-z0-9]+))?")
+                      r"(?:-init(?P<init>[a-z0-9]+))?(?:-len(?P<len>[0-9]+))?(?:-(?P<rlhalf>rlhalf))?")
 
 # Warm start (-init<tag>; PREREGISTRATION 2026-11-21 SDRRL -> GRPO entry): the LoRA adapter starts from another run's
 # final checkpoint instead of from zero; optimizer, schedule and everything else as without it. tag -> that run's name
-# for this run's data and seed.
-INITS = {"sdrrl": lambda data, seed: f"sdrrl__{data}__exact__s{seed}"}
+# for this run's data and seed. -len<n>: rollout token cap n instead of MAX_TOKENS. -rlhalf: only the RL half of the
+# PASMR split (pasmr/data.py), so a run started from PAM never sees PAM's SFT questions (PREREGISTRATION 2026-11-24
+# PAM -> D's RL entry).
+INITS = {"sdrrl": lambda data, seed: f"sdrrl__{data}__exact__s{seed}",
+         "pasmrpam": lambda data, seed: f"pasmr-pam__{data}__exact__s{seed}"}
 
 
 def init_adapter(init, data, seed):
@@ -185,7 +188,8 @@ def parse_variant(variant):
     return dict(kind=m["kind"], lr=float(m["lr"]) if m["lr"] else LR,
                 questions_per_step=int(m["q"]) if m["q"] else QUESTIONS_PER_STEP,
                 steps=int(m["steps"]) if m["steps"] else STEPS, lid=float(m["lid"]) if m["lid"] else None,
-                det=m["det"], cor=float(m["cor"]) if m["cor"] else 0.0, init=m["init"])
+                det=m["det"], cor=float(m["cor"]) if m["cor"] else 0.0, init=m["init"],
+                max_tokens=int(m["len"]) if m["len"] else MAX_TOKENS, rlhalf=bool(m["rlhalf"]))
 
 
 def parse_kind(variant):
@@ -368,15 +372,21 @@ def train_grpo(name, data, seed, kind):
         return
     ABL.update(lid=v["lid"], det=v["det"])
     rows = question_rows(data, kind)
+    if v["rlhalf"]:
+        from ..pasmr.data import load_split
+        rl = set(load_split(data)[1])
+        rows = [r for r in rows if r["qid"] in rl]
     if v["cor"]:
         rows = corrupt_votes(rows, v["cor"])
     sched = schedule(len(rows), seed, n_steps, per_step)
     init = init_adapter(v["init"], data, seed) if v["init"] else None
+    max_tokens = v["max_tokens"]
     write_json(rd / "config.json", {
         "model": MODEL, "method": "GRPO (grpo.py)", "doc": __doc__, "reward": kind, "data": data, "ablation": v,
         "init": {"run": init[0], "step": init[1], "adapter": str(init[2])} if init else None,
-        "questions": len(rows), "steps": n_steps, "questions_per_step": per_step, "group": GROUP,
-        "max_tokens": MAX_TOKENS, "lr": lr, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
+        "questions": len(rows), "question_set": "PASMR RL half" if v["rlhalf"] else "all", "steps": n_steps,
+        "questions_per_step": per_step, "group": GROUP,
+        "max_tokens": max_tokens, "lr": lr, "max_grad_norm": MAX_GRAD_NORM, "temperature": TEMPERATURE, "seed": seed,
         "lora": {k: OFFICIAL[k] for k in ("lora_r", "lora_alpha", "lora_target_modules")}, "versions": versions(),
         "created": datetime.now().isoformat(timespec="seconds")})
     wait_for_gpu()
@@ -387,7 +397,8 @@ def train_grpo(name, data, seed, kind):
     tok = AutoTokenizer.from_pretrained(MODEL)
     col = make_collator(tok, OFFICIAL["max_length"], False, False)
     llm = LLM(model=MODEL, dtype="bfloat16", gpu_memory_utilization=0.4, enable_lora=True, max_lora_rank=64,
-              max_loras=1, max_cpu_loras=2, max_model_len=4096, max_num_seqs=min(per_step * GROUP, 256), seed=seed)
+              max_loras=1, max_cpu_loras=2, max_model_len=max(4096, max_tokens + 1024),
+              max_num_seqs=min(per_step * GROUP, 256), seed=seed)
     model = AutoModelForCausalLM.from_pretrained(MODEL, dtype=torch.bfloat16, attn_implementation="sdpa").cuda()
     model.config.use_cache = False
     model = get_peft_model(model, LoraConfig(task_type="CAUSAL_LM", r=OFFICIAL["lora_r"], lora_alpha=OFFICIAL["lora_alpha"],
@@ -429,7 +440,7 @@ def train_grpo(name, data, seed, kind):
             lora = LoRARequest(f"policy{step}", step, str(sync_dir))
         qs = [rows[i] for i in sched[step - 1]]
         p_ids = [_prompt_ids(col, r, "student") for r in qs]
-        sps = [SamplingParams(n=GROUP, temperature=TEMPERATURE, top_p=1.0, top_k=-1, min_p=0.0, max_tokens=MAX_TOKENS,
+        sps = [SamplingParams(n=GROUP, temperature=TEMPERATURE, top_p=1.0, top_k=-1, min_p=0.0, max_tokens=max_tokens,
                               seed=seed * 1_000_003 + step * 1000 + j) for j in range(len(qs))]
         outs = llm.generate([{"prompt_token_ids": p} for p in p_ids], sps, lora_request=lora, use_tqdm=False)
         t_gen = time.time() - t0
@@ -466,7 +477,7 @@ def train_grpo(name, data, seed, kind):
                     text = anchor_text(tr.text, q["vote_answer"])
                     sa = score(text, "stop", q["Answer"], q.get("vote_answer"), q.get("ref"), q.get("problem_translated"))
                     comp = tok(text, add_special_tokens=False)["input_ids"] + [eos]
-                    ok = sa["vote_ok"] and sa["lid_ok"] and len(comp) <= MAX_TOKENS
+                    ok = sa["vote_ok"] and sa["lid_ok"] and len(comp) <= max_tokens
                     anchors.append({"step": step, "qid": q["qid"], "anchor": True, "accepted": bool(ok),
                                     "reward": reward(kind, sa), "len": len(comp),
                                     **{k: sa[k] for k in ("pred", "vote_ok", "lid", "lid_ok", "correct", "ref_f1")},
@@ -476,7 +487,7 @@ def train_grpo(name, data, seed, kind):
 
         model.train()
         opt.zero_grad(set_to_none=True)
-        norm = len(qs) * GROUP * MAX_TOKENS
+        norm = len(qs) * GROUP * max_tokens
         loss_sum, n_signal = 0.0, 0
         for p, g in groups:
             r = np.array([x[1] for x in g])
