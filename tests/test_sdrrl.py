@@ -196,3 +196,22 @@ def test_grpo_warm_start_variant():
     assert v["kind"] == "votelidref" and v["steps"] == 300 and v["init"] == "sdrrl" and v["lr"] == 5e-6
     assert parse_variant("votelidref-lr5e-6-q16-steps300")["init"] is None          # Jeff's runs unchanged
     assert parse_name("grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initsdrrl__s42")[0] == "grpo"
+
+
+def test_sdrrl_prune_checkpoints(tmp_path):
+    from votedistill.sdrrl.train import prune_checkpoints
+    for s in (10, 20, 100, 277, 280, 290):
+        d = tmp_path / f"step-{s}"
+        (d / "adapter").mkdir(parents=True)
+        (d / "state.pt").write_text("x")
+    prune_checkpoints(tmp_path, 290, per_epoch=277)
+    left = sorted(int(p.name.split("-")[1]) for p in tmp_path.glob("step-*"))
+    assert left == [100, 277, 290]                                       # every 100, epoch boundary, latest
+    assert not (tmp_path / "step-100" / "state.pt").exists() and (tmp_path / "step-290" / "state.pt").exists()
+
+
+def test_l3_voteshort_name():
+    from votedistill.exp2.levels import TEACHER_CONTEXTS
+    from votedistill.exp2.runs import parse_name
+    assert TEACHER_CONTEXTS["L3-voteshort"]["reference"] == "vote_short"
+    assert parse_name("L3-voteshort__gsm8k-mt3k__exact__s44")[:4] == ("L3-voteshort", "gsm8k-mt3k", "exact", 44)

@@ -115,6 +115,26 @@ def voted_references(dataset, threshold=VOTE_THRESHOLD):
     return out
 
 
+def voted_trajectories(dataset, threshold=VOTE_THRESHOLD):
+    """{qid: shortest finished English sample that agrees with the vote, thinking + final solution, <think> tags
+    removed} for the accepted questions: the proposal's Experiment 1 pseudo-reference (section 3.1, "select the
+    shortest agreeing trajectory"), used by teacher context L3-voteshort."""
+    p = CONSENSUS / CONSENSUS_FILE[dataset]
+    if not p.exists():
+        raise SystemExit(f"{p} missing: run the English thinking-mode consensus first")
+    mode = "numeric" if dataset.startswith("gsm8k") else "math"
+    out = {}
+    for rec in read_jsonl(p):
+        if not eligible(rec, threshold):
+            continue
+        ok = [t for t, fin in zip(rec["raw_outputs"], rec["finish_reasons"])
+              if fin == "stop" and "</think>" in t and _agrees(rec, t, mode)]
+        if ok:
+            think, final = min(ok, key=len).split("</think>", 1)
+            out[rec["question_id"]] = think.replace("<think>", "", 1).strip() + "\n\n" + final.strip()
+    return out
+
+
 def _subsample(rows, n, seed=SUBSAMPLE_SEED):
     if n >= len(rows):
         return list(rows)
@@ -128,7 +148,9 @@ def source_rows(dataset, uses_vote, threshold=VOTE_THRESHOLD):
     if not uses_vote:
         return rows
     refs = voted_references(dataset, threshold)
-    return [{**r, "vote_solution": refs[r["qid"]][0], "vote_answer": refs[r["qid"]][1], "vote_share": refs[r["qid"]][2]}
+    traj = voted_trajectories(dataset, threshold)
+    return [{**r, "vote_solution": refs[r["qid"]][0], "vote_answer": refs[r["qid"]][1], "vote_share": refs[r["qid"]][2],
+             "vote_trajectory": traj.get(r["qid"])}
             for r in rows if r["qid"] in refs]
 
 
@@ -136,7 +158,12 @@ def training_rows(dataset, context, threshold=VOTE_THRESHOLD):
     """Training rows (before teacher_rows) and a description for config.json."""
     ref = TEACHER_CONTEXTS[context]["reference"] or ""
     uses_vote = "vote" in ref
-    if uses_vote:   # equal-size datasets for every vote context
+    if uses_vote and dataset not in ("copsd", "gsm8k-mt", "mix"):
+        # a dataset outside the copsd / gsm8k-mt equalisation (e.g. gsm8k-mt3k): its own vote-accepted questions
+        pools = {dataset: source_rows(dataset, True, threshold)}
+        n = len(pools[dataset])
+        sizes = {dataset: n}
+    elif uses_vote:   # equal-size datasets for every vote context
         # datasets with a consensus run (Qwen3-1.7B: both; Qwen3-4B: COPSD only, so no equalisation there)
         have = [d for d in ("copsd", "gsm8k-mt") if (CONSENSUS / CONSENSUS_FILE[d]).exists()]
         pools = {d: source_rows(d, True, threshold) for d in have or [dataset]}

@@ -1066,3 +1066,20 @@ Predictions (Swahili accuracy, paired bootstrap, seeds averaged per item, vs exi
 (3) 8B: J-gate − D >= −0.5 (point estimate; J was −1.6): the gate removes J's harm at 8B.
 (4) 4B: J-gate − D-more > 0 and J − D-more > 0 (the judge beats just sampling more).
 Secondary: MSVAMP for the 4B runs; share of judged groups and kept comparisons per step from the train logs.
+
+## 2026-11-25 — PREREGISTERED (Person C): baselines on the same setting as D, three seeds each (before any of these runs)
+So that D, SDRRL and COPSD differ only in the method: Qwen3-4B, the 2,783 vote-accepted gsm8k-mt3k questions, the same
+English vote file (gsm8k3k_en_thinking, Qwen3-4B thinking mode, n = 8, share >= 5/8), AfriMGSM Swahili TEST, final
+checkpoint, default + penalty 1.1 decoding, Swahili accuracy (LID) and any-language accuracy, seeds 42 / 43 / 44, paired
+bootstrap with each method's three seeds averaged per item. Each method keeps its own training recipe and budget
+(GPU-hours reported), by decision of Person C.
+- COPSD with the proposal's Experiment 1 reference (section 3.1): teacher context L3-voteshort = English question + the
+  shortest finished English sample that agrees with the vote, thinking and final solution (tags removed); student sees
+  the Swahili question; official COPSD recipe (100 steps x 32, lr 5e-6, clip 0.05, exact layout). Runs
+  `L3-voteshort__gsm8k-mt3k__exact__s{42,43,44}`. Replaces Jeff's 4B L3-vote runs (COPSD olympiad questions, first
+  agreeing final solution) in the main comparison.
+- SDRRL seeds 43 and 44 (`sdrrl__gsm8k-mt3k__exact__s{43,44}`), same data and recipe as s42; the SFT checkpoints now keep
+  only the latest state, every 100th step and epoch boundaries.
+- D: Jeff's votelidref-lr5e-6-q16-steps300 s42 / s43 / s44 (s43 / s44 per-item outputs requested from Jeff).
+Main contrasts: D − SDRRL, D − COPSD(L3-voteshort), SDRRL − COPSD, on both metrics. No directional prediction recorded
+(reruns for comparability; the s42 results of D and SDRRL are known).

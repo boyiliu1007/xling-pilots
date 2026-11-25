@@ -60,6 +60,10 @@ TEACHER_CONTEXTS = {
     "L3-vote": dict(problem_en=True, reference="vote", note="+ the model's own English majority-vote solution"),
     "L3-shuffled-vote": dict(problem_en=True, reference="shuffled_vote",
                              note="+ voted English solution of a different problem (placebo)"),
+    # The proposal's Experiment 1 reference (section 3.1): the SHORTEST agreeing English trajectory, thinking included
+    # (L3-vote uses the first agreeing sample's final solution). PREREGISTRATION 2026-11-25 baseline entry.
+    "L3-voteshort": dict(problem_en=True, reference="vote_short",
+                         note="+ the model's shortest agreeing English trajectory (thinking + solution)"),
 }
 
 # Earlier base-model evaluation with the same protocol (git 4e5abab, another user's environment). L0 is checked
@@ -106,6 +110,8 @@ def teacher_rows(rows, context):
         return [{**r, "solution": r["vote_solution"]} for r in rows], flags
     if ref == "vote_answer":
         return [{**r, "solution": answer_only(r["vote_answer"])} for r in rows], flags
+    if ref == "vote_short":
+        return [{**r, "solution": r["vote_trajectory"]} for r in rows], flags
     if ref == "shuffled_vote":
         perm = derangement(len(rows))
         return [{**r, "solution": rows[perm[i]]["vote_solution"]} for i, r in enumerate(rows)], flags

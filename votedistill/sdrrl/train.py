@@ -45,6 +45,22 @@ def latest_ckpt(ckpt_dir):
     return done[-1] if done else None
 
 
+KEEP_EVERY = 100   # adapters kept besides the latest checkpoint: every KEEP_EVERY steps and each epoch boundary
+
+
+def prune_checkpoints(ckpt_dir, step, per_epoch):
+    """After step's checkpoint is complete: drop the optimizer state of every older checkpoint (only the latest is
+    needed to resume) and older checkpoints that are neither a multiple of KEEP_EVERY nor an epoch boundary
+    (a Qwen3-4B adapter is ~0.5 GB, its state ~1 GB; keeping all 111 of a 4-epoch run took 164 GB)."""
+    for d in Path(ckpt_dir).glob("step-*"):
+        s = int(d.name.split("-")[1])
+        if s >= step:
+            continue
+        (d / "state.pt").unlink(missing_ok=True)
+        if s % KEEP_EVERY and s % per_epoch:
+            shutil.rmtree(d)
+
+
 def train(run_dir, ckpt_dir, epochs=4, lr=5e-5, batch=32, warmup_ratio=0.1, max_length=4096, save_every=10,
           seed=42, max_steps=None, data_dir=None, run_name=None):
     """data_dir: folder holding sft_data.jsonl (default run_dir). Experiment 2 runs share one data folder across seeds
@@ -138,7 +154,8 @@ def train(run_dir, ckpt_dir, epochs=4, lr=5e-5, batch=32, warmup_ratio=0.1, max_
                      f"{dt:.1f},{torch.cuda.max_memory_allocated() / 2**20:.0f}\n")
         log.info(f"step {step}/{total} epoch {epoch}: loss {loss_sum / n_tok:.4f} grad_norm {gn:.3f} "
                  f"lr {sch.get_last_lr()[0]:.2e} tokens {n_tok} {dt:.1f}s")
-        if step % save_every == 0 or step == stop_at:
+        per_epoch = -(-len(data) // batch)
+        if step % save_every == 0 or step == stop_at or step % per_epoch == 0:
             d = ckpt_dir / f"step-{step}"
             if d.exists():
                 shutil.rmtree(d)
@@ -147,3 +164,4 @@ def train(run_dir, ckpt_dir, epochs=4, lr=5e-5, batch=32, warmup_ratio=0.1, max_
             torch.save({"optimizer": opt.state_dict(), "scheduler": sch.state_dict(), "step": step}, d / "state.pt")
             (d / "COMPLETE").write_text(datetime.now().isoformat())
             log.info(f"checkpoint saved: {d}")
+            prune_checkpoints(ckpt_dir, step, per_epoch)
