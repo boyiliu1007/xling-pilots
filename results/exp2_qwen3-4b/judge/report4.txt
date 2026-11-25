@@ -1,0 +1,9 @@
+Fourth judge test (PREREGISTRATION 2026-11-20 ~19:50): listwise multiple choice, untrained 4B, own English solution, final solutions. Pair accuracy [question-clustered 95% CI].
+Mean score by position (1 = chance): A 0.03 B 1.68 C 0.82 D 1.47
+
+LW     P1  87.7 [83.7, 91.5]   P3  41.4 [35.9, 46.9]   P5  59.3 [51.4, 66.8]
+C      P1  99.6 [99.0,100.0]   P3  55.4 [49.2, 61.4]   P5  70.9 [64.1, 77.7]
+numF1  P1  86.0 [81.6, 90.0]   P3  83.5 [79.6, 87.4]   P5  70.1 [64.2, 75.8]
+
+P5: LW - C = -11.6 [-21.4, -2.1]
+GO RULE 4: fail; replacement rule (LW - C >= -3): C stays the RL candidate

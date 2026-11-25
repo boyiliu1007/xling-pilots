@@ -779,3 +779,290 @@ PAM s42 (92 steps, 709 examples), 64 RL-half questions, T 1.0, 8192-token cap: S
 (78% < 80% within 4096). PASMR SRL runs with 4096 / 8192; PAM -> D's RL with -len4096
 (`grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initpasmrpam-len4096-rlhalf__s42`). Even at 4096 about two
 thirds of PAM's Swahili answers are unfinished at the start, so both RL runs begin with mostly zero answer reward.
+2026-11-20 00:04 — logistics only: D1200 runs from step 600 inside the interactive neulab-mini allocation 11217934
+(A6000; ~187 s/step) while preempt job 11212778 is held; when the allocation ends, 11212778 is released and resumes from
+the latest checkpoint. Hardware may differ across segments (A6000 / RTX PRO 6000); design unchanged.
+
+## 2026-11-20 — PREREGISTERED: can the model judge its own Swahili answers? (offline test, before any RL)
+Scope (advisor, 2026-11-20): half analysis (COPSD failure; does the model understand Swahili questions), half a gold-free
+RL method that must be novel. Candidate novel piece: the model as its own privileged judge — SP3F's judge (GPT-4o-mini
++ gold English solution) replaced by Qwen3-4B + its own English voted solution. Step 1 tests the judge offline; RL
+only if it passes. Decisions taken with the user, one by one:
+- Questions: 200 vote-accepted gsm8k-mt3k training questions, random.Random(2026).sample (the RL judge works on training
+  questions; D300 has seen them in training).
+- Answers: 8 Swahili answers per question from each policy — untrained Qwen3-4B and D step 300
+  (votelidref-lr5e-6-q16-steps300__s42) — sampled exactly like RL rollouts (student prompt, thinking mode, T 1.0,
+  top-p 1.0, 2048 tokens). Labels from gold (never shown to the judge): correct = finished AND gold-correct AND lid_ok;
+  wrong = finished AND wrong AND lid_ok. Unfinished answers: separate easy group only.
+- Judge format: POINTWISE. Non-thinking chat prompt (English instructions): Swahili problem, [reference: own English
+  voted solution, text after </think>], one answer; "Are the reasoning and the final answer correct? Reply with one
+  word: Yes or No." Score = P(Yes)/(P(Yes)+P(No)) from the first generated token (one forward pass, temperature 0).
+  Pairwise judging was considered and dropped (cost; user decision).
+- Pairs (SP3F Table 3 analogues; up to 4 per type per question and policy, seeded):
+  P1 correct vs wrong (real answers)  — the go-rule pair type;
+  P2 correct vs wrong-reasoning-with-gold-number (a wrong answer whose final number is replaced by gold);
+  P3 correct-reasoning-with-wrong-number (a correct answer whose final number is replaced by a wrong answer's) vs that
+     same wrong answer (both end in the same number; only the reasoning differs);
+  P0 correct vs unfinished (easy group, reported separately).
+  Splice: replace the \boxed{} content after </think> only. (Amended before any judge score existed: replacing the
+  old number everywhere after </think> also rewrote the solution's arithmetic, e.g. "68 - 4 = 220".)
+  A pair is judged right if the better answer gets the higher score (tie = 0.5).
+- Conditions (2×2×2): judge ∈ {untrained 4B, D300}; reference ∈ {own English solution, none};
+  answer text ∈ {full (thinking + solution), final solution only}.
+- Go rule (untrained 4B judge, own solution): P1 accuracy ≥ 65% AND P1 accuracy(with solution) − (without) has a
+  question-clustered bootstrap 95% CI above 0, for full OR final-only input. RL uses the input with higher P1 accuracy
+  (final-only if within 2 points). D300-as-judge results are analysis only (does Swahili RL make a better judge?).
+- If the rule fails: no judge RL; report as a comprehension result. Not decided yet: in RL, frozen vs current-policy judge.
+Code: votedistill/exp2/judge.py (sample / score / report). Output: results/exp2_qwen3-4b/judge/.
+
+## 2026-11-20 ~14:40 — self-judge offline test: RESULTS (results/exp2_qwen3-4b/judge/report.txt)
+Answers: base 223 correct / 884 wrong / 370 unfinished / 123 not Swahili; D300 413 / 1087 / 81 / 19 (of 1600 each).
+Pairs: P1 495, P2 495, P3 495, P0 214. Pair accuracy, untrained 4B judge, with own English solution vs without:
+- P1 correct vs wrong: full 99.0 vs 67.6 (+31.4 [+25.9, +37.2]); final-only 99.4 vs 69.1 (+30.3 [+24.3, +36.4]).
+- P2 correct vs wrong-reasoning-with-gold-number: full 97.6 vs 98.4; final 93.3 vs 97.0.
+- P3 correct-reasoning-with-wrong-number vs the wrong answer with that number: full 41.6 vs 7.3; final 57.4 vs 8.5.
+- P0 correct vs unfinished: full 97.7 vs 99.1; final 59.8 vs 90.7.
+- D300 as judge: within ~±5 of the untrained judge everywhere (e.g. P3 final 58.8, P1 99.4).
+GO RULE: PASS (full 99.0%, final 99.4%; own-none CIs > 0); preregistered RL input = final.
+Exploratory (not preregistered), base judge with own solution: P(Yes) for correct answers 0.91 (final) / 0.97 (full),
+for wrong answers 0.003 / 0.11; 100% (final) / 75% (full) of wrong answers get P(Yes) < 0.01. Among the 439 wrong
+answers, Spearman(P(Yes), intermediate-step F1 vs the GOLD rationale) = +0.12 for both inputs.
+Reading: with its own English solution the judge checks whether the final answer matches the reference — the same
+information vote_ok already gives — and is near chance (P3) at crediting correct reasoning that ends in a wrong number.
+Without the reference it judges correctness at 68-72% (partial comprehension of Swahili solutions) and flags answers
+whose box contradicts their own reasoning (P2 ~98%, P3 ~8%). In all-wrong groups (52-64% of RL groups) the judge gives
+almost no spread, so a judge reward would mostly duplicate vote_ok. The go rule passed, but it was specified on P1,
+which measures answer matching; judge RL is NOT launched pending a decision with the user.
+
+## 2026-11-20 ~15:30 — PREREGISTERED: second judge test — can a self-judge rank WRONG answers?
+Motivation: the yes/no judge with its own English solution only matches the final number (wrong answers P(Yes)
+~0.003). The user wants the limit of self-judging tested. Same 200 questions, same sampled answers and pairs, plus a new
+pair type. Judges (user choices; cheap one-forward-pass judges only):
+- B reasoning-only likelihood: context = the policy's student prompt + the answer's thinking (text up to </think>;
+  all of it if unfinished) + "</think>\n\n$\boxed{"; score = log P(own vote answer + "}") (prompt logprobs, no
+  generation). Uses the vote, not the English solution text. Judges: untrained 4B, D300.
+- D masked reference: the yes/no judge (PROMPT_REF) with the own English solution's \boxed{} answer and every
+  standalone occurrence of the vote number replaced by "?". Judges: untrained 4B, D300; inputs full, final.
+- Comparators scored on the same pairs (no GPU): the first test's yes/no judge, and number overlap ref_f1 vs the own
+  English solution (D's current term, full text).
+New pair type P4 wrong vs wrong: two real wrong answers (finished, Swahili, wrong) to the same question from the same
+policy; "better" = higher intermediate-step F1 vs the GOLD rationale (step_f1, question numbers excluded; gold only
+labels), pairs only if the F1 difference >= 0.25; up to 4 per question and policy (seed 11).
+GO RULE 2 (per judge variant: B-base, B-d300, D-{base,d300}-{full,final}): P4 accuracy >= 60% with question-clustered
+bootstrap 95% CI lower bound > 50%, AND P1 >= 90%. If several pass, the RL candidate is the one with the highest P4.
+Six variants are tested, so a pass with CI lower bound in 50-52% is treated as weak. P3 (credits correct reasoning
+with a wrong number) reported for all.
+
+## 2026-11-20 ~15:15 — second judge test: RESULTS (results/exp2_qwen3-4b/judge/report2.txt)
+Pairs: P1 495, P3 495, P4 137 (wrong vs wrong). Pair accuracy (question-clustered 95% CI):
+- B reasoning-only likelihood: P1 87.3 / 87.9 (base / D300 judge), P3 88.1 / 87.3, P4 54.0 [45.0, 63.3] / 51.1 [40.4, 61.8].
+- D masked reference: P1 83.2-91.3, P3 13.9-18.8, P4 52.9-61.3 (best D-base-final 61.3 [49.6, 72.5]).
+- Comparators: yes/no judge P4 53.3-59.9; number overlap (D's current term) P1 86.0, P3 83.5, P4 90.9 [85.5, 95.5].
+GO RULE 2: no variant passes (no P4 CI above 50%). No judge RL.
+Caveat: the P4 label (intermediate-number F1 vs the gold rationale) is itself a number-overlap measure, so number
+overlap's 90.9% is partly by construction; P4 cannot show that a judge is worse than number overlap at real partial
+correctness, only that neither self-judge tracks this proxy. Reading: the model, used as its own judge, recognises
+correct answers (B credits correct reasoning even when the written number is wrong: P3 88%; the yes/no judge matches
+final answers: P1 99%), but no cheap self-judge ranks wrong answers above chance. Masking the reference's final number
+makes the judge reward answers whose box agrees with their own reasoning (P3 14-19%), not reasoning quality.
+
+## 2026-11-20 ~15:40 — PREREGISTERED: third judge test — stronger self-judges, independent wrong-vs-wrong labels
+User choices: judges A, C, E, F (below); wrong-vs-wrong labels from Qwen3-8B (thinking) with the gold solution, used
+ONLY to label evaluation pairs. Same 200 questions and sampled answers. All judges: untrained Qwen3-4B (D300 was within
+~±5 of it in both earlier tests), own English voted solution as reference, final solution only (median ~100 words;
+cheaper; the yes/no judge was no worse on it).
+- A graded: non-thinking; "how much of the reasoning is correct, 0 (nothing) to 9 (fully correct)? one digit";
+  score = expected digit from the first token's top-20 logprobs.
+- C pairwise: non-thinking; "which answer is closer to a fully correct solution? A or B"; P(A) normalised; both
+  orders; preference for the better answer = mean of P(better) over the two orders; right if > 0.5.
+- E translate-then-judge: the 4B translates the final solution into English (non-thinking, greedy, <= 1024 tokens),
+  then judge A's graded prompt on the English translation (same reference).
+- F thinking judge: judge A's question in thinking mode (T 0.6, top-p 0.95, top-k 20, <= 3072 new tokens), ending
+  "Score: k"; score = expected digit at the token after the last "Score:" (top-20 logprobs).
+Labels P5 (wrong vs wrong): up to 3 random pairs of real wrong answers per question and policy (seed 13). Qwen3-8B,
+thinking mode (T 0.6, top-p 0.95, top-k 20, <= 6144 tokens), sees the Swahili problem, the GOLD English solution and
+both final solutions, and answers "Verdict: A/B" = more correct reasoning before the first mistake. Both orders; a pair
+is kept only if both orders agree (agreement rate reported).
+Evaluated: P1, P3, P4 (gold-number label), P5 (8B label). Comparators on the same pairs: number overlap, yes/no-final,
+B, D-final. GO RULE 3 (A, C, E, F): P5 accuracy >= 60% with question-clustered 95% CI lower bound > 50%, AND P1 >= 90%.
+Four variants tested; a pass with CI lower bound < 52% is weak. RL cost noted: E and F need generation per answer.
+
+## 2026-11-20 ~19:30 — third judge test: RESULTS (results/exp2_qwen3-4b/judge/report3.txt)
+P5 labels: Qwen3-8B (thinking, gold solution), 285 wrong-vs-wrong candidates, both verdicts parsed 281, agreed 189.
+Untrained 4B judge, own English solution, final solution only. Pair accuracy [question-clustered 95% CI]:
+           P1 correct-vs-wrong   P3 correct reasoning+wrong number   P5 wrong-vs-wrong (8B label)
+A graded   97.8                  74.1                                57.7 [50.5, 65.2]
+C pairwise 99.6                  55.4                                70.9 [64.1, 77.7]
+E transl.  94.9                  80.8                                62.4 [54.0, 70.7]
+F thinking 95.4                  88.5                                60.7 [53.2, 68.1]  (1.7% unparsed scores)
+yes/no 64.6, B 50.3, D-masked 63.0, number overlap 70.1 [64.2, 75.8] (15% ties) on P5.
+GO RULE 3: C PASS (70.9, lo 64.1); E PASS (62.4, lo 54.0); F PASS (60.7, lo 53.2); A fails. RL candidate: C.
+Exploratory: C − number overlap on P5 = +0.8 [−7.1, +8.9] (no difference); the two agree on only 61% of untied pairs,
+and at least one is right on 91% — complementary signals. C has a strong position bias (P("A") 0.58 when the better
+answer is first, 0.12 when second), removed by averaging both orders. Thinking (F) and translation (E) make the judge
+credit correct reasoning with a wrong number (P3 88.5 / 80.8 vs 55-57 for one-pass judges) but rank wrong answers no
+better than pairwise.
+
+## 2026-11-20 ~19:50 — PREREGISTERED: fourth judge test — listwise multiple choice (user choice)
+Judge LW: untrained 4B, own English solution, final solutions only, non-thinking. For each (policy, question), the items
+in any P1/P3/P5 pair of that group are put into random lists of 4 (A-D; fewer if the group has < 4 items) so each item
+appears ~3 times at random positions (seed 17); prompt = test 3's header + the answers + "Which answer is closest to a
+fully correct solution? Reply with one letter." Item score = mean over its appearances of P(its letter) x list size
+(1 = chance), letters renormalised over the list's letters from the first token's top-20 logprobs.
+Same pairs and 8B labels. GO RULE 4: P5 >= 60% with CI lower bound > 50%, AND P1 >= 90%. Replacement rule: if LW passes
+and LW − C on P5 >= −3 points (point estimate), LW replaces C as the RL candidate (~10x fewer judge passes).
+
+## 2026-11-20 ~19:35 — fourth judge test: RESULTS (results/exp2_qwen3-4b/judge/report4.txt)
+Listwise (1110 lists of 4): P1 87.7 [83.7, 91.5], P3 41.4, P5 59.3 [51.4, 66.8]; LW − C on P5 = −11.6 [−21.4, −2.1].
+GO RULE 4: fail; C stays the RL candidate. Strong position bias: mean score by position A 0.03, B 1.68, C 0.82,
+D 1.47 (1 = chance) — the 4B judge almost never picks the first answer, and random positions only partly average it out.
+
+## 2026-11-21 ~01:15 — PREREGISTERED: RL with the pairwise self-judge (J), plus overnight seeds/evals
+User: "do all overnight". The four judge-RL design choices were left to Claude's recommended defaults (to be reviewed
+by the user): (1) ADD the judge to D's reward (exploratory: judge and number overlap agree on only 61% of
+wrong-vs-wrong pairs); (2) judge ONLY groups where no rollout matches the English vote (52-64% of groups, where the
+answer reward carries no signal); (3) judge = the FROZEN untrained model (no LoRA; the D300 judge was within ~±5);
+(4) three seeds at once (42/43/44), as B/C/D have.
+J `grpo__gsm8k-mt3k__exact__votelidrefpw-lr5e-6-q16-steps300__s{42,43,44}`: reward = vote_ok + lid_ok + ref_f1
+(= D) + win rate of the pairwise self-judge (judge test 3's judge C: PAIRWISE prompt, own English voted solution,
+final solutions truncated to 3000 chars, both orders, P(A) renormalised over A/B) among the group's finished rollouts;
+unfinished rollouts get 0; groups with < 2 finished rollouts are not judged. Everything else identical to D.
+Smoke test (2 steps, deleted): 11-12 of 16 groups judged per step, ~+10 s per step.
+Primary: J − D, Swahili accuracy (LID) on AfriMGSM TEST at step 300, paired bootstrap on 3-seed item means. Also J − B,
+J − C, and MSVAMP (3 seeds) once evaluated. Claim "the self-judge helps" only if the J − D CI excludes 0.
+Also launched tonight: MSVAMP evals of B/C/D/G seeds 43/44 (3-seed MSVAMP table); Qwen3-8B B and D seed 43 (the 8B
+"matches gold" comparison had one seed).
+
+## 2026-11-22 — RESULTS: overnight runs (1200-step curves, MSVAMP 3 seeds, 8B s43, judge RL J)
+Judge RL J (3 seeds, TEST step 300, Swahili accuracy by LID): J 28.0 / 26.5 / 28.7 (mean 27.8; any-language 29.8,
+LID 94.9, truncated 0.5) vs D 25.5, B 26.7, C 24.3. Paired bootstrap on 3-seed item means:
+J − D = +2.2 [+0.8, +3.8] (any-language +3.2 [+1.8, +4.7]) — PRIMARY: CI excludes 0, "the self-judge helps" holds.
+J − B = +1.1 [−0.3, +2.6] (any-language +1.5 [+0.1, +3.0]); J − C = +3.4 [+2.0, +4.9].
+MSVAMP for J not yet run.
+1200-step curves (s42, TEST Swahili acc, D / B): 600 32.5/30.1, 700 32.6/32.0, 800 30.2/33.2, 900 33.1/33.0,
+1000 33.2/33.4, 1100 36.1/33.4, 1200 34.5/35.9. D − B CI includes 0 at every step except 800 (−3.1 [−6.0, −0.2]).
+Slow gain of ~2-4 points after step 600; no divergence between gold and vote rewards.
+MSVAMP 3 seeds (Swahili acc): B 59.6/61.8/61.5, C 55.9/58.6/56.2, D 62.3/60.2/59.9, G 24.0/13.5/17.5.
+D − B = −0.2 [−1.1, +0.8]; D − C = +3.9 [+3.0, +4.9]; D − G = +42.5 [+40.6, +44.2].
+Qwen3-8B s43: B 50.4, D 50.3; 2 seeds D − B = −1.1 [−3.2, +1.0].
+
+## 2026-11-22 ~00:30 — PREREGISTERED: exploit the self-judge (user: "yes do them"; before any of these runs)
+Reading of J: the gain comes from groups with no vote-matching rollout (no answer signal), so the judge should help most
+where those groups dominate. Three runs, all with J exactly as in the 2026-11-21 ~01:15 entry:
+1. MSVAMP Swahili (1000 x 4) for J s42/43/44 (logs/bench_eval.py). Contrasts J − D, J − B on 3-seed item means.
+   Prediction: J − D > 0 (point estimate); no CI requirement stated in advance beyond reporting it.
+2. Zulu mechanism test: `grpo__gsm8k-mt3k-zulonly__exact__votelidrefpw-lr5e-6-q16-steps300__s42` vs the existing D run
+   `grpo__gsm8k-mt3k-zulonly__exact__votelidref-lr5e-6-q16-steps300__s42` (same data, seed, settings). Code change: the
+   judge prompt names the training language (PAIRWISE with "Swahili" -> "Zulu"; identical for Swahili). Smoke test
+   (2 steps, deleted): 14-15 of 16 groups judged per step (Swahili: 11-12). Primary: J − D, Zulu accuracy by LID on
+   AfriMGSM Zulu TEST, paired bootstrap over items. PREDICTION: J − D (Zulu) > +2.2 (the Swahili 3-seed gain).
+   Single seed: reported as one seed; if J − D (Zulu) <= 0, the write-up states the judge does not rescue a language
+   the 4B model barely reads (a limitation, consistent with the comprehension analysis).
+3. Scale: Qwen3-8B J s42 and s43 (8B judges itself, frozen). Contrasts J − D and J − B on 2-seed item means (8B D/B
+   s42+s43 exist). Prediction: J − D > 0 (point estimate).
+No other variants (user: no more ablations).
+
+## 2026-11-22 — EXPLORATORY (post hoc, not preregistered): where J's Swahili gain comes from
+TEST items binned by the untrained model's any-language accuracy (3-seed item means, Swahili acc by LID):
+base 0% (n=103): D 4.9, J 6.5, J − D +1.6 [+0.5, +2.9]; base 1-33% (n=70): D 33.3, J 37.3, +4.0 [+0.6, +7.6];
+base > 33% (n=27): D 84.2, J 84.3, +0.1 [−3.7, +3.6]. The gain is on hard items; none on easy ones.
+Training: 58% of J's groups were judged (62% in steps 1-50, 52-56% in steps 251-300).
+
+## 2026-11-22 — RESULTS: MSVAMP for J (3 seeds) and Qwen3-8B J (2 seeds)
+MSVAMP Swahili acc: J 61.6/62.3/62.1 (mean 62.0, any 63.5) vs D 60.8, B 61.0. J − D = +1.2 [+0.2, +2.2]
+(any +2.2 [+1.3, +3.2]); J − B = +1.0 [+0.0, +2.0]. Prediction J − D > 0: HOLDS (and its CI excludes 0).
+Qwen3-8B TEST Swahili acc: J 47.3/47.4 (mean 47.4, any 52.1) vs D 49.0, B 50.1. J − D = −1.6 [−3.3, −0.0]
+(any −1.1 [−2.7, +0.5]); J − B = −2.8 [−4.6, −0.9]. Prediction J − D > 0: FAILS.
+Diagnostic (post hoc): only 29-30% of 8B groups are judged (4B: 58%), and the 8B win-rate spread is smaller (sd 0.17-0.18
+vs 0.25). Consistent with the mechanism reading (the judge adds signal where the answer reward has none, and 8B has
+far fewer such groups), but this is an after-the-fact explanation; the write-up reports 8B as a negative result.
+
+## 2026-11-22 — PREREGISTERED: our RL on COPSD's own training set (user: "yes"; before any of these runs)
+Purpose: rule out "the RL beats COPSD only because it trains on GSM8K". Same data, same eval as the existing COPSD runs.
+Data: the released COPSD set (500 OpenThoughts olympiad problems, COPSD's Swahili translation); Qwen3-4B English
+thinking-mode vote accepts 487/500 (89.9% = gold); D / J train on those 487. Code change: grpo.question_rows loads
+`copsd` via trainsets._copsd_rows (answers compared with the evaluation's equivalence check, as before).
+Matched to the COPSD runs (L1 / L3-vote, results/exp2_qwen3-4b/runs/*__copsd__exact__s{42,43}): rollout length 2048
+(= COPSD max_completion_length), lr 5e-6 (= COPSD), problem draws 16 x 200 steps = 3200 (= COPSD 32 x 100 steps).
+Everything else as D / J on GSM8K (8 rollouts, Dr. GRPO, LoRA r64, frozen untrained judge for J).
+Runs: `grpo__copsd__exact__{votelidref,votelidrefpw}-lr5e-6-q16-steps200__s{42,43}`.
+Evaluation: AfriMGSM Swahili TEST (200 x 12, max 4096 new tokens), final checkpoint, as the COPSD runs (scored the same
+day with the same scorer: L1 s42/s43 Swahili acc 7.0/7.6, any 20.4/20.0, pass@12 51.0/53.5; L3-vote 7.3/8.2,
+8.9/10.5, 37.5/45.5). Metrics: Swahili accuracy (primary), any-language accuracy, pass@12 (COPSD's metric).
+Predictions: (1) D − COPSD-L1 > 0 and D − COPSD-L3-vote > 0 on Swahili accuracy, 2-seed item means, CI excluding 0.
+(2) J − D on this set > +2.2 (the GSM8K gain): olympiad problems leave more groups with no vote-matching rollout.
+Smoke test (J, 2 steps, deleted): 41% of rollouts finish within 2048 tokens; 11 and 5 of 16 groups judged; ~4.5 min/step on A6000.
+Reported either way; no other variants.
+
+### 2026-11-22 ~16:20 — COPSD-setup J: judge-prompt overflow fix (no change to design)
+J s43 crashed at step 69 (vLLM: judge prompt 4097 > max_model_len 4096; olympiad problem + two 3000-char solutions).
+Fix: if a judge prompt exceeds 4000 tokens, both solutions are shortened by 20% steps until it fits. Prompts that already fit
+are byte-identical, so all GSM8K/Zulu/8B J runs are unaffected (none ever overflowed). J s43 resumed from step-50
+(train 11248959, eval 11248960); J s42 requeued onto the fixed code from its step-50 checkpoint. Predictions unchanged.
+
+## 2026-11-23 — RESULTS: our RL on COPSD's own setup (TEST AfriMGSM Swahili, 2 seeds, default decoding)
+Swahili acc (correct AND LID >= 0.7) s42 / s43; any-language; truncation:
+D 21.5 / 21.6 (any 23.2, trunc 0.2%); J 21.0 / 23.7 (any 23.9, trunc 0.5%);
+COPSD L1 7.0 / 7.6 (any 20.2, trunc 39%); COPSD L3-vote 7.3 / 8.2 (any 9.7, trunc 15%).
+Paired bootstrap, 2-seed item means, 200 items:
+(1) D − L1 +14.3 [+11.3, +17.4]; D − L3-vote +13.8 [+10.7, +17.1]  -> PREDICTION (1) MET.
+    (any-language: D − L1 +2.9 [+0.3, +5.6], D − L3-vote +13.4 [+10.3, +16.6]; Swahili pass@12 D − L1 +18.8, D − L3 +13.5)
+(2) J − D +0.7 [−0.5, +2.0]  -> PREDICTION (2) NOT MET (J ties D on this set).
+Zulu J: the default eval of the run is the Swahili test; the Zulu test eval (logs/lang_eval.py, job 11256564) was
+not queued with the training and was submitted now. Zulu J − D is reported when it finishes.
+Script: logs/exp2_copsd_setup_numbers.py.
+
+## 2026-11-23 ~10:35 — RESULT: Zulu J (AfriMGSM Zulu TEST, s42, Zulu-only training, step 300)
+Zulu acc (correct AND LID Zulu >= 0.7): base 2.2, D 6.0, G 6.0, J 7.0 (any-language 7.1; trunc 0.2%).
+J − D +1.1 [−0.3, +2.5] -> preregistered prediction (J − D > +2.2) NOT MET (direction positive, CI includes 0).
+J − base +4.9 [+3.0, +7.0]; D − base +3.8 [+2.0, +5.8]. Zulu pass@12 (Zulu outputs): J − D +5.0 [+0.0, +10.5].
+Script: logs/exp2_zulu_numbers.py.
+
+## 2026-11-23 — PREREGISTERED: does number ORDER matter for the number-matching judge? (offline, CPU; teammate's idea)
+Question: the number-overlap judge (numF1: F1 between the SETS of numbers in a candidate and in the model's own
+English vote solution) ignores order. Two wrong answers often use the same numbers combined differently.
+Variants, same items/pairs/labels/CI as the third judge test (report3; P1, P3, P4, P5), full text vs own reference:
+- numF1   existing set F1 (comparator, unchanged)
+- numLCS  numbers as ordered sequences (first occurrence of each value kept, so the multiset equals numF1's sets
+          and only ORDER differs); score = 2 * LCS / (len a + len b)
+- numMix  0.5 * numF1 + 0.5 * numLCS (order as a tie-breaker / partial credit)
+Primary: P5 (wrong vs wrong, independent Qwen3-8B label) accuracy, numLCS − numF1 and numMix − numF1, paired per
+pair, question-clustered bootstrap (5000, seed 0). Secondary: P1/P3/P4, P5 tie rate, each vs pairwise LLM judge C.
+Prediction: numMix − numF1 > 0 on P5 with CI lower bound > 0 (fewer ties); numLCS − numF1 ≥ 0; P1 stays ≥ 85%.
+Decision rule fixed now: an RL run with a number-matching reward is proposed only if the best order-aware variant
+reaches P5 ≥ C (70.9) with P1 ≥ 90%; otherwise it is reported as one analysis line and nothing more is run.
+Caveat: P4's label is itself number-based (gold numbers), so P4 favours number judges; P5 is the fair test.
+
+### 2026-11-23 — RESULT: number order (results/exp2_qwen3-4b/judge/report_numorder.txt)
+P5 (wrong vs wrong, 8B label): numF1 70.1, numLCS 62.4, numMix 66.9, pairwise C 70.9.
+numLCS − numF1 −7.7 [−13.7, −1.4]; numMix − numF1 −3.2 [−7.1, +0.3]. Ties fall (15.3% -> 11.6% / 10.1%), but the
+broken ties are decided wrongly more often than rightly. P1 also drops (86.0 -> 74.8 / 81.9).
+PREDICTION NOT MET: enforcing number order hurts. Decision rule: no RL run. Likely reason (not tested): a candidate
+and the reference reach the same numbers in different orders (restating givens, different but valid step order),
+so order penalises correct structure more than it separates wrong answers.
+
+## 2026-11-23 — DESIGN SELECTION (exploratory, offline): a gated self-judge (J-gate)
+Motivation: J beats D at 4B/GSM8K but is −1.6 at 8B and ties on Zulu / COPSD data; the judge is right on ~71% of
+wrong-vs-wrong pairs and every comparison counts equally. Idea: use a judge comparison only where it is trustworthy,
+else fall back to D (no signal). Offline on the third judge test's pairs (scores3 C records: P(A) in both orders):
+per pair, pref = 0.5 (P(A|better first) + 1 − P(A|better second)); confidence = |pref − 0.5|; order-consistent = both
+orders pick the same answer; agree = numF1 ranks the pair the same way (strict). Report accuracy and coverage on
+P1/P3/P5 for confidence thresholds 0/0.1/0.2/0.3/0.4, with/without order consistency and numF1 agreement.
+The gate for RL is chosen from this table by a rule fixed now: the setting with the highest P5 accuracy among those
+keeping >= 40% of P5 pairs and P1 >= 95%. This selection is exploratory; the RL predictions are preregistered after it.
+The on-policy / refreshed judge is not pursued (trained D300 judge was within ±5 of base offline; feedback-loop risk).
+
+### 2026-11-23 — gate selection RESULT and PREREGISTERED RL runs (before any training of these)
+Offline (results/exp2_qwen3-4b/judge/report_gate.txt): judge confidence alone barely helps (P5 70.1 -> 75.2 at
+|pref−0.5| >= 0.4, coverage 47%). Agreement with number overlap does: P5 88.5 [81.7, 94.2] at 54% coverage, P1 99.8,
+P3 87.5. Selected by the fixed rule: "conf >= 0 + numF1 agree" (no confidence threshold).
+Runs (same as J otherwise: lr 5e-6, 16 questions/step, 300 steps, GSM8K-MT 3k, eval-final on AfriMGSM-swa TEST):
+- J-gate  votelidrefpwg: J, but a judge comparison counts only where it ranks the pair the same way as ref_f1
+          (strictly); a group with no such comparison keeps exactly D's reward. Qwen3-4B s42/43/44, Qwen3-8B s42/43.
+- D-more  votelidrefmore: D + 8 extra rollouts (same sampling) for groups with no vote-matching rollout; no judge.
+          Compute control (8 x 2048-token rollouts cost more than J's 1-token judge calls). Qwen3-4B s42/43/44.
+Predictions (Swahili accuracy, paired bootstrap, seeds averaged per item, vs existing D/J runs of the same seeds):
+(1) 4B: J-gate − D > 0, CI excludes 0.  (2) 4B: J-gate − J >= 0 (not worse; point estimate).
+(3) 8B: J-gate − D >= −0.5 (point estimate; J was −1.6): the gate removes J's harm at 8B.
+(4) 4B: J-gate − D-more > 0 and J − D-more > 0 (the judge beats just sampling more).
+Secondary: MSVAMP for the 4B runs; share of judged groups and kept comparisons per step from the train logs.
