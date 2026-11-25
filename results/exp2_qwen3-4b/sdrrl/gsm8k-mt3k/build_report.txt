@@ -1,0 +1,8 @@
+SDRRL fine-tuning set: gsm8k-mt3k (questions: gsm8k-mt3k)
+  problems with a voted reference: 2783  (no target-language question, skipped: 0)
+  translated references accepted:  1565  (rejected: {'low_quality': 1190, 'off_target_language': 13, 'math_lost': 15})
+  quality filter: mean sentence CometKiwi >= 0.8
+  examples: 9296  completion=200  en_en=2783  en_tgt=1565  mt_en2tgt=200  mt_tgt2en=200  tgt_en=2783  tgt_tgt=1565
+  code-switching, en questions: dictionary 1842 words; 90458/171048 = 52.9% of question words are in it; swapped 13750 = 8.0% of all words (p = 0.15 per dictionary word)
+  code-switching, swa questions: dictionary 1705 words; 101933/174219 = 58.5% of question words are in it; swapped 15263 = 8.8% of all words (p = 0.15 per dictionary word)
+  CometKiwi per-problem mean: min 0.666, median 0.804, max 0.867; >=0.6: 2783, >=0.7: 2772, >=0.8: 1580

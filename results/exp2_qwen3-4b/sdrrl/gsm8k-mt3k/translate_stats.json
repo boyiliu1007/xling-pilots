@@ -1,0 +1,18 @@
+{
+  "records": 3000,
+  "accepted": 2976,
+  "rejected_low_agreement": 24,
+  "no_boxed_answer": 0,
+  "dropped_no_question": 193,
+  "translated_problems": 2783,
+  "sentences": 242210,
+  "unique_sentences": 187171,
+  "problems_with_lost_math": 15,
+  "translation_s": 2804.0,
+  "model": "facebook/nllb-200-3.3B",
+  "beams": 4,
+  "lang": "swa",
+  "min_share": 0.625,
+  "pick": "shortest",
+  "votes": "/home/boyil2/xling_pilot_sdrrl/results/exp2_qwen3-4b/consensus/gsm8k3k_en_thinking.jsonl"
+}
