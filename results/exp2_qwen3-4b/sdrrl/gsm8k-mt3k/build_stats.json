@@ -1,0 +1,39 @@
+{
+  "data": "gsm8k-mt3k",
+  "lang": "swa",
+  "problems_with_reference": 2783,
+  "problems_without_question": 0,
+  "problems_used": 2783,
+  "translations_rejected": {
+    "low_quality": 1190,
+    "off_target_language": 13,
+    "math_lost": 15
+  },
+  "translations_accepted": 1565,
+  "qe_filter": 0.8,
+  "examples": 9296,
+  "by_subset": {
+    "en_en": 2783,
+    "tgt_en": 2783,
+    "en_tgt": 1565,
+    "tgt_tgt": 1565,
+    "mt_tgt2en": 200,
+    "completion": 200,
+    "mt_en2tgt": 200
+  },
+  "swap_p": 0.15,
+  "code_switch": {
+    "en_found": 90458,
+    "en_swapped": 13750,
+    "en_words": 171048,
+    "swa_found": 101933,
+    "swa_swapped": 15263,
+    "swa_words": 174219
+  },
+  "dictionary_size": {
+    "en": 1842,
+    "swa": 1705
+  },
+  "n_parallel_pairs": 200,
+  "seed": 42
+}
