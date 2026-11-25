@@ -771,3 +771,11 @@ each − PAM. Evaluation as every run. Prediction (Person C, 2026-11-24, before 
 (LID), with the 95% CI excluding 0; on any-language accuracy the two are within ±5 points. Reasons: PASMR's reward
 has no language check (arm G, its reward alone, drifted to 72% English answers), and its English answer comes from
 the model's own pivot translation rather than the original English question (the vote is 96.6% correct).
+
+### 2026-11-25 — cap rule applied to the real PAM s42 checkpoint (before any SRL or PAM -> D's RL training)
+PAM s42 (92 steps, 709 examples), 64 RL-half questions, T 1.0, 8192-token cap: Swahili answers finished 72%, median
+5,722 tokens, 9% within 2048, 34% within 4096, pivot written 92%; English pivot answers median 2,398, 34% within 2048,
+78% within 4096 (base model: 92%). By the rule: Swahili rollout cap 4096 (9% < 50% within 2048), English cap 8192
+(78% < 80% within 4096). PASMR SRL runs with 4096 / 8192; PAM -> D's RL with -len4096
+(`grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initpasmrpam-len4096-rlhalf__s42`). Even at 4096 about two
+thirds of PAM's Swahili answers are unfinished at the start, so both RL runs begin with mostly zero answer reward.

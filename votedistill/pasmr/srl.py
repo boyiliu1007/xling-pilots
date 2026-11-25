@@ -4,7 +4,7 @@ Per step, PROMPTS_PER_STEP RL-half questions x 1 sample (the authors' n_samples_
   1. the policy answers the Swahili question (Experiment 2's student prompt, thinking mode, T 1.0, top-p 1.0,
      MAX_TOKENS); the answer should start with <translation_start> English question <translation_end>;
   2. the pivot English question is fed back to the current policy (the English prompt of the English vote, thinking
-     mode, same sampling, EN_MAX_TOKENS) for an English answer A_En;
+     mode, same sampling, EN_MAX_TOKENS = 8192) for an English answer A_En;
   3. F = 1 if the Swahili answer A_T equals A_En, 0.1 if they differ (or A_En is missing), 0 on a format error (no
      pivot, or no finished boxed Swahili answer). Answers compared like every Experiment 2 reward (_same);
   4. REINFORCE++ (as the authors' OpenRLHF run): F normalised over the batch (--normalize_reward), per-token rewards
@@ -14,8 +14,8 @@ Per step, PROMPTS_PER_STEP RL-half questions x 1 sample (the authors' n_samples_
 The policy starts from the PAM checkpoint of the same data and seed; PAM is also the KL reference (its LoRA weights are
 swapped in for the reference pass). Deviations from the paper (PREREGISTRATION 2026-11-22 PASMR entry): GAMMA 1.0
 (paper 0.99: with 1-2k-token thinking outputs 0.99^L leaves early tokens no reward), LoRA lr 5e-6 (authors 5e-7 full
-fine-tuning; same 10x mapping as Experiment 2's other runs), boxed answers instead of '###', English answers up to
-4096 tokens in thinking mode, 300 steps of 128 prompts (= D's 38,400 rollouts) on the RL half.
+fine-tuning; same 10x mapping as Experiment 2's other runs), boxed answers instead of '###', token caps 4096 / 8192
+(set by the 2026-11-24 cap rule), thinking mode, 300 steps of 128 prompts (= D's 38,400 rollouts) on the RL half.
 Run name: pasmr__<data>__exact[__q<n>-steps<n>]__s<seed> (the optional variant only for smoke tests).
 """
 import json
@@ -34,8 +34,8 @@ from . import PIVOT_CLOSE, PIVOT_OPEN
 log = logging.getLogger("votedistill.pasmr.srl")
 STEPS = 300
 PROMPTS_PER_STEP = 128
-MAX_TOKENS = 2048          # Swahili rollout, as D
-EN_MAX_TOKENS = 4096       # pivot English answer (thinking mode)
+MAX_TOKENS = 4096          # Swahili rollout (cap rule of the 2026-11-24 amendment: PAM finished 9% within 2048)
+EN_MAX_TOKENS = 8192       # pivot English answer (cap rule: PAM finished 78% within 4096, < 80%)
 TEMPERATURE, TOP_P = 1.0, 1.0
 LR = 5e-6
 KL_COEF = 0.01

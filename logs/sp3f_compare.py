@@ -21,7 +21,7 @@ F["RFT+pen"]=f"{E}/decode/selfsft-vote__gsm8k-mt3k__exact__lidvote__s42__L0-repp
 for st in (450,600): F[f"D{st}"]=f"{E}/runs/grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps600__s42/eval/step{st}_test.jsonl"
 n="grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initsdrrl__s42"   # SDRRL warm start, then D's RL
 F["SDRRL>D"]=f"{E}/runs/{n}/eval/step300_test.jsonl"; F["SDRRL>D+pen"]=f"{E}/decode/{n}__L0-reppen1.1/eval/step300_test.jsonl"
-for k,n,st in [("PAM","pasmr-pam__gsm8k-mt3k__exact__s42",None),("PASMR","pasmr__gsm8k-mt3k__exact__s42",300)]:   # PASMR baseline
+for k,n,st in [("PAM","pasmr-pam__gsm8k-mt3k__exact__s42",None),("PASMR","pasmr__gsm8k-mt3k__exact__s42",300),("PAM>D","grpo__gsm8k-mt3k__exact__votelidref-lr5e-6-q16-steps300-initpasmrpam-len4096-rlhalf__s42",300)]:   # PASMR baseline
     if st is None and os.path.exists(f"{E}/runs/{n}/config.json"): st=json.load(open(f"{E}/runs/{n}/config.json"))["sft"]["final_step"]
     if st: F[k]=f"{E}/runs/{n}/eval/step{st}_test.jsonl"; F[k+"+pen"]=f"{E}/decode/{n}__L0-reppen1.1/eval/step{st}_test.jsonl"
 S="sdrrl__gsm8k-mt3k__exact__s42"   # SDRRL baseline (votedistill/sdrrl): final step from its config.json
@@ -35,6 +35,6 @@ for k in R: print(f"{k:9s}", " ".join(f"{m}={100*np.mean([R[k][i][m] for i in it
 f=lambda t:"%+.1f [%+.1f, %+.1f]"%tuple(100*x for x in t)
 for a,b in [("base","D"),("base+pen","D"),("A","D"),("B","D"),("C","D"),("base+pen","D+pen"),("B+pen","D+pen"),
             ("base","C"),("base+pen","C"),("A","C"),("E","C"),("F","C"),("G","C"),("C","H"),("D","H"),("D","I"),("RFT","C"),("RFT","D"),("base","RFT"),("base+pen","RFT"),("D","D450"),("D","D600"),("D450","D600"),("base+pen","D600"),("B","D600"),("base","E"),("base+pen","E"),("base+pen","A"),("base+pen","B"),("A","B"),
-            ("base","SDRRL"),("base+pen","SDRRL"),("RFT","SDRRL"),("SDRRL","C"),("SDRRL","D"),("SDRRL","B"),("SDRRL+pen","D+pen"),("SDRRL","D600"),("base","PASMR"),("base+pen","PASMR"),("PASMR","D"),("G","PASMR"),("PAM","PASMR"),("PASMR","SDRRL"),("PASMR+pen","D+pen"),("SDRRL","SDRRL>D"),("D","SDRRL>D"),("D600","SDRRL>D"),("SDRRL+pen","SDRRL>D+pen")]:
+            ("base","SDRRL"),("base+pen","SDRRL"),("RFT","SDRRL"),("SDRRL","C"),("SDRRL","D"),("SDRRL","B"),("SDRRL+pen","D+pen"),("SDRRL","D600"),("base","PASMR"),("base+pen","PASMR"),("PASMR","D"),("G","PASMR"),("PAM","PASMR"),("PASMR","SDRRL"),("PASMR+pen","D+pen"),("PASMR","PAM>D"),("PAM","PAM>D"),("PASMR+pen","PAM>D+pen"),("SDRRL","SDRRL>D"),("D","SDRRL>D"),("D600","SDRRL>D"),("SDRRL+pen","SDRRL>D+pen")]:
     if a in R and b in R:
         print(f"{b}-{a}: swl {f(paired_bootstrap([R[a][i]['swl'] for i in items],[R[b][i]['swl'] for i in items]))}  acc {f(paired_bootstrap([R[a][i]['acc'] for i in items],[R[b][i]['acc'] for i in items]))}")
