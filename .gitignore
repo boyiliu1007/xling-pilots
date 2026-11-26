@@ -1,6 +1,7 @@
 # everything is ignored unless listed below
 /*
 !/.gitignore
+!/.gitattributes
 !/README.md
 !/requirements.txt
 !/votedistill/
