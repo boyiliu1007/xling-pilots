@@ -1,0 +1,47 @@
+{
+  "method": "SDRRL (label-free adaptation): SFT with cross-entropy on the assistant turn",
+  "model": "Qwen/Qwen3-4B",
+  "run": "sdrrl__gsm8k-mt3k__exact__s43",
+  "data_dir": "/home/boyil2/xling_pilot_base/results/exp2_qwen3-4b/sdrrl/gsm8k-mt3k",
+  "sft": {
+    "epochs": 4,
+    "learning_rate": 5e-05,
+    "batch": 32,
+    "warmup_ratio": 0.1,
+    "lr_scheduler": "linear with warmup",
+    "max_length": 4096,
+    "save_every": 10,
+    "seed": 43,
+    "total_steps": 1108,
+    "final_step": 1108,
+    "examples": 8864,
+    "dropped_too_long": 432,
+    "optimizer": "AdamW, no weight decay",
+    "max_grad_norm": 1.0,
+    "precision": "bf16 autocast, fp32 LoRA weights"
+  },
+  "lora": {
+    "r": 64,
+    "alpha": 128,
+    "dropout": 0.0,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "checkpoint_dir": "/data/user_data/boyil2/votedistill_ckpt/exp2_qwen3-4b/sdrrl__gsm8k-mt3k__exact__s43",
+  "versions": {
+    "python": "3.11.17",
+    "torch": "2.14.0",
+    "vllm": "0.33.0",
+    "transformers": "5.20.2",
+    "datasets": "5.1.0",
+    "peft": "0.21.2",
+    "math-verify": "0.9.0"
+  }
+}
